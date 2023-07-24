@@ -21,6 +21,8 @@
 # Try first with Moatsos 21 (more recent estimates). If results are not satisfactory, use Moatsos 16 (better methodology).
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3).
 
+# Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), 
+
 # Data fetch
 # PIP/PovcalNet data is *per capita* (without adjustment for household composition).
 data <- read.csv("../data/Povcalnet 2017.csv") # AF: faut toujours mettre des chemins de fichiers relatifs, pas absolu
@@ -55,8 +57,9 @@ p$y_min_1 <- p$y_max_0 <- 0
 p$y_max_100[is.na(p$y_max_100)] <- p$y_avg_100[is.na(p$y_max_100)]
 p$mean_y <- rowMeans(p[,which(names(p)=="y_avg_1"):which(names(p)=="y_avg_100")])
 
-# y makes the assumption of constant growth while Y assumes 10% growth after 2021
-p$gdp_pc_max_2030 <- p$gdp_pc_2021 * 1.06^9 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
+# TODO! Use 7% growth: the SDG 8.1. Compute the antipoverty_tax, etc. that would have been needed with a 7% growth starting in 2016.
+# y makes the assumption of constant growth while Y assumes 6% growth after 2021
+p$gdp_pc_max_2030 <- p$gdp_pc_2021 * 1.07^9 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
 p$growth_gdp_pc_max_year_30 <- p$gdp_pc_max_2030/p$gdp_pc_year
 p$growth_gdp_pc_max_year_30[is.na(p$growth_gdp_pc_max_year_30)] <- 1.1^(2030 - p$year[is.na(p$growth_gdp_pc_max_year_30)])
 for (i in 1:100) p[[paste0("Y_avg_", i)]] <- p[[paste0("avg_welfare_", i)]] * p$growth_gdp_pc_max_year_30
@@ -553,7 +556,7 @@ plot_world_map("y_expropriated_7_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 
 plot_world_map("y_expropriated_13_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
                legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $13/day\n(in $ 2017 PPP)", #fill_na = T,  
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
-# TODO! why y_expropriated_2_optimistic < 2 and y_expropriated_7_optimistic > 2 for Madagascar?
+
 
 #Maps in French
 plot_world_map("antipoverty_2_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
