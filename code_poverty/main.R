@@ -59,7 +59,7 @@ p$mean_y <- rowMeans(p[,which(names(p)=="y_avg_1"):which(names(p)=="y_avg_100")]
 
 # TODO! Use 7% growth: the SDG 8.1. Compute the antipoverty_tax, etc. that would have been needed with a 7% growth starting in 2016.
 # y makes the assumption of constant growth while Y assumes 6% growth after 2021
-p$gdp_pc_max_2030 <- p$gdp_pc_2021 * 1.07^9 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
+p$gdp_pc_max_2030 <- p$gdp_pc_2021 * 1.1^9 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
 p$growth_gdp_pc_max_year_30 <- p$gdp_pc_max_2030/p$gdp_pc_year
 p$growth_gdp_pc_max_year_30[is.na(p$growth_gdp_pc_max_year_30)] <- 1.1^(2030 - p$year[is.na(p$growth_gdp_pc_max_year_30)])
 for (i in 1:100) p[[paste0("Y_avg_", i)]] <- p[[paste0("avg_welfare_", i)]] * p$growth_gdp_pc_max_year_30
@@ -487,6 +487,10 @@ sort(setNames(p$y_expropriated_2, p$country), decreasing = T)
 sum(p$y_expropriated_2 < 13) # 19
 sum(p$pop_2030[p$y_expropriated_2 < 13]) # 700M
 sum(p$pop_2022[p$y_expropriated_2 < 13]) # 571M
+sum(p$mean_Y < 6.85) # 8
+sum(p$pop_2030[p$mean_Y < 6.85]) # 300M
+sum(p$gdp_pc_2021 < 6.85*365, na.rm = T) # 22
+sum(p$pop_2022[p$gdp_pc_2021 < 6.85*365], na.rm = T) # 521M
 sort(setNames(p$gdp_pc_2030/365, p$country), decreasing = T)
 decrit("antipoverty_2_tax_13")
 decrit("antipoverty_2_tax_7")
