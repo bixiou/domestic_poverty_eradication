@@ -3,13 +3,12 @@
 # Fr https://docs.google.com/document/d/1u41m1U0FGlvt6aGKzZET3MWr0ulz3tORPw1xVRSKek0/edit?usp=sharing
 
 # TODO!
-# calculer autres indicateurs d'inégalité : D9/D1, share top 1%, calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
-# calculer after tax distribution in each country
+# calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # combine with tax data (WIL) to get better estimates of total GDP
-# reproduire le travail de Bolch et al. (2022)
-# Other growth assumptions: projections de PIB officielles; Make a 7% growth scenario (as in SDG 8.1); max(0, trend)
-# Ajouter aux calculs la basic needs poverty line de Moatsos. Try first with Moatsos 21 (more recent estimates). If results are not satisfactory, use Moatsos 16 (better methodology), cf. data https://clio-infra.eu/Indicators/GlobalExtremePovertyCostofBasicNeeds.html and https://clio-infra.eu/Indicators/GlobalExtremePovertyDollaraDay.html
-# Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3).
+# >reproduire le travail de Bolch et al. (2022)
+# Other growth assumptions: >projections de PIB officielles; Make a 7% growth scenario (as in SDG 8.1); max(0, trend)
+# Ajouter aux calculs la >basic needs poverty line de Moatsos. Try first with Moatsos 21 (more recent estimates). If results are not satisfactory, use Moatsos 16 (better methodology), cf. data https://clio-infra.eu/Indicators/GlobalExtremePovertyCostofBasicNeeds.html and https://clio-infra.eu/Indicators/GlobalExtremePovertyDollaraDay.html
+# Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021)
 
 # Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), 
 # World Bank (2022): "It became clear that the global goal of ending extreme poverty by 2030 would not be achieved."
@@ -60,6 +59,7 @@ compute_antipoverty_maximum <- function(df = p, threshold = 2.15, return = "y", 
   else if (return == "df") {
     for (i in 1:100) df[[paste0(y, "_min_", round(poverty_threshold), "_cap_avg_", i)]] <- pmax(threshold, pmin(df$y_expropriated, df[[paste0(y, "_avg_", i)]]))
     df[[paste0("mean_", y, "_min_", round(poverty_threshold), "_cap")]] <- rowSums(df[,paste0(y, "_min_", round(poverty_threshold), "_cap_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
+    df <- compute_inequality(var = paste0(y, "_min_", round(poverty_threshold), "_cap"), df = df, return = "df")
     return(df)
   }
   else return(df$y_expropriated)
@@ -73,29 +73,34 @@ compute_antipoverty_tax <- function(df = p, exemption_threshold = 6.85, poverty_
   else if (return == "df") {
     for (i in 1:100) df[[paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold),  "_avg_", i)]] <- pmax(poverty_threshold, df[[paste0(y, "_avg_", i)]] - df$antipoverty_tax * pmax(0, df[[paste0(y, "_avg_", i)]] - exemption_threshold))
     df[[paste0("mean_", y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold))]] <- rowSums(df[,paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold),  "_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
+    df <- compute_inequality(var = paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold)), df = df, return = "df")
     return(df)
   }
   else return(df$antipoverty_tax)
 }
-# Computes the demogrant that can be funded with given revenues (in $ per person) # Only works for w (nrow = 1)
+# Computes the demogrant that can be funded with given revenues (in $ per person) 
 compute_min_funded <- function(revenues, var = name_var_growth("optimistic"), df = w, return = "min") {
-  for (i in 1:100) df[[paste0("pop_share_", i)]] <- if (sub("_tax.*|_min.*", "", paste0(var, "_pop_share_", i)) %in% names(df)) df[[sub("_tax.*|_min.*", "", paste0(var, "_pop_share_", i))]] else df[[paste0("pop_share_", i)]]
-  cost <- df[[paste0(var, "_avg_", 1)]] * df[[paste0("pop_share_", 1)]]
-  cumulated_pop <- df[[paste0("pop_share_", 1)]]
-  i <- 1
-  while (cost < revenues) {
-    cost <- cost + (df[[paste0(var, "_avg_", i+1)]] - df[[paste0(var, "_avg_", i)]]) * cumulated_pop
-    cumulated_pop <- cumulated_pop + df[[paste0("pop_share_", i+1)]]
-    i <- i+1
-  }
-  demogrant <- df[[paste0(var, "_avg_", i)]] - (cost - revenues)/cumulated_pop
-  for (j in 1:i) df[[paste0(var, "_avg_", j)]] <- demogrant
-  if (return == "df") return(df)
-  else if (return == "percentile") return(cumulated_pop)
-  else return(demogrant)
+  if (length(revenues) == 1) {
+    for (i in 1:100) df[[paste0("pop_share_", i)]] <- if (sub("_tax.*|_min.*", "", paste0(var, "_pop_share_", i)) %in% names(df)) df[[sub("_tax.*|_min.*", "", paste0(var, "_pop_share_", i))]] else df[[paste0("pop_share_", i)]]
+    cost <- df[[paste0(var, "_avg_", 1)]] * df[[paste0("pop_share_", 1)]]
+    cumulated_pop <- df[[paste0("pop_share_", 1)]]
+    i <- 1
+    while (cost < revenues) {
+      cost <- cost + (df[[paste0(var, "_avg_", i+1)]] - df[[paste0(var, "_avg_", i)]]) * cumulated_pop
+      cumulated_pop <- cumulated_pop + df[[paste0("pop_share_", i+1)]]
+      i <- i+1
+    }
+    demogrant <- df[[paste0(var, "_avg_", i)]] - (cost - revenues)/cumulated_pop
+    for (j in 1:i) df[[paste0(var, "_avg_", j)]] <- demogrant
+    if (return == "df") return(df)
+    else if (return == "percentile") return(cumulated_pop)
+    else return(demogrant)
+  } else if (nrow(df) == 1) { return(compute_min_funded(revenues = revenues, var = var, df = df, return = "min")) # Unused. Beware, revenues must be in $/person
+  } else return(sapply(1:length(revenues), function(i) compute_min_funded(revenues = revenues[i], var = var, df = df[i,], return = "min")))
 }
-tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p, growth = "optimistic", return = '%', var = name_var_growth(growth)) { 
+tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p, growth = "optimistic", return = '%', var = name_var_growth(growth), scope_tax = w) { 
   # thresholds (in $/day) and marginal_rates (in %) should be vectors of same length
+  # scope_tax can be p or w depending on whether the revenues are recycled nationally or internationally
   df$revenues <- 0
   marginal_rates <- c(0, marginal_rates)
   for (i in 1:length(thresholds)) {
@@ -103,13 +108,16 @@ tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p
     df$taxable_base_i <- if (!is.vector(taxable_base_all)) rowSums(taxable_base_all) else sum(taxable_base_all)
     df$revenues <- df$revenues + df$taxable_base_i * (marginal_rates[i+1] - marginal_rates[i])/100
   }
+  pops <- ((growth == "now") * df$pop_2022 + (growth != "now") * df$pop_2030)
   if (return == 'pc') return(df$revenues)
-  else if (return == 'total') return(df$revenues * 365 * ((growth == "now") * df$pop_2022 + (growth != "now") * df$pop_2030))
-  else if (return == "df") { # Only works for w (nrow = 1)
-    demogrant <- compute_min_funded(df$revenues, var = var, df = w, return = "min")
+  else if (return == 'total') return(df$revenues * 365 * pops)
+  else if (return == "df") { 
+    revenues <- if (nrow(scope_tax) == 1) sum(df$revenues * pops)/sum(pops) else df$revenues
+    demogrant <- compute_min_funded(revenues, var = var, df = scope_tax, return = "min")
     for (i in 1:100) df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]] <- pmax(demogrant, df[[paste0(var, "_avg_", i)]])
     for (j in 1:length(thresholds)) for (i in 1:100) df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]] <- df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]]  - (marginal_rates[j+1]/100) * pmax(0, df[[paste0(var, "_avg_", i)]] - thresholds[j])
     df[[paste0("mean_", var, "_tax_", name_tax)]] <- rowSums(df[,paste0(var, "_tax_", name_tax,  "_avg_", 1:100)] * df[,paste0(find_pop_share_var(var, df), 1:100)])
+    df <- compute_inequality(var = paste0(var, "_tax_", name_tax), df = df, return = "df")
     return(df)
   }
   else if (return %in% c("%", "% GDP")) return(df$revenues / df[[paste0("mean_", var)]])
@@ -124,8 +132,10 @@ compute_inequality <- function(var = name_var_growth("optimistic"), df = p, retu
   if (!paste0(var, "_top1") %in% names(df)) df[[paste0(var, "_top1")]] <- 0.01*(df[[paste0(var, "_avg_100")]]/d$pop_share_100)/df[[paste0("mean_", var)]]
   if (!paste0(var, "_top10") %in% names(df)) df[[paste0(var, "_top10")]] <- 0.1*(sum(sapply(91:100, function(i) { df[[paste0(var, "_avg_", i)]] }))/sum(sapply(91:100, function(i) { d[[paste0("pop_share_", i)]] })))/df[[paste0("mean_", var)]]
   if (!paste0(var, "_bottom50") %in% names(df)) df[[paste0(var, "_bottom50")]] <- 0.5*(sum(sapply(1:50, function(i) { df[[paste0(var, "_avg_", i)]] }))/sum(sapply(1:50, function(i) { d[[paste0("pop_share_", i)]] })))/df[[paste0("mean_", var)]]
-  if (!paste0(var, "_d9d1") %in% names(df)) df[[paste0(var, "_d9d1")]] <- df[[paste0(var, "_max_90")]]/df[[paste0(var, "_max_10")]] # df[[paste0(var, "_max_10")]] == 0 for SUR
-  if (!paste0(var, "_d9d5") %in% names(df)) df[[paste0(var, "_d9d5")]] <- df[[paste0(var, "_max_90")]]/df[[paste0(var, "_max_50")]]
+  if (!paste0(var, "_d9d1") %in% names(df)) df[[paste0(var, "_d9d1")]] <- df[[paste0(var, "_avg_90")]]/df[[paste0(var, "_avg_10")]] 
+  if (!paste0(var, "_d9d5") %in% names(df)) df[[paste0(var, "_d9d5")]] <- df[[paste0(var, "_avg_90")]]/df[[paste0(var, "_avg_50")]]
+  # if (!paste0(var, "_d9d1") %in% names(df)) df[[paste0(var, "_d9d1")]] <- df[[paste0(var, "_max_90")]]/df[[paste0(var, "_max_10")]] # df[[paste0(var, "_max_10")]] == 0 for SUR
+  # if (!paste0(var, "_d9d5") %in% names(df)) df[[paste0(var, "_d9d5")]] <- df[[paste0(var, "_max_90")]]/df[[paste0(var, "_max_50")]] # Better in theory, but not implemented for after-tax distributions
   entropy <- sapply(1:100, function(i) { d[[paste0("pop_share_", i)]] * log(pmax(1e-10, df[[paste0(var, "_avg_", i)]])) })
   if (!paste0(var, "_theil") %in% names(df)) df[[paste0(var, "_theil")]] <- log(df[[paste0("mean_", var)]]) - if (!is.vector(entropy)) rowSums(entropy) else sum(entropy) # I use Theil L. To normalize, use 1 - exp(-df[[paste0(var, "_theil")]])
   # if (nrow(df) > 1) df[[paste0(var, "_coef_theil")]] <- df[[paste0("pop_", if (grepl("2022|now", var)) "2022" else "2030")]] * df[[paste0("mean_", var)]] # / (pop_tot * mean_world)
@@ -333,14 +343,15 @@ beep()
 
 
 ##### Computations #####
-p <- compute_inequality(var = name_var_growth("optimistic"), df = p, return = "df")
-w <- compute_inequality(var = name_var_growth("optimistic"), df = w, return = "df")
+# p <- compute_inequality(var = name_var_growth("optimistic"), df = p, return = "df")
+# w <- compute_inequality(var = name_var_growth("optimistic"), df = w, return = "df")
 (w$poverty_gap_2 <- compute_poverty_gap(df = w, threshold = 2.15, unit = 'threshold', growth = "now")) # 3.1% estimated in 2022 vs. official 2019: 2.6% (higher because 2019 vs. 2022?) official: https://data.worldbank.org/indicator/SI.POV.GAPS
 (w$poverty_gap_4 <- compute_poverty_gap(df = w, threshold = 3.65, unit = 'threshold', growth = "now")) # 8.1% vs. official: 8%
 (w$poverty_gap_7 <- compute_poverty_gap(df = w, threshold = 6.85, unit = 'threshold', growth = "now")) # 19% vs. official: 21%
 (w$poverty_gap_8 <- tax_revenues(df = w, thresholds = c(33, 66, 100, 200, 300), marginal_rates = c(1, 4, 8, 20, 30), return = '%', growth = "optimistic")) # 1.18% of world GDP
 compute_min_funded(revenues = tax_revenues(df = w, thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'pc', growth = "optimistic"))
 w <- tax_revenues(df = w, name_tax = "min8", thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'df', growth = "optimistic")
+df <- tax_revenues(df = p, scope_tax = w, name_tax = "min8", thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'df', growth = "optimistic")
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = '%', growth = "optimistic")) # 3.6% of world GDP to reach 250$/month
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = '$', growth = "optimistic")) # 3.5T$ to reach 250$/month
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = 'threshold', growth = "optimistic")) # 14%: 1.15 $/day/person to reach 250$/month
