@@ -34,6 +34,7 @@ package("RColorBrewer") # color
 package("magick") # image_write
 package("knitr") # plot_crop, representativeness_table
 package("beepr")
+package("kableExtra") # kbl
 
 # install.packages("devtools")
 # devtools::install_github("thomasblanchet/gpinter")

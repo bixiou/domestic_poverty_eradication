@@ -5,9 +5,9 @@
 # TODO!
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # combine with tax data (WIL) to get better estimates of total GDP
-# >reproduire le travail de Bolch et al. (2022)
-# Other growth assumptions: >projections de PIB officielles; Make a 7% growth scenario (as in SDG 8.1); max(0, trend)
-# Ajouter aux calculs la >basic needs poverty line de Moatsos. Try first with Moatsos 21 (more recent estimates). If results are not satisfactory, use Moatsos 16 (better methodology), cf. data https://clio-infra.eu/Indicators/GlobalExtremePovertyCostofBasicNeeds.html and https://clio-infra.eu/Indicators/GlobalExtremePovertyDollaraDay.html
+# compare Bolch with the same survey years as them
+# Other growth assumptions: >>projections de PIB officielles; Make a 7% growth scenario (as in SDG 8.1); max(0, trend)
+# Ajouter aux calculs la >>basic needs poverty line de Moatsos. Try first with Moatsos 21 (more recent estimates). If results are not satisfactory, use Moatsos 16 (better methodology), cf. data https://clio-infra.eu/Indicators/GlobalExtremePovertyCostofBasicNeeds.html and https://clio-infra.eu/Indicators/GlobalExtremePovertyDollaraDay.html
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021)
 
 # Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), 
@@ -25,6 +25,13 @@ find_pop_share_var <- function(var, df) {
   if (paste0(sub("_tax.*|_min.*", "", var), "_pop_share_1") %in% names(df)) return(paste0(sub("_tax.*|_min.*", "", var), "_pop_share_"))
   else return("pop_share_")
 }
+compute_poverty_rate <- function(df = p, threshold = 3.44, growth = "optimistic", return = "rate") {
+  y <- name_var_growth(growth)
+  df[[paste0(y, "poverty_rate_", round(threshold))]] <- 0
+  for (i in 1:100) df[[paste0(y, "poverty_rate_", round(threshold))]] <- df[[paste0(y, "poverty_rate_", round(threshold))]] + (df[[paste0(y, "_avg_", i)]] < threshold) * df[[paste0(find_pop_share_var(y, df), i)]]
+  if (return == "df") return(df)
+  else return(df[[paste0(y, "poverty_rate_", round(threshold))]])
+}
 # Average poverty gap. unit: 'mean' (in $/day/person), 'sum' (100 times 'mean'), '%' (in % of GDP), 'threshold' (in % of threshold), '$' (in $)
 compute_poverty_gap <- function(df = p, threshold = 2.15, unit = "sum", growth = "optimistic") {
   y <- name_var_growth(growth)
@@ -39,44 +46,48 @@ compute_poverty_gap <- function(df = p, threshold = 2.15, unit = "sum", growth =
 # Percentile above which we expropriate all y to fill the poverty gap TODO? rename: anti-poverty cap
 compute_antipoverty_maximum <- function(df = p, threshold = 2.15, return = "y", growth = "optimistic") { 
   y <- name_var_growth(growth)
-  df$poverty_gap <- compute_poverty_gap(df = df, threshold = threshold, unit = "sum", growth = growth)
-  df$percentile_expropriated <- 100
-  df$y_expropriated <- Inf
+  poverty_gap <- compute_poverty_gap(df = df, threshold = threshold, unit = "sum", growth = growth)
+  percentile_expropriated <- rep(100, nrow(df))
+  y_expropriated <- rep(Inf, nrow(df))
   for (c in 1:nrow(df)) {
     funded <- 0
-    while (funded < df$poverty_gap[c] & df$percentile_expropriated[c] > 0) { 
-      df$y_expropriated[c] <- df[[paste0(y, "_min_", df$percentile_expropriated[c])]][c]
-      funded <- funded + df[[paste0(y, "_avg_", df$percentile_expropriated[c])]][c] - df$y_expropriated[c] + (100 - df$percentile_expropriated[c]) * (df[[paste0(y, "_max_", df$percentile_expropriated[c])]][c] - df$y_expropriated[c])
-      df$percentile_expropriated[c] <- df$percentile_expropriated[c] - 1
+    while (funded < poverty_gap[c] & percentile_expropriated[c] > 0) { 
+      y_expropriated[c] <- df[[paste0(y, "_min_", percentile_expropriated[c])]][c]
+      funded <- funded + df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - y_expropriated[c] + (100 - percentile_expropriated[c]) * (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - y_expropriated[c])
+      percentile_expropriated[c] <- percentile_expropriated[c] - 1
       # By convention, if we cannot close the poverty gap in the country, we set percentile_expropriated to 0 and y_expropriated at gdp_pc_2030
-      if (df[[paste0(y, "_min_", df$percentile_expropriated[c])]][c] < threshold) {
-        df$percentile_expropriated[c] <- 0
-        df$y_expropriated[c] <- df[[paste0("mean_", y)]][c] # df$gdp_pc_2030[c]/365
+      if (df[[paste0(y, "_min_", percentile_expropriated[c])]][c] < threshold) {
+        percentile_expropriated[c] <- 0
+        y_expropriated[c] <- df[[paste0("mean_", y)]][c] # df$gdp_pc_2030[c]/365
       }
     }
   }
-  if (return == "percentile") return(df$percentile_expropriated)
+  if (return == "percentile") return(percentile_expropriated)
   else if (return == "df") {
-    for (i in 1:100) df[[paste0(y, "_min_", round(poverty_threshold), "_cap_avg_", i)]] <- pmax(threshold, pmin(df$y_expropriated, df[[paste0(y, "_avg_", i)]]))
+    df[[paste0(y, "_min_", round(poverty_threshold), "_cap")]] <- y_expropriated
+    df[[paste0(y, "_min_", round(poverty_threshold), "_cap_percentile")]] <- percentile_expropriated
+    for (i in 1:100) df[[paste0(y, "_min_", round(poverty_threshold), "_cap_avg_", i)]] <- pmax(threshold, pmin(y_expropriated, df[[paste0(y, "_avg_", i)]]))
     df[[paste0("mean_", y, "_min_", round(poverty_threshold), "_cap")]] <- rowSums(df[,paste0(y, "_min_", round(poverty_threshold), "_cap_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
     df <- compute_inequality(var = paste0(y, "_min_", round(poverty_threshold), "_cap"), df = df, return = "df")
     return(df)
   }
-  else return(df$y_expropriated)
+  else return(y_expropriated)
 }
 compute_antipoverty_tax <- function(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, return = "tax", growth = "optimistic") {
   y <- name_var_growth(growth)
   taxable_base_all <- sapply(1:100, function(i) { pmax(0, df[[paste0(y, "_avg_", i)]] - exemption_threshold) })
-  df$taxable_base <- if (!is.vector(taxable_base_all)) rowSums(taxable_base_all) else sum(taxable_base_all)
-  df$antipoverty_tax <- 100 * compute_poverty_gap(df = df, threshold = poverty_threshold, growth = growth) / df$taxable_base
-  if (return == "base") return(df$taxable_base)
+  taxable_base <- if (!is.vector(taxable_base_all)) rowSums(taxable_base_all) else sum(taxable_base_all)
+  antipoverty_tax <- compute_poverty_gap(df = df, threshold = poverty_threshold, growth = growth) / pmax(1e-10, taxable_base)
+  df[[paste0(y, "_antipoverty_", round(poverty_threshold), "_tax_", round(exemption_threshold))]] <- 100 * antipoverty_tax
+  df[[paste0(y, "_bolch_index_min_", round(poverty_threshold), "_tax_", round(exemption_threshold))]] <- (antipoverty_tax <= 1) * (antipoverty_tax/2 + 1-antipoverty_tax) + (antipoverty_tax > 1) * (0.5/pmax(1e-8, antipoverty_tax))
+  if (return == "base") return(taxable_base)
   else if (return == "df") {
-    for (i in 1:100) df[[paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold),  "_avg_", i)]] <- pmax(poverty_threshold, df[[paste0(y, "_avg_", i)]] - df$antipoverty_tax * pmax(0, df[[paste0(y, "_avg_", i)]] - exemption_threshold))
+    for (i in 1:100) df[[paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold),  "_avg_", i)]] <- pmax(poverty_threshold, df[[paste0(y, "_avg_", i)]] - df[[paste0(y, "_antipoverty_", round(poverty_threshold), "_tax_", round(exemption_threshold))]] * pmax(0, df[[paste0(y, "_avg_", i)]] - exemption_threshold))
     df[[paste0("mean_", y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold))]] <- rowSums(df[,paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold),  "_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
     df <- compute_inequality(var = paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold)), df = df, return = "df")
     return(df)
-  }
-  else return(df$antipoverty_tax)
+  } else if (return %in% c("poverty_eradication_capacity", "PEC", "pec", "bolch_index", "bolch")) { return(df[[paste0(y, "_bolch_index_min_", round(poverty_threshold), "_tax_", round(exemption_threshold))]])
+  } else return(df[[paste0(y, "_antipoverty_", round(poverty_threshold), "_tax_", round(exemption_threshold))]])
 }
 # Computes the demogrant that can be funded with given revenues (in $ per person) 
 compute_min_funded <- function(revenues, var = name_var_growth("optimistic"), df = w, return = "min") {
@@ -352,6 +363,10 @@ beep()
 compute_min_funded(revenues = tax_revenues(df = w, thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'pc', growth = "optimistic"))
 w <- tax_revenues(df = w, name_tax = "min8", thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'df', growth = "optimistic")
 df <- tax_revenues(df = p, scope_tax = w, name_tax = "min8", thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'df', growth = "optimistic")
+p$bolch_index_1_now <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "now", return = "bolch") 
+p$bolch_index_2_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now", return = "bolch")
+(bolch_index_1 <- round(sort(setNames(p$bolch_index_1_now, p$country), decreasing = T), 2))
+(bolch_index_2 <- round(sort(setNames(p$bolch_index_2_now, p$country), decreasing = T), 2))
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = '%', growth = "optimistic")) # 3.6% of world GDP to reach 250$/month
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = '$', growth = "optimistic")) # 3.5T$ to reach 250$/month
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = 'threshold', growth = "optimistic")) # 14%: 1.15 $/day/person to reach 250$/month
@@ -360,6 +375,12 @@ df <- tax_revenues(df = p, scope_tax = w, name_tax = "min8", thresholds = c(1, 2
 (w$antipoverty_8_tax_100 <- compute_antipoverty_tax(df = w, exemption_threshold = 100, poverty_threshold = 8.22, growth = "optimistic")) # 4.2
 (w$antipoverty_10_tax_100 <- compute_antipoverty_tax(df = w, exemption_threshold = 100, poverty_threshold = 10, growth = "optimistic")) # 8.66
 (w$y_expropriated_9 <- compute_antipoverty_maximum(df = w, threshold = 9, growth = "optimistic")) # 470
+
+# comparer bolch_index_1/2 avec Bolch et al. (2022) fraction of poverty gap eliminable by raising taxes above threshold / tax rate needed (2$ in S1, 13$ in S2). What are 2/13 05$ in 17$? Based on 2.15/1.25: 3.44. While U.S. poverty line a family of 4 (13$ in 05PPP) is 18.15 (26500/4/365) in 2021 https://aspe.hhs.gov/2021-poverty-guidelines
+(table_bolch <- cbind("year" = p$year, "poverty_rate" = compute_poverty_rate(df = p, threshold = 3.44, growth = "now", return = "rate"), "bolch_1" = p$bolch_index_1_now, "bolch_2" = p$bolch_index_2_now))
+row.names(table_bolch) <- p$country
+cat(paste(kbl(table_bolch[p$pop_2022 > 20e6,], "latex", caption = "Indicators from Bolch et al. (2022) with updated data", position = "b", escape = F, booktabs = T, digits = c(0, 2, 2, 2), linesep = rep("", nrow(table_bolch)-1), longtable = T, label = "bolch",
+              col.names = c("\\makecell{Survey\\\\year}", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)}")), collapse="\n"), file = "../tables/bolch.tex") 
 
 
 plot(0:100, t(w[,c("y_avg_1", paste0("y_max_", 1:99), "y_avg_100")]), type = "l", lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
