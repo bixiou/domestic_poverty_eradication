@@ -3,10 +3,11 @@
 # Fr https://docs.google.com/document/d/1u41m1U0FGlvt6aGKzZET3MWr0ulz3tORPw1xVRSKek0/edit?usp=sharing
 
 # TODO!
+# calculer autres indicateurs d'inégalité : D9/D1, share top 1%, calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
+# calculer after tax distribution in each country
 # combine with tax data (WIL) to get better estimates of total GDP
 # reproduire le travail de Bolch et al. (2022)
 # Other growth assumptions: projections de PIB officielles; Make a 7% growth scenario (as in SDG 8.1); max(0, trend)
-# calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # Ajouter aux calculs la basic needs poverty line de Moatsos. Try first with Moatsos 21 (more recent estimates). If results are not satisfactory, use Moatsos 16 (better methodology), cf. data https://clio-infra.eu/Indicators/GlobalExtremePovertyCostofBasicNeeds.html and https://clio-infra.eu/Indicators/GlobalExtremePovertyDollaraDay.html
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3).
 
@@ -113,17 +114,46 @@ tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p
   }
   else if (return %in% c("%", "% GDP")) return(df$revenues / df[[paste0("mean_", var)]])
 }
-compute_gini <- function(var = name_var_growth("optimistic"), df = p, return = "df") {
+compute_inequality <- function(var = name_var_growth("optimistic"), df = p, return = "df") {
   d <- df
   for (i in 1:100) d[[paste0("pop_share_", i)]] <- df[[paste0(find_pop_share_var(var, df), i)]]
   d$y_cumulated_0 <- 0
   for (i in 1:100) d[[paste0("y_cumulated_", i)]] <- d[[paste0("y_cumulated_", i-1)]] + d[[paste0("pop_share_", i)]] * df[[paste0(var, "_avg_", i)]] / df[[paste0("mean_", var)]]
   antigini <- sapply(1:100, function(i) { d[[paste0("pop_share_", i)]] * (d[[paste0("y_cumulated_", i)]] + d[[paste0("y_cumulated_", i-1)]])}) # Brown formula
-  df[[paste0(var, "_gini")]] <- 1 - if (!is.vector(antigini)) rowSums(antigini) else sum(antigini)
+  if (!paste0(var, "_gini") %in% names(df)) df[[paste0(var, "_gini")]] <- 1 - if (!is.vector(antigini)) rowSums(antigini) else sum(antigini)
+  if (!paste0(var, "_top1") %in% names(df)) df[[paste0(var, "_top1")]] <- 0.01*(df[[paste0(var, "_avg_100")]]/d$pop_share_100)/df[[paste0("mean_", var)]]
+  if (!paste0(var, "_top10") %in% names(df)) df[[paste0(var, "_top10")]] <- 0.1*(sum(sapply(91:100, function(i) { df[[paste0(var, "_avg_", i)]] }))/sum(sapply(91:100, function(i) { d[[paste0("pop_share_", i)]] })))/df[[paste0("mean_", var)]]
+  if (!paste0(var, "_bottom50") %in% names(df)) df[[paste0(var, "_bottom50")]] <- 0.5*(sum(sapply(1:50, function(i) { df[[paste0(var, "_avg_", i)]] }))/sum(sapply(1:50, function(i) { d[[paste0("pop_share_", i)]] })))/df[[paste0("mean_", var)]]
+  if (!paste0(var, "_d9d1") %in% names(df)) df[[paste0(var, "_d9d1")]] <- df[[paste0(var, "_max_90")]]/df[[paste0(var, "_max_10")]] # df[[paste0(var, "_max_10")]] == 0 for SUR
+  if (!paste0(var, "_d9d5") %in% names(df)) df[[paste0(var, "_d9d5")]] <- df[[paste0(var, "_max_90")]]/df[[paste0(var, "_max_50")]]
+  entropy <- sapply(1:100, function(i) { d[[paste0("pop_share_", i)]] * log(pmax(1e-10, df[[paste0(var, "_avg_", i)]])) })
+  if (!paste0(var, "_theil") %in% names(df)) df[[paste0(var, "_theil")]] <- log(df[[paste0("mean_", var)]]) - if (!is.vector(entropy)) rowSums(entropy) else sum(entropy) # I use Theil L. To normalize, use 1 - exp(-df[[paste0(var, "_theil")]])
+  # if (nrow(df) > 1) df[[paste0(var, "_coef_theil")]] <- df[[paste0("pop_", if (grepl("2022|now", var)) "2022" else "2030")]] * df[[paste0("mean_", var)]] # / (pop_tot * mean_world)
+  pop_yr <- paste0("pop_", if (grepl("2022|now", var)) "2022" else "2030")
+  # if (nrow(df) > 1) theil_T_within <- sum(df[[paste0(var, "_theil")]] * (sum(df[[pop_yr]] * df[[paste0("mean_", var)]]) / (sum(df[[pop_yr]]) * sum(df[[pop_yr]] * df[[paste0("mean_", var)]]))))
+  if (nrow(df) > 1) theil_within <- sum(df[[paste0(var, "_theil")]] * (df[[pop_yr]]/sum(df[[pop_yr]])))
+  if (nrow(df) > 1) theil_between <- sum((df[[pop_yr]]/sum(df[[pop_yr]])) * log(df[[pop_yr]]/sum(df[[pop_yr]]) / (df[[pop_yr]]*df[[paste0("mean_", var)]] / sum(df[[pop_yr]] * df[[paste0("mean_", var)]]))))
+  theil <- if (nrow(df) > 1) (theil_between + theil_within) else df[[paste0(var, "_theil")]]
+  
+  ineq <- df[, paste0(var, c("_top1", "_top10", "_bottom50", "_d9d1", "_d9d5", "_gini", "_theil"))]
   if (return == "df") {
-    if (nrow(df) == 1) print(paste0("Gini ", var, ": ", df[[paste0(var, "_gini")]]))
+    if (nrow(df) == 1) print(ineq) 
+    else print(paste0("Theil-L: ", round(theil_within + theil_between, 3), " [within: ", round(theil_within, 3), " (", round(100*theil_within/theil), "%) / between: ", round(theil_between, 3), " (", round(100*theil_between/theil), "%)]"))
     return(df)
-  } else return(df[[paste0(var, "_gini")]])
+  } else if (return %in% c("gini", "Gini")) { return(df[[paste0(var, "_gini")]])
+  } else if (return %in% c("top1")) { return(df[[paste0(var, "_top1")]])
+  } else if (return %in% c("top10")) { return(df[[paste0(var, "_top10")]])
+  } else if (return %in% c("bottom50")) { return(df[[paste0(var, "_bottom50")]])
+  } else if (return %in% c("d9d1")) { return(df[[paste0(var, "_d9d1")]]) 
+  } else if (return %in% c("d9d5")) { return(df[[paste0(var, "_d9d5")]]) 
+  } else if (return %in% c("theil")) { return(df[[paste0(var, "_theil")]]) 
+  } else if (return %in% c("theil_within")) { return(theil_within) 
+  } else if (return %in% c("theil_between")) { return(theil_between) 
+  } else if (return %in% c("theil_within_share")) { return(theil_within/theil) 
+  } else if (return %in% c("theil_between_share")) { return(theil_between/theil) 
+  } else if (return %in% c("theil")) { return(theil) 
+  } else if (return %in% c("table", "ineq", "summary")) { return(ineq) 
+  } else warning("'return' unknown")
 }
 # TODO! pourquoi w$mean_Y != w$mean_Y_tax_min8?
 
@@ -246,6 +276,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = 1.06,
     # df <- df[df$country_code != c | df$reporting_level == "national",]
   }
   df[[paste0("mean_", y)]] <- rowSums(df[,paste0(y, "_avg_", 1:100)] * df[,paste0("pop_share_", 1:100)])
+  wdf <- compute_inequality(var = y, df = df, return = "df")
   
   return(df)
 }
@@ -273,6 +304,8 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
         sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) })))
   }
   wdf[[paste0("mean_", var)]] <- rowSums(df[,paste0(var, "_avg_", 1:100)] * df[,paste0(var, "_pop_share_", 1:100)]) # mean(t(wdf[,grepl(paste0(var, "_avg"), names(wdf))]))
+  
+  wdf <- compute_inequality(var = var, df = wdf, return = "df")
   return(wdf)
 }
 # TODO Use 7% growth: the SDG 8.1. Compute the antipoverty_tax, etc. that would have been needed with a 7% growth starting in 2016.
@@ -300,7 +333,8 @@ beep()
 
 
 ##### Computations #####
-compute_gini(var = name_var_growth("optimistic"), df = p, return = "gini")
+p <- compute_inequality(var = name_var_growth("optimistic"), df = p, return = "df")
+w <- compute_inequality(var = name_var_growth("optimistic"), df = w, return = "df")
 (w$poverty_gap_2 <- compute_poverty_gap(df = w, threshold = 2.15, unit = 'threshold', growth = "now")) # 3.1% estimated in 2022 vs. official 2019: 2.6% (higher because 2019 vs. 2022?) official: https://data.worldbank.org/indicator/SI.POV.GAPS
 (w$poverty_gap_4 <- compute_poverty_gap(df = w, threshold = 3.65, unit = 'threshold', growth = "now")) # 8.1% vs. official: 8%
 (w$poverty_gap_7 <- compute_poverty_gap(df = w, threshold = 6.85, unit = 'threshold', growth = "now")) # 19% vs. official: 21%
