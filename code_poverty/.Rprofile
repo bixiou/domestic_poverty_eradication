@@ -145,7 +145,7 @@ Levels <- function(variable, data = p, miss = TRUE, numbers = FALSE, values = TR
 }
 
 
-plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = FALSE, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE,
+plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = FALSE, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, add_folder = '',
                            breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, sep = "% to ", end = "%", strict_ineq_lower = FALSE) {
   if (is.null(breaks)) breaks <- c(-Inf, seq(0, 1, .2), Inf)
   if (is.null(labels)) labels <- sub("≤", "<", sub("≥", ">", agg_thresholds(c(0), breaks, sep = sep, end = end, strict_ineq_lower = strict_ineq_lower, return = "levels")))
@@ -176,7 +176,7 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
   }
   
   print(plot)
-  if (save) for (f in format) save_plot(plot, filename = ifelse(continuous, paste0(var, "_cont"), var), folder = '../figures/', width = width, height = height, format = f, trim = trim)
+  if (save) for (f in format) save_plot(plot, filename = ifelse(continuous, paste0(var, "_cont"), var), folder = paste0('../figures/', add_folder), width = width, height = height, format = f, trim = trim)
   # return(plot)
 }
 
