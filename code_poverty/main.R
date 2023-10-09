@@ -5,20 +5,28 @@
 # TODO!
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # combine with tax data (WIL) to get better estimates of total GDP
-# compare Bolch with the same survey years as them
-# Other growth assumptions: >>projections de PIB officielles; Make a 7% growth scenario (as in SDG 8.1); max(0, trend)
 # Ajouter aux calculs la >>basic needs poverty line de Moatsos. Try first with Moatsos 21 (more recent estimates). If results are not satisfactory, use Moatsos 16 (better methodology), cf. data https://clio-infra.eu/Indicators/GlobalExtremePovertyCostofBasicNeeds.html and https://clio-infra.eu/Indicators/GlobalExtremePovertyDollaraDay.html
-# Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021)
+# Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021). On cheap diets, cite https://sites.tufts.edu/foodpricesfornutrition/research-and-publications/
 
+# compare Bolch with the same survey years as them: not replicated because the data has been revised. They use old data (2014) and old survey years (2009). Using most recent PIP data is surely preferable.
 # Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), 
 # World Bank (2022): "It became clear that the global goal of ending extreme poverty by 2030 would not be achieved."
+# SDG: "2. We commit ourselves to working tirelessly for the full implementation of this Agenda by 2030. We recognize that eradicating poverty in all its forms and dimensions, including extreme poverty, is the greatest global challenge and an indispensable requirement for sustainable development. 
+#          We are committed to achieving sustainable development in its three dimensions – economic, social and environmental – in a balanced and integrated manner. We will also build upon the achievements of the Millennium Development Goals and seek to address their unfinished business."  ttps://sdgs.un.org/2030agenda
+#       "41. We recognize that each country has primary responsibility for its own economic and social development."
+#       "60. We reaffirm our strong commitment to the full implementation of this new Agenda. We recognize that we will not be able to achieve our ambitious Goals and targets without a revitalized and enhanced Global Partnership and comparably ambitious means of implementation. 
+#            The revitalized Global Partnership will facilitate an intensive global engagement in support of implementation of all the goals and targets, bringing together Governments, civil society, the private sector, the United Nations system and other actors and mobilizing all available resources."
 
 ##### Functions #####
 name_var_growth <- function(growth = "optimistic") { 
   return(case_when(growth == "trend" ~ "y",
+                    growth == "positive_trend" ~ "y_pos",
                     growth == "none" ~ "welfare",
                     growth == "now" ~ "y_2022",
+                    growth == "bolch" ~ "bolch",
                     growth == "optimistic" ~ "Y",
+                    growth == "very_optimistic" ~ "Y7",
+                    growth == "sdg8" ~ "y7",
                     TRUE ~ ""))
 } 
 find_pop_share_var <- function(var, df) {
@@ -135,19 +143,18 @@ tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p
 }
 compute_inequality <- function(var = name_var_growth("optimistic"), df = p, return = "df") {
   d <- df
-  for (i in 1:100) d[[paste0("pop_share_", i)]] <- df[[paste0(find_pop_share_var(var, df), i)]]
   d$y_cumulated_0 <- 0
-  for (i in 1:100) d[[paste0("y_cumulated_", i)]] <- d[[paste0("y_cumulated_", i-1)]] + d[[paste0("pop_share_", i)]] * df[[paste0(var, "_avg_", i)]] / df[[paste0("mean_", var)]]
-  antigini <- sapply(1:100, function(i) { d[[paste0("pop_share_", i)]] * (d[[paste0("y_cumulated_", i)]] + d[[paste0("y_cumulated_", i-1)]])}) # Brown formula
+  for (i in 1:100) d[[paste0("y_cumulated_", i)]] <- d[[paste0("y_cumulated_", i-1)]] + df[[paste0(find_pop_share_var(var, df), i)]] * df[[paste0(var, "_avg_", i)]] / df[[paste0("mean_", var)]]
+  antigini <- sapply(1:100, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] * (d[[paste0("y_cumulated_", i)]] + d[[paste0("y_cumulated_", i-1)]])}) # Brown formula
   if (!paste0(var, "_gini") %in% names(df)) df[[paste0(var, "_gini")]] <- 1 - if (!is.vector(antigini)) rowSums(antigini) else sum(antigini)
   if (!paste0(var, "_top1") %in% names(df)) df[[paste0(var, "_top1")]] <- 0.01*(df[[paste0(var, "_avg_100")]]/d$pop_share_100)/df[[paste0("mean_", var)]]
-  if (!paste0(var, "_top10") %in% names(df)) df[[paste0(var, "_top10")]] <- 0.1*(sum(sapply(91:100, function(i) { df[[paste0(var, "_avg_", i)]] }))/sum(sapply(91:100, function(i) { d[[paste0("pop_share_", i)]] })))/df[[paste0("mean_", var)]]
-  if (!paste0(var, "_bottom50") %in% names(df)) df[[paste0(var, "_bottom50")]] <- 0.5*(sum(sapply(1:50, function(i) { df[[paste0(var, "_avg_", i)]] }))/sum(sapply(1:50, function(i) { d[[paste0("pop_share_", i)]] })))/df[[paste0("mean_", var)]]
+  if (!paste0(var, "_top10") %in% names(df)) df[[paste0(var, "_top10")]] <- 0.1*(rowSums(sapply(91:100, function(i) { df[[paste0(var, "_avg_", i)]] }))/rowSums(sapply(91:100, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] })))/df[[paste0("mean_", var)]]
+  if (!paste0(var, "_bottom50") %in% names(df)) df[[paste0(var, "_bottom50")]] <- 0.5*(rowSums(sapply(1:50, function(i) { df[[paste0(var, "_avg_", i)]] }))/rowSums(sapply(1:50, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] })))/df[[paste0("mean_", var)]]
   if (!paste0(var, "_d9d1") %in% names(df)) df[[paste0(var, "_d9d1")]] <- df[[paste0(var, "_avg_90")]]/df[[paste0(var, "_avg_10")]] 
   if (!paste0(var, "_d9d5") %in% names(df)) df[[paste0(var, "_d9d5")]] <- df[[paste0(var, "_avg_90")]]/df[[paste0(var, "_avg_50")]]
   # if (!paste0(var, "_d9d1") %in% names(df)) df[[paste0(var, "_d9d1")]] <- df[[paste0(var, "_max_90")]]/df[[paste0(var, "_max_10")]] # df[[paste0(var, "_max_10")]] == 0 for SUR
   # if (!paste0(var, "_d9d5") %in% names(df)) df[[paste0(var, "_d9d5")]] <- df[[paste0(var, "_max_90")]]/df[[paste0(var, "_max_50")]] # Better in theory, but not implemented for after-tax distributions
-  entropy <- sapply(1:100, function(i) { d[[paste0("pop_share_", i)]] * log(pmax(1e-10, df[[paste0(var, "_avg_", i)]])) })
+  entropy <- sapply(1:100, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] * log(pmax(1e-10, df[[paste0(var, "_avg_", i)]])) })
   if (!paste0(var, "_theil") %in% names(df)) df[[paste0(var, "_theil")]] <- log(df[[paste0("mean_", var)]]) - if (!is.vector(entropy)) rowSums(entropy) else sum(entropy) # I use Theil L. To normalize, use 1 - exp(-df[[paste0(var, "_theil")]])
   # if (nrow(df) > 1) df[[paste0(var, "_coef_theil")]] <- df[[paste0("pop_", if (grepl("2022|now", var)) "2022" else "2030")]] * df[[paste0("mean_", var)]] # / (pop_tot * mean_world)
   pop_yr <- paste0("pop_", if (grepl("2022|now", var)) "2022" else "2030")
@@ -176,11 +183,11 @@ compute_inequality <- function(var = name_var_growth("optimistic"), df = p, retu
   } else if (return %in% c("table", "ineq", "summary")) { return(ineq) 
   } else warning("'return' unknown")
 }
-# TODO! pourquoi w$mean_Y != w$mean_Y_tax_min8?
+# TODO! pourquoi w$mean_Y != w$mean_Y_tax_min8? Pourquoi theil est pas pareil dans p et w ?
 
 ##### Data #####
 # PIP/PovcalNet data is *per capita* (without adjustment for household composition).
-{ # ~ 8 min
+{ # ~ 11 min
 start <- Sys.time()
 data <- read.csv("../data/Povcalnet 2017.csv") # https://datacatalogfiles.worldbank.org/ddh-published/0063646/DR0090251/world_100bin.csv?versionId=2023-05-31T15:19:01.1473846Z on https://datacatalog.worldbank.org/search/dataset/0063646
 # AF: il vaut mieux écrire le code en anglais pour qu'il puisse être compris par le monde entier
@@ -195,7 +202,7 @@ data$year_max <- year_max[data$country_code]
 # data <- data[data$year == data$year_max,]
 p <- data[data$year == data$year_max,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
 names(p) <- sub("avg_welfare_", "welfare_avg_", names(p), fixed = T)
-p$mean_welfare <- rowSums(df[,paste0("welfare_avg_", 1:100)] * df[,paste0("pop_share_", 1:100)])
+p$mean_welfare <- rowSums(p[,paste0("welfare_avg_", 1:100)] * p[,paste0("pop_share_", 1:100)])
 
 # Add population
 pop <- read.csv("../data/future population by age 2022.csv") # https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2022_PopulationByAge5GroupSex_Medium.zip
@@ -238,25 +245,46 @@ p$country[p$country_code == "VNM"] <- "Vietnam"
 #Missing in PIP : Afghanistan, Brunei, Cuba, Erythrée, Guinée équatoriale, Cambodge, Kuwait, Lybie, Liechtenstein, Nouvelle Calédonie, Nouvelle Zélande, Oman, Puerto Rico, Qatar, Sahara Occidental, Arabie Saoudite, Singapore, Somalie, Taiwan
 countries_names <- setNames(p$country, p$country_code)
 
-pop_rural_urban <- read.csv2("../data/pop_rural_urban.csv") # Last updated 07/05/2023 https://databank.worldbank.org/source/population-estimates-and-projections/preview/on#
+iso3 <- read.csv("../data/country_iso3.csv")
 
-compute_distribution_2030 <- function(growth = "optimistic", growth_rate = 1.06, name_var = NULL, df = p, pop_rurb = pop_rural_urban) {
+# Merge with original Bolch et al. (2022) results  
+bolch_table_original <- read.csv("../data/bolch_table_original.csv") # Table imported from Bolch et al. (2022) PDF using tabula.technology
+p <- merge(p, bolch_table_original, all.x = T)
+# Keep data from Bolch's survey years to replicate it
+year_bolch <- setNames(p$bolch_year, p$country_code) # sum(!is.na(year_bolch)) # 123
+data$year_bolch <- year_bolch[data$country_code]
+temp <- data[data$year == data$year_bolch,]
+temp <- temp %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile), values_fn = mean)
+temp <- temp[!is.na(temp$country_code),!grepl("_NA", names(temp))]
+names(temp) <- sub("avg_welfare_", "avg_", names(temp), fixed = T)
+names(temp)[7:ncol(temp)] <- paste0("bolch_", names(temp)[7:ncol(temp)])
+temp$mean_bolch <- rowSums(temp[,paste0("bolch_avg_", 1:100)] * temp[,paste0("bolch_pop_share_", 1:100)], na.rm = T)
+p <- merge(p, temp, all.x = T, by = c("country_code", "reporting_level"))
+
+compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL, name_var = NULL, df = p, pop_rurb = pop_rural_urban) {
+  if (is.null(growth_rate)) growth_rate <- if (growth == "very_optimistic") 1.07 else 1.06
   y <- if (is.null(name_var)) name_var_growth(growth) else name_var
-  if (growth == "trend") { # TODO create another assumption: max(0, trend)
-    df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + df$mean_growth_gdp_pc_14_19)^8 # TODO: check whether this hypothesis makes sense (or whether we should use gdp projections / pop projection instead)
+  if (grepl("trend", growth)) { 
+    df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + df$mean_growth_gdp_pc_14_19)^8 
     df$growth_gdp_pc_year_30 <- df$gdp_pc_2030/df$gdp_pc_year
     # df$country_code[is.na(df$gdp_pc_year)] # "SSD" "SYR" "VEN" "YEM"
-    # df$country_code[is.na(df$growth_gdp_pc_year_30)] # "SSD" "SYR" "TKM" "VEN" "YEM"
-    df$growth_gdp_pc_year_30[is.na(df$growth_gdp_pc_year_30)] <- 1 # TODO: improve this assumption
+    # df$country_code[is.na(df$growth_gdp_pc_year_30)] # "SSD" "SYR" "TKM" "VEN" "YEM". TKM has grown 7.368 times in 98-22 and .994 in 14-19 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD/TKM
+    df$growth_gdp_pc_year_30[is.na(df$growth_gdp_pc_year_30)] <- 1 
     growths <- df$growth_gdp_pc_year_30
-  } else if (growth == "optimistic") {
+    if (growth == "trend_pos") growths <- pmax(1, df$growth_gdp_pc_year_30)
+  } else if (growth == "sdg8") {
+    df$gdp_pc_2030_sdg <- df$gdp_pc_2015 * (1.07^15) 
+    df$growth_gdp_pc_year_30_sdg <- df$gdp_pc_2030_sdg/df$gdp_pc_year
+    df$growth_gdp_pc_year_30_sdg[is.na(df$growth_gdp_pc_year_30_sdg)] <- 1.07^15
+    growths <- df$growth_gdp_pc_year_30_sdg
+  } else if (grepl("optimistic", growth)) {
     df$gdp_pc_max_2030 <- df$gdp_pc_2022 * growth_rate^8 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
     df$growth_gdp_pc_max_year_30 <- df$gdp_pc_max_2030/df$gdp_pc_year
     df$growth_gdp_pc_max_year_30[is.na(df$growth_gdp_pc_max_year_30)] <- growth_rate^(2030 - df$year[is.na(df$growth_gdp_pc_max_year_30)])
     growths <- df$growth_gdp_pc_max_year_30
   } else if (growth == "now") {
     df$growth_gdp_pc_2022 <- df$gdp_pc_2022/df$gdp_pc_year
-    df$growth_gdp_pc_2022[is.na(df$growth_gdp_pc_2022)] <- growth_rate^(2022 - df$year[is.na(df$growth_gdp_pc_2022)])
+    df$growth_gdp_pc_2022[is.na(df$growth_gdp_pc_2022)] <- 1 # Optimistic (in practice it's more .48-.58*), before: growth_rate^(2022 - df$year[is.na(df$growth_gdp_pc_2022)]) was even more optimistic. *Growth 2022/p$year according to IMF "South Sudan"-2016-0.568 "Syria"-2003-? "Venezuela"-2006-0.477 "Yemen"-2014-0.585 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD
     growths <- df$growth_gdp_pc_2022
   } else if (growth == "none") growths <- rep(1, nrow(df))
   for (i in 1:100) df[[paste0(y, "_avg_", i)]] <- df[[paste0("welfare_avg_", i)]] * growths
@@ -279,7 +307,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = 1.06,
       df <- rbind(df, new_line)
     }
     quantiles <- sort(unlist(sapply(1:100, function(i) {df[[paste0(y, "_avg_", i)]][df$country_code == c] }))) # Before, was _max_ here in and cdf, but this didn't work (some avg were missing). TODO? recompute df[[paste0(y, "_max_", i)]][n] with _max_ instead of _avg_?
-    cdf <- c() # TODO!! solve bug
+    cdf <- c() 
     for (q in quantiles) cdf <- c(cdf, sum(sapply(1:100, function(j) { (df[[paste0(y, "_avg_", j)]][u] <= q) * df[[paste0("pop_share_", j)]][u] + (df[[paste0(y, "_avg_", j)]][r] <= q) * df[[paste0("pop_share_", j)]][r] })))
     percentiles <- findInterval(seq(0, 1, .01), cdf)[-1] # was , left.open = T; computes the indices for which the pop_share is lesser or equal to the percentiles.
     n <- df$country_code == c & df$reporting_level == "national"
@@ -324,17 +352,19 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
       sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * df[[paste0(var, "_avg_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))) / (
         sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) })))
   }
-  wdf[[paste0("mean_", var)]] <- rowSums(df[,paste0(var, "_avg_", 1:100)] * df[,paste0(var, "_pop_share_", 1:100)]) # mean(t(wdf[,grepl(paste0(var, "_avg"), names(wdf))]))
+  wdf[[paste0("mean_", var)]] <- rowSums(wdf[,paste0(var, "_avg_", 1:100)] * wdf[,paste0(var, "_pop_share_", 1:100)]) # mean(t(wdf[,grepl(paste0(var, "_avg"), names(wdf))]))
   
   wdf <- compute_inequality(var = var, df = wdf, return = "df")
   return(wdf)
 }
-# TODO Use 7% growth: the SDG 8.1. Compute the antipoverty_tax, etc. that would have been needed with a 7% growth starting in 2016.
 # y makes the assumption of constant growth while Y assumes 6% growth after 2022
 # p <- df # To run compute_distribution_2030, this line is needed to avoid bug (Indeed, urban/rural have been removed otherwise).
+p <- compute_inequality(var = "bolch", df = p, return = "df")
 p <- compute_distribution_2030(growth = "optimistic", growth_rate = 1.06)
-p <- compute_distribution_2030(growth = "optimistic", growth_rate = 1.1, name_var = "Y10")
+p <- compute_distribution_2030(growth = "very_optimistic", growth_rate = 1.07, name_var = "Y7")
 p <- compute_distribution_2030(growth = "trend")
+p <- compute_distribution_2030(growth = "trend_pos")
+p <- compute_distribution_2030(growth = "sdg8") # The SDG 8.1: sustained 7% growth starting over 2016-30.
 p <- compute_distribution_2030(growth = "none")
 df <- p <- compute_distribution_2030(growth = "now")
 # df <- p
@@ -343,11 +373,15 @@ p <- p[(!p$country_code %in% c("CHN", "IDN", "IND")) | p$reporting_level == "nat
 
 w <- data.frame(country = "World", pop_2022 = sum(p$pop_2022), pop_2030 = sum(p$pop_2030))
 w <- compute_world_distribution(name_var_growth("optimistic"))  # ~ 1.5 min
-w <- compute_world_distribution("Y10")  # ~ 1.5 min
+w <- compute_world_distribution("Y7")  # ~ 1.5 min
 w <- compute_world_distribution(name_var_growth("trend"))
+w <- compute_world_distribution(name_var_growth("trend_pos"))
+w <- compute_world_distribution(name_var_growth("sdg8"))
 w <- compute_world_distribution(name_var_growth("none"))
 w <- compute_world_distribution(name_var_growth("now"))
 w.bak <- w
+# rm(data)
+save.image(".RData")
 print(Sys.time() - start)
 beep()
 }
@@ -355,19 +389,15 @@ beep()
 
 ##### Computations #####
 # p <- compute_inequality(var = name_var_growth("optimistic"), df = p, return = "df")
-# w <- compute_inequality(var = name_var_growth("optimistic"), df = w, return = "df")
+# w <- compute_inequality(var = name_var_growth("optimistic"), df = w, return = "df") # TODO! poverty_gaps have changed
 (w$poverty_gap_2 <- compute_poverty_gap(df = w, threshold = 2.15, unit = 'threshold', growth = "now")) # 3.1% estimated in 2022 vs. official 2019: 2.6% (higher because 2019 vs. 2022?) official: https://data.worldbank.org/indicator/SI.POV.GAPS
 (w$poverty_gap_4 <- compute_poverty_gap(df = w, threshold = 3.65, unit = 'threshold', growth = "now")) # 8.1% vs. official: 8%
 (w$poverty_gap_7 <- compute_poverty_gap(df = w, threshold = 6.85, unit = 'threshold', growth = "now")) # 19% vs. official: 21%
-(w$poverty_gap_8 <- tax_revenues(df = w, thresholds = c(33, 66, 100, 200, 300), marginal_rates = c(1, 4, 8, 20, 30), return = '%', growth = "optimistic")) # 1.18% of world GDP
+(w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = '%', growth = "optimistic")) # 3.6% of world GDP to reach 250$/month
+(tax_revenues(df = w, thresholds = c(33, 66, 100, 200, 300), marginal_rates = c(1, 4, 8, 20, 30), return = '%', growth = "optimistic")) # 1.18% of world GDP
 compute_min_funded(revenues = tax_revenues(df = w, thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'pc', growth = "optimistic"))
 w <- tax_revenues(df = w, name_tax = "min8", thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'df', growth = "optimistic")
 df <- tax_revenues(df = p, scope_tax = w, name_tax = "min8", thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'df', growth = "optimistic")
-p$bolch_index_1_now <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "now", return = "bolch") 
-p$bolch_index_2_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now", return = "bolch")
-(bolch_index_1 <- round(sort(setNames(p$bolch_index_1_now, p$country), decreasing = T), 2))
-(bolch_index_2 <- round(sort(setNames(p$bolch_index_2_now, p$country), decreasing = T), 2))
-(w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = '%', growth = "optimistic")) # 3.6% of world GDP to reach 250$/month
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = '$', growth = "optimistic")) # 3.5T$ to reach 250$/month
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = 'threshold', growth = "optimistic")) # 14%: 1.15 $/day/person to reach 250$/month
 (w$poverty_gap_35 <- compute_poverty_gap(df = w, threshold = 35, unit = 'mean', growth = "optimistic")) # 9 $/day/person to reach world average
@@ -376,17 +406,42 @@ p$bolch_index_2_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.
 (w$antipoverty_10_tax_100 <- compute_antipoverty_tax(df = w, exemption_threshold = 100, poverty_threshold = 10, growth = "optimistic")) # 8.66
 (w$y_expropriated_9 <- compute_antipoverty_maximum(df = w, threshold = 9, growth = "optimistic")) # 470
 
-# comparer bolch_index_1/2 avec Bolch et al. (2022) fraction of poverty gap eliminable by raising taxes above threshold / tax rate needed (2$ in S1, 13$ in S2). What are 2/13 05$ in 17$? Based on 2.15/1.25: 3.44. While U.S. poverty line a family of 4 (13$ in 05PPP) is 18.15 (26500/4/365) in 2021 https://aspe.hhs.gov/2021-poverty-guidelines
-(table_bolch <- cbind("year" = p$year, "poverty_rate" = compute_poverty_rate(df = p, threshold = 3.44, growth = "now", return = "rate"), "bolch_1" = p$bolch_index_1_now, "bolch_2" = p$bolch_index_2_now))
-row.names(table_bolch) <- p$country
-cat(paste(kbl(table_bolch[p$pop_2022 > 20e6,], "latex", caption = "Indicators from Bolch et al. (2022) with updated data", position = "b", escape = F, booktabs = T, digits = c(0, 2, 2, 2), linesep = rep("", nrow(table_bolch)-1), longtable = T, label = "bolch",
-              col.names = c("\\makecell{Survey\\\\year}", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)}")), collapse="\n"), file = "../tables/bolch.tex") 
+# comparer bolch_index_1/2 avec 
+p$bolch_poverty_rate_3 <- compute_poverty_rate(df = p, threshold = 3.44, growth = "bolch", return = "rate")
+p$poverty_rate_3 <- compute_poverty_rate(df = p, threshold = 3.44, growth = "now", return = "rate")
+p$bolch_index_1_original <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "bolch", return = "bolch") 
+p$bolch_index_2_original <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "bolch", return = "bolch")
+p$bolch_index_1_now <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "now", return = "bolch") 
+p$bolch_index_2_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now", return = "bolch")
+(bolch_index_1 <- round(sort(setNames(p$bolch_index_1_now, p$country), decreasing = T), 2))
+(bolch_index_2 <- round(sort(setNames(p$bolch_index_2_now, p$country), decreasing = T), 2))
+
+mean_gap(p$bolch_poverty_rate_3, p$bolch_poverty_rate_original) # 50%
+mean_gap(p$bolch_index_1_now, p$bolch_pec_1) # 21%
+mean_gap(p$bolch_index_2_now, p$bolch_pec_2) # 65% mean(c(50, 21, 65)) # 45
+table_bolch_replication <- cbind("year" = p$year_bolch, "poverty_rate_replicated" = p$bolch_poverty_rate_3, "poverty_rate_original" = p$bolch_poverty_rate_original, 
+                                 "bolch_1_replicated" = p$bolch_index_1_now, "bolch_1_original" = p$bolch_pec_1, "bolch_2_replicated" = p$bolch_index_2_now, "bolch_2_original" = p$bolch_pec_2)
+row.names(table_bolch_replication) <- p$country
+(table_bolch_replication <- table_bolch_replication[!is.na(table_bolch_replication[,5]) & p$pop_2022 > 20e6,]) # "Indicators from Bolch et al. (2022) replicated"
+# Why several Poland? Why some NA in year_bolch (because years don't coincide, perhaps because Dykstra recodes 2008.5 into 2009 and me 2008?) and bolch_poverty_rate_3?
+cat(paste(kbl(table_bolch_replication, "latex", caption = "Indicators from Bolch et al. (2022) replicated", position = "b", escape = F, booktabs = T, digits = c(0, 2, 2, 2, 2, 2, 2), linesep = rep("", nrow(table_bolch)-1), longtable = T, label = "bolch_replication",
+              col.names = c("\\makecell{Survey\\\\year}", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\replicated", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\original", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\replicated}", 
+                            "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\original}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\replicated}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\original}")), collapse="\n"), file = "../tables/bolch_replication.tex") 
+# The discrepancy comes from the difference in datasets. The ratio between mean_bolch (from my recent data) and Dykstra mean (in SummaryStatistics.csv) varies from 1.2 (Argentina) to 2.1 (Burundi). 
+# It's not only due to 05PPP - 17PPP conversion varying across countries, but also *within* countries (or the data has been revised). The best example is to compare Latvia 1996 between Dykstra/povcal_abbrev.csv. and Povcalnet 2017.csv (as for this country, the pop_share are all equal), the distributions are different (not just rescaled):
+# 30*c(1.7372003194365129, 3.9919969942092446, 6.16212692894546, 8.731745353766852, 11.794384103141129, 15.963861157869772, 19.86166234416087, 23.30031010587956, 26.384911935703354, 32.26016078712433, 67.48526045940788)/c(42.28, 90.65, 138.04, 194.88, 263.62, 359.96, 455.07, 545.36, 633.56, 829.43, 9507.42) # for percentiles 1, 25, 50, 75, 95, 97:100
+
+# Update of Bolch et al. (2022) fraction of poverty gap eliminable by raising taxes above threshold / tax rate needed (2$ in S1, 13$ in S2). What are 2/13 05$ in 17$? Based on 2.15/1.25: 3.44. While U.S. poverty line a family of 4 (13$ in 05PPP) is 18.15 (26500/4/365) in 2021 https://aspe.hhs.gov/2021-poverty-guidelines
+(table_bolch_update <- cbind("year" = p$year, "poverty_rate" = p$poverty_rate_3, "bolch_1" = p$bolch_index_1_now, "bolch_2" = p$bolch_index_2_now))
+row.names(table_bolch_update) <- p$country
+cat(paste(kbl(table_bolch_update[p$pop_2022 > 20e6,], "latex", caption = "Indicators from Bolch et al. (2022) with updated data", position = "b", escape = F, booktabs = T, digits = c(0, 2, 2, 2), linesep = rep("", nrow(table_bolch)-1), longtable = T, label = "bolch_update",
+              col.names = c("\\makecell{Survey\\\\year}", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)}")), collapse="\n"), file = "../tables/bolch_update.tex") 
 
 
 plot(0:100, t(w[,c("y_avg_1", paste0("y_max_", 1:99), "y_avg_100")]), type = "l", lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
 plot(0:98, t(w[,c("y_avg_1", paste0("y_max_", 1:98))]), type = "l", lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
-plot(0:100, t(w[,c("Y10_avg_1", paste0("Y10_max_", 1:99), "Y10_avg_100")]), type = "l", lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
-plot(0:98, t(w[,c("Y10_avg_1", paste0("Y10_max_", 1:98))]), type = "l", lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
+plot(0:100, t(w[,c("Y7_avg_1", paste0("Y7_max_", 1:99), "Y10_avg_100")]), type = "l", lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
+plot(0:98, t(w[,c("Y7_avg_1", paste0("Y7_max_", 1:98))]), type = "l", lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
 plot(0:100, t(w[,c("welfare_avg_1", paste0("welfare_max_", 1:99), "welfare_avg_100")]), type = "l", lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
 plot(0:98, t(w[,c("welfare_avg_1", paste0("welfare_max_", 1:98))]), type = "l", lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
 
@@ -396,8 +451,6 @@ plot(0:99, t(w[,c("Y_avg_1", paste0("Y_avg_", 1:99))]), type = "l", col = 'red',
 lines(0:99, t(w[,c("Y_tax_min8_avg_1", paste0("Y_tax_min8_avg_", 1:99))]), type = "l", col = 'darkgreen', lwd = 2) 
 plot(80:99, t(w[,c(paste0("Y_avg_", 80:99))]), type = "l", col = 'red', lwd = 2, xlab = "Percentile of world income distribution", ylab = "Income (in $/day)") + grid()
 lines(80:99, t(w[,c(paste0("Y_tax_min8_avg_", 80:99))]), type = "l", col = 'darkgreen', lwd = 2) 
-compute_gini(df = w, var = "Y", return = "gini") # .63
-compute_gini(df = w, var = "Y_tax_min8", return = "gini") # .56
 sort(setNames(compute_gini(df = p, var = "Y", return = "gini"), p$country))
 
 

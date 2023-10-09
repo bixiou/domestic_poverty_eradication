@@ -76,7 +76,8 @@ Label <- function(var) {
   if (length(annotation(var))==1) { annotation(var)[1] }
   else { label(var)  }
 }
-
+max_gap <- function(vec1, vec2, epsilon = 1e-15) return(max(2*abs(vec1 - vec2)/(abs(vec1 + vec2) + epsilon), na.rm = T))
+mean_gap <- function(vec1, vec2, epsilon = 1e-15) return(mean(2*abs(vec1 - vec2)/(abs(vec1 + vec2) + epsilon), na.rm = T))
 agg_thresholds <- function(vec, thresholds, labels = NULL, sep = " - ", begin = "", end = "", shift = 0, strict_ineq_lower = T, return = "vec" # min = 0, max = Inf,
 ) { 
   # strict_ineq_lower == T means intervals 50,60 are of type ];] while == F means [;[.
