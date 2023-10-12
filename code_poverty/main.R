@@ -4,8 +4,9 @@
 
 # TODO!
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
-# combine with tax data (WIL) to get better estimates of total GDP
-# Ajouter aux calculs la >>basic needs poverty line de Moatsos. Try first with Moatsos 21 (more recent estimates). If results are not satisfactory, use Moatsos 16 (better methodology), cf. data https://clio-infra.eu/Indicators/GlobalExtremePovertyCostofBasicNeeds.html and https://clio-infra.eu/Indicators/GlobalExtremePovertyDollaraDay.html
+# combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly
+# pourquoi w$mean_Y != w$mean_Y_tax_min8? Pourquoi theil est pas pareil dans p et w ?
+
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021). On cheap diets, cite https://sites.tufts.edu/foodpricesfornutrition/research-and-publications/
 
 # compare Bolch with the same survey years as them: not replicated because the data has been revised. They use old data (2014) and old survey years (2009). Using most recent PIP data is surely preferable.
@@ -38,7 +39,7 @@ compute_poverty_rate <- function(df = p, threshold = 3.44, growth = "optimistic"
   name_poverty_rate <- paste0(y, "poverty_rate_", if (is.numeric(threshold)) round(threshold) else threshold)
   if (is.character(threshold)) threshold <- df[[threshold]]
   df[[name_poverty_rate]] <- 0
-  for (i in 1:100) df[[]] <- df[[name_poverty_rate]] + (df[[paste0(y, "_avg_", i)]] < threshold) * df[[paste0(find_pop_share_var(y, df), i)]]
+  for (i in 1:100) df[[name_poverty_rate]] <- df[[name_poverty_rate]] + (df[[paste0(y, "_avg_", i)]] < threshold) * df[[paste0(find_pop_share_var(y, df), i)]]
   if (return == "df") return(df)
   else return(df[[name_poverty_rate]])
 }
@@ -88,19 +89,22 @@ compute_antipoverty_maximum <- function(df = p, threshold = 2.15, return = "y", 
 }
 compute_antipoverty_tax <- function(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, return = "tax", growth = "optimistic") {
   y <- name_var_growth(growth)
+  name_exemption <- if (is.numeric(exemption_threshold)) round(exemption_threshold) else exemption_threshold
+  exemption_threshold <- if (is.numeric(exemption_threshold)) rep(exemption_threshold, nrow(df)) else p[[exemption_threshold]]
   taxable_base_all <- sapply(1:100, function(i) { pmax(0, df[[paste0(y, "_avg_", i)]] - exemption_threshold) })
   taxable_base <- if (!is.vector(taxable_base_all)) rowSums(taxable_base_all) else sum(taxable_base_all)
   antipoverty_tax <- compute_poverty_gap(df = df, threshold = poverty_threshold, growth = growth) / pmax(1e-10, taxable_base)
-  df[[paste0(y, "_antipoverty_", round(poverty_threshold), "_tax_", round(exemption_threshold))]] <- 100 * antipoverty_tax
-  df[[paste0(y, "_bolch_index_min_", round(poverty_threshold), "_tax_", round(exemption_threshold))]] <- (antipoverty_tax <= 1) * (antipoverty_tax/2 + 1-antipoverty_tax) + (antipoverty_tax > 1) * (0.5/pmax(1e-8, antipoverty_tax))
+  name_threshold <- if (is.numeric(poverty_threshold)) round(poverty_threshold) else poverty_threshold
+  df[[paste0(y, "_antipoverty_", name_threshold, "_tax_", name_exemption)]] <- 100 * antipoverty_tax
+  df[[paste0(y, "_bolch_index_min_", name_threshold, "_tax_", name_exemption)]] <- (antipoverty_tax <= 1) * (antipoverty_tax/2 + 1-antipoverty_tax) + (antipoverty_tax > 1) * (0.5/pmax(1e-8, antipoverty_tax))
   if (return == "base") return(taxable_base)
   else if (return == "df") {
-    for (i in 1:100) df[[paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold),  "_avg_", i)]] <- pmax(poverty_threshold, df[[paste0(y, "_avg_", i)]] - df[[paste0(y, "_antipoverty_", round(poverty_threshold), "_tax_", round(exemption_threshold))]] * pmax(0, df[[paste0(y, "_avg_", i)]] - exemption_threshold))
-    df[[paste0("mean_", y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold))]] <- rowSums(df[,paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold),  "_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
-    df <- compute_inequality(var = paste0(y, "_min_", round(poverty_threshold), "_tax_", round(exemption_threshold)), df = df, return = "df")
+    for (i in 1:100) df[[paste0(y, "_min_", name_threshold, "_tax_", name_exemption,  "_avg_", i)]] <- pmax(poverty_threshold, df[[paste0(y, "_avg_", i)]] - df[[paste0(y, "_antipoverty_", name_threshold, "_tax_", name_exemption)]] * pmax(0, df[[paste0(y, "_avg_", i)]] - exemption_threshold))
+    df[[paste0("mean_", y, "_min_", name_threshold, "_tax_", name_exemption)]] <- rowSums(df[,paste0(y, "_min_", name_threshold, "_tax_", name_exemption,  "_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
+    df <- compute_inequality(var = paste0(y, "_min_", name_threshold, "_tax_", name_exemption), df = df, return = "df")
     return(df)
-  } else if (return %in% c("poverty_eradication_capacity", "PEC", "pec", "bolch_index", "bolch")) { return(df[[paste0(y, "_bolch_index_min_", round(poverty_threshold), "_tax_", round(exemption_threshold))]])
-  } else return(df[[paste0(y, "_antipoverty_", round(poverty_threshold), "_tax_", round(exemption_threshold))]])
+  } else if (return %in% c("poverty_eradication_capacity", "PEC", "pec", "bolch_index", "bolch")) { return(df[[paste0(y, "_bolch_index_min_", name_threshold, "_tax_", name_exemption)]])
+  } else return(df[[paste0(y, "_antipoverty_", name_threshold, "_tax_", name_exemption)]])
 }
 # Computes the demogrant that can be funded with given revenues (in $ per person) 
 compute_min_funded <- function(revenues, var = name_var_growth("optimistic"), df = w, return = "min") {
@@ -114,7 +118,7 @@ compute_min_funded <- function(revenues, var = name_var_growth("optimistic"), df
       cumulated_pop <- cumulated_pop + df[[paste0("pop_share_", i+1)]]
       i <- i+1
     }
-    demogrant <- df[[paste0(var, "_avg_", i)]] - (cost - revenues)/cumulated_pop
+    demogrant <- df[[paste0(var, "_avg_", i)]] - (cost - revenues)/cumulated_pop # /!\ beware of this line
     for (j in 1:i) df[[paste0(var, "_avg_", j)]] <- demogrant
     if (return == "df") return(df)
     else if (return == "percentile") return(cumulated_pop)
@@ -152,9 +156,14 @@ compute_inequality <- function(var = name_var_growth("optimistic"), df = p, retu
   for (i in 1:100) d[[paste0("y_cumulated_", i)]] <- d[[paste0("y_cumulated_", i-1)]] + df[[paste0(find_pop_share_var(var, df), i)]] * df[[paste0(var, "_avg_", i)]] / df[[paste0("mean_", var)]]
   antigini <- sapply(1:100, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] * (d[[paste0("y_cumulated_", i)]] + d[[paste0("y_cumulated_", i-1)]])}) # Brown formula
   if (!paste0(var, "_gini") %in% names(df)) df[[paste0(var, "_gini")]] <- 1 - if (!is.vector(antigini)) rowSums(antigini) else sum(antigini)
-  if (!paste0(var, "_top1") %in% names(df)) df[[paste0(var, "_top1")]] <- 0.01*(df[[paste0(var, "_avg_100")]]/d$pop_share_100)/df[[paste0("mean_", var)]]
-  if (!paste0(var, "_top10") %in% names(df)) df[[paste0(var, "_top10")]] <- 0.1*(rowSums(sapply(91:100, function(i) { df[[paste0(var, "_avg_", i)]] }))/rowSums(sapply(91:100, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] })))/df[[paste0("mean_", var)]]
-  if (!paste0(var, "_bottom50") %in% names(df)) df[[paste0(var, "_bottom50")]] <- 0.5*(rowSums(sapply(1:50, function(i) { df[[paste0(var, "_avg_", i)]] }))/rowSums(sapply(1:50, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] })))/df[[paste0("mean_", var)]]
+  if (!paste0(var, "_top1") %in% names(df)) df[[paste0(var, "_top1")]] <- 0.01*(df[[paste0(var, "_avg_100")]]/df[[paste0(find_pop_share_var(var, df), 100)]])/df[[paste0("mean_", var)]]
+  if (nrow(df) == 1) {
+    if (!paste0(var, "_top10") %in% names(df)) df[[paste0(var, "_top10")]] <- 0.1*(sum(sapply(91:100, function(i) { df[[paste0(var, "_avg_", i)]] }))/sum(sapply(91:100, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] })))/df[[paste0("mean_", var)]]
+    if (!paste0(var, "_bottom50") %in% names(df)) df[[paste0(var, "_bottom50")]] <- 0.5*(sum(sapply(1:50, function(i) { df[[paste0(var, "_avg_", i)]] }))/sum(sapply(1:50, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] })))/df[[paste0("mean_", var)]]    
+  } else {
+    if (!paste0(var, "_top10") %in% names(df)) df[[paste0(var, "_top10")]] <- 0.1*(rowSums(sapply(91:100, function(i) { df[[paste0(var, "_avg_", i)]] }))/rowSums(sapply(91:100, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] })))/df[[paste0("mean_", var)]]
+    if (!paste0(var, "_bottom50") %in% names(df)) df[[paste0(var, "_bottom50")]] <- 0.5*(rowSums(sapply(1:50, function(i) { df[[paste0(var, "_avg_", i)]] }))/rowSums(sapply(1:50, function(i) { df[[paste0(find_pop_share_var(var, df), i)]] })))/df[[paste0("mean_", var)]]
+  }
   if (!paste0(var, "_d9d1") %in% names(df)) df[[paste0(var, "_d9d1")]] <- df[[paste0(var, "_avg_90")]]/df[[paste0(var, "_avg_10")]] 
   if (!paste0(var, "_d9d5") %in% names(df)) df[[paste0(var, "_d9d5")]] <- df[[paste0(var, "_avg_90")]]/df[[paste0(var, "_avg_50")]]
   # if (!paste0(var, "_d9d1") %in% names(df)) df[[paste0(var, "_d9d1")]] <- df[[paste0(var, "_max_90")]]/df[[paste0(var, "_max_10")]] # df[[paste0(var, "_max_10")]] == 0 for SUR
@@ -171,7 +180,7 @@ compute_inequality <- function(var = name_var_growth("optimistic"), df = p, retu
   ineq <- df[, paste0(var, c("_top1", "_top10", "_bottom50", "_d9d1", "_d9d5", "_gini", "_theil"))]
   if (return == "df") {
     if (nrow(df) == 1) print(ineq) 
-    else print(paste0("Theil-L: ", round(theil_within + theil_between, 3), " [within: ", round(theil_within, 3), " (", round(100*theil_within/theil), "%) / between: ", round(theil_between, 3), " (", round(100*theil_between/theil), "%)]"))
+    else print(paste0(var," Theil-L: ", round(theil_within + theil_between, 3), " [within: ", round(theil_within, 3), " (", round(100*theil_within/theil), "%) / between: ", round(theil_between, 3), " (", round(100*theil_between/theil), "%)]"))
     return(df)
   } else if (return %in% c("gini", "Gini")) { return(df[[paste0(var, "_gini")]])
   } else if (return %in% c("top1")) { return(df[[paste0(var, "_top1")]])
@@ -188,86 +197,6 @@ compute_inequality <- function(var = name_var_growth("optimistic"), df = p, retu
   } else if (return %in% c("table", "ineq", "summary")) { return(ineq) 
   } else warning("'return' unknown")
 }
-# TODO! pourquoi w$mean_Y != w$mean_Y_tax_min8? Pourquoi theil est pas pareil dans p et w ?
-
-##### Data #####
-# PIP/PovcalNet data is *per capita* (without adjustment for household composition).
-{ # ~ 11 min
-start <- Sys.time()
-data <- read.csv("../data/Povcalnet 2017.csv") # https://datacatalogfiles.worldbank.org/ddh-published/0063646/DR0090251/world_100bin.csv?versionId=2023-05-31T15:19:01.1473846Z on https://datacatalog.worldbank.org/search/dataset/0063646
-# AF: il vaut mieux écrire le code en anglais pour qu'il puisse être compris par le monde entier
-# Croissance_pays <- read_excel("../data/Croissance pays.xls") # AF: c'est pas dans le répertoire ! Faut mettre ces trucs dans un dossier /Data dans le répertoire github
-# PIB_capita <- read_excel("../data/PIB_capita.xls") # AF: same here # NY.GDP.PCAP.PP.KD	GDP per capita, PPP (constant 2017 international $)
-# AF: il faut que vous rajoutiez en commentaire l'URL et la date où vous avez téléchargé les données
-
-# Data cleaning
-temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year))
-year_max <- setNames(temp$year_max, temp$country_code)
-data$year_max <- year_max[data$country_code]
-# data <- data[data$year == data$year_max,]
-p <- data[data$year == data$year_max,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
-names(p) <- sub("avg_welfare_", "welfare_avg_", names(p), fixed = T)
-p$mean_welfare <- rowSums(p[,paste0("welfare_avg_", 1:100)] * p[,paste0("pop_share_", 1:100)])
-
-# Add population
-pop <- read.csv("../data/future population by age 2022.csv") # https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2022_PopulationByAge5GroupSex_Medium.zip
-pop <- pop[, c("Location", "ISO2_code", "ISO3_code", "Time", "AgeGrpStart", "PopTotal")]
-pop$PopTotal <- 1e3 * pop$PopTotal
-pop <- pop[pop$Time %in% c(sort(unique(p$year)), 2030),]
-pop_iso3 <- aggregate(PopTotal ~ Time + ISO3_code, data = pop, FUN = sum)
-pop_iso3 <- pop_iso3 %>% pivot_wider(names_from = Time, values_from = PopTotal)
-names(pop_iso3) <- c("country_code", paste0("pop_", names(pop_iso3)[-1]))
-p <- merge(p, pop_iso3)
-p$pop_year <- sapply(1:nrow(p), function(c) { p[[paste0("pop_", p$year[c])]][c] }) # in thousands
-
-# Estimate future GDP pc
-gdp_pc <- read_excel("../data/gdp_pc_ppp.xls") # NY.GDP.PCAP.PP.KD
-colnames(gdp_pc)[-1] <- paste0("gdp_pc_", colnames(gdp_pc)[-1])
-p <- merge(p, gdp_pc)
-# p$gdp_pc_2019_over_2014 <- p$gdp_pc_2019/p$gdp_pc_2014
-p$gdp_pc_2022[is.na(p$gdp_pc_2022)] <- pmax(p$gdp_pc_2021, pmax(p$gdp_pc_2020, p$gdp_pc_2019, na.rm = T), na.rm = T)[is.na(p$gdp_pc_2022)]
-p$mean_growth_gdp_pc_14_19 <- pmax(0, (p$gdp_pc_2019/p$gdp_pc_2014)^(1/5)-1)
-# sort(setNames(p$mean_growth_gdp_pc_14_19, p$country), decreasing = T) # max 14-19: CN = 6.15%, max 10-19:  CN 6.7%
-p$gdp_pc_year <- sapply(1:nrow(p), function(c) { p[[paste0("gdp_pc_", min(2022, p$year[c]))]][c] }) 
-
-# Add country name
-iso3 <- read.csv("../data/country_iso3.csv")
-# iso3$country_code[!iso3$country_code %in% p$country_code] # TODO: many countries absent! AFG, CUB, LBY...
-p <- merge(p, iso3)
-p$country[p$country_code == "RUS"] <- "Russia"
-p$country[p$country_code == "BOL"] <- "Bolivia"
-p$country[p$country_code == "GUF"] <- "France"
-p$country[p$country_code == "IRN"] <- "Iran"
-p$country[p$country_code == "KOR"] <- "South Korea"
-p$country[p$country_code == "LAO"] <- "Laos"
-p$country[p$country_code == "MDA"] <- "Moldova"
-p$country[p$country_code == "PSE"] <- "Palestine"
-p$country[p$country_code == "SWZ"] <- "Swaziland"
-p$country[p$country_code == "SYR"] <- "Syria"
-p$country[p$country_code == "TZA"] <- "Tanzania"
-p$country[p$country_code == "VEN"] <- "Venezuela"
-p$country[p$country_code == "VNM"] <- "Vietnam"
-#Missing in PIP : Afghanistan, Brunei, Cuba, Erythrée, Guinée équatoriale, Cambodge, Kuwait, Lybie, Liechtenstein, Nouvelle Calédonie, Nouvelle Zélande, Oman, Puerto Rico, Qatar, Sahara Occidental, Arabie Saoudite, Singapore, Somalie, Taiwan
-countries_names <- setNames(p$country, p$country_code)
-
-# Merge with original Bolch et al. (2022) results  
-bolch_table_original <- read.csv("../data/bolch_table_original.csv") # Table imported from Bolch et al. (2022) PDF using tabula.technology
-p <- merge(p, bolch_table_original, all.x = T)
-# Keep data from Bolch's survey years to replicate it
-year_bolch <- setNames(p$bolch_year, p$country_code) # sum(!is.na(year_bolch)) # 123
-data$year_bolch <- year_bolch[data$country_code]
-temp <- data[data$year == data$year_bolch,]
-temp <- temp %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile), values_fn = mean)
-temp <- temp[!is.na(temp$country_code),!grepl("_NA", names(temp))]
-# temp <- temp[,!names(temp) %in% c("year", "year_max")] # If we put it again, change 7 to 5 in 7:ncol...
-names(temp) <- sub("avg_welfare_", "avg_", names(temp), fixed = T)
-names(temp)[7:ncol(temp)] <- paste0("bolch_", names(temp)[7:ncol(temp)])
-temp$mean_bolch <- rowSums(temp[,paste0("bolch_avg_", 1:100)] * temp[,paste0("bolch_pop_share_", 1:100)], na.rm = T)
-p <- merge(p, temp, all.x = T) #, by = c("country_code", "reporting_level"))
-
-# Add Moatsos' basic need poverty lines 
-bnpl <- read.xlsx("../data/Moatsos2021_BNPL.xlsx", rowNames = T) # /!\ This is in 2011$ and cannot be converted to 2017$ simply by applying a conversion factor (as we do below with 2.15/1.9)
-for (c in p$country_code) if (c %in% p$country_code & c %in% colnames(bnpl)) p$bnpl[p$country_code == c] <- 2.15/1.9 * bnpl[as.character(p$year[p$country_code == c]), c]
 
 compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL, name_var = NULL, df = p, pop_rurb = pop_rural_urban) {
   if (is.null(growth_rate)) growth_rate <- if (growth == "very_optimistic") 1.07 else 1.06
@@ -326,9 +255,9 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
       df[[paste0(y, "_min_", i)]][n] <- df[[paste0(y, "_max_", i-1)]][n]
       df[[paste0(y, "_avg_", i)]][n] <- (
         sum(sapply(1:100, function(k) { df[[paste0("pop_share_", k)]][u] * df[[paste0(y, "_avg_", k)]][u] * (df[[paste0(y, "_avg_", k)]][u] <= df[[paste0(y, "_max_", i)]][n]) * (df[[paste0(y, "_avg_", k)]][u] > df[[paste0(y, "_max_", i-1)]][n]) })) +
-        sum(sapply(1:100,function(k){df[[paste0("pop_share_", k)]][r] * df[[paste0(y, "_avg_", k)]][r] * (df[[paste0(y, "_avg_", k)]][r] <= df[[paste0(y, "_max_", i)]][n]) * (df[[paste0(y, "_avg_", k)]][r] > df[[paste0(y, "_max_", i-1)]][n]) }))) / (
+          sum(sapply(1:100,function(k){df[[paste0("pop_share_", k)]][r] * df[[paste0(y, "_avg_", k)]][r] * (df[[paste0(y, "_avg_", k)]][r] <= df[[paste0(y, "_max_", i)]][n]) * (df[[paste0(y, "_avg_", k)]][r] > df[[paste0(y, "_max_", i-1)]][n]) }))) / (
             sum(sapply(1:100, function(k) { df[[paste0("pop_share_", k)]][u] * (df[[paste0(y, "_avg_", k)]][u] <= df[[paste0(y, "_max_", i)]][n]) * (df[[paste0(y, "_avg_", k)]][u] > df[[paste0(y, "_max_", i-1)]][n]) })) +
-            sum(sapply(1:100,function(k){df[[paste0("pop_share_", k)]][r] * (df[[paste0(y, "_avg_", k)]][r] <= df[[paste0(y, "_max_", i)]][n]) * (df[[paste0(y, "_avg_", k)]][r] > df[[paste0(y, "_max_", i-1)]][n]) })) )
+              sum(sapply(1:100,function(k){df[[paste0("pop_share_", k)]][r] * (df[[paste0(y, "_avg_", k)]][r] <= df[[paste0(y, "_max_", i)]][n]) * (df[[paste0(y, "_avg_", k)]][r] > df[[paste0(y, "_max_", i-1)]][n]) })) )
     }
     # df <- df[df$country_code != c | df$reporting_level == "national",]
   }
@@ -365,42 +294,140 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
   wdf <- compute_inequality(var = var, df = wdf, return = "df")
   return(wdf)
 }
-# y makes the assumption of constant growth while Y assumes 6% growth after 2022
-# p <- df # To run compute_distribution_2030, this line is needed to avoid bug (Indeed, urban/rural have been removed otherwise).
-p <- compute_inequality(var = "bolch", df = p, return = "df")
-p <- compute_distribution_2030(growth = "optimistic", growth_rate = 1.06)
-p <- compute_distribution_2030(growth = "very_optimistic", growth_rate = 1.07, name_var = "Y7")
-p <- compute_distribution_2030(growth = "trend")
-p <- compute_distribution_2030(growth = "trend_pos")
-p <- compute_distribution_2030(growth = "sdg8") # The SDG 8.1: sustained 7% growth starting over 2016-30.
-p <- compute_distribution_2030(growth = "none")
-df <- p <- compute_distribution_2030(growth = "now")
-# df <- p
 
-p <- p[(!p$country_code %in% c("CHN", "IDN", "IND")) | p$reporting_level == "national",]
 
-w <- data.frame(country = "World", pop_2022 = sum(p$pop_2022), pop_2030 = sum(p$pop_2030))
-w <- compute_world_distribution(name_var_growth("optimistic"))  # ~ 1.5 min
-w <- compute_world_distribution("Y7")  # ~ 1.5 min
-w <- compute_world_distribution(name_var_growth("trend"))
-w <- compute_world_distribution(name_var_growth("trend_pos"))
-w <- compute_world_distribution(name_var_growth("sdg8"))
-w <- compute_world_distribution(name_var_growth("none"))
-w <- compute_world_distribution(name_var_growth("now"))
-w.bak <- w
-# rm(data)
-save.image(".RData")
-print(Sys.time() - start)
-beep()
+##### Data #####
+# PIP/PovcalNet data is *per capita* (without adjustment for household composition).
+create_p <- function(ppp_year = 2017, pop_iso = pop_iso3) { 
+  data <- read.csv(paste0("../data/Povcalnet ", ppp_year, ".csv")) # https://datacatalogfiles.worldbank.org/ddh-published/0063646/DR0090251/world_100bin.csv?versionId=2023-05-31T15:19:01.1473846Z on https://datacatalog.worldbank.org/search/dataset/0063646
+  
+  # Data cleaning
+  temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year))
+  year_max <- setNames(temp$year_max, temp$country_code)
+  data$year_max <- year_max[data$country_code]
+  # data <- data[data$year == data$year_max,]
+  p <- data[data$year == data$year_max,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
+  names(p) <- sub("avg_welfare_", "welfare_avg_", names(p), fixed = T)
+  p$mean_welfare <- rowSums(p[,paste0("welfare_avg_", 1:100)] * p[,paste0("pop_share_", 1:100)])
+  
+  # Add population
+  p <- merge(p, pop_iso)
+  p$pop_year <- sapply(1:nrow(p), function(c) { p[[paste0("pop_", p$year[c])]][c] }) # in thousands
+  
+  # Estimate future GDP pc
+  gdp_pc <- read_excel("../data/gdp_pc_ppp.xls") # Fetched in 2023 NY.GDP.PCAP.PP.KD
+  colnames(gdp_pc)[-1] <- paste0("gdp_pc_", colnames(gdp_pc)[-1])
+  p <- merge(p, gdp_pc)
+  # p$gdp_pc_2019_over_2014 <- p$gdp_pc_2019/p$gdp_pc_2014
+  p$gdp_pc_2022[is.na(p$gdp_pc_2022)] <- pmax(p$gdp_pc_2021, pmax(p$gdp_pc_2020, p$gdp_pc_2019, na.rm = T), na.rm = T)[is.na(p$gdp_pc_2022)]
+  p$mean_growth_gdp_pc_14_19 <- pmax(0, (p$gdp_pc_2019/p$gdp_pc_2014)^(1/5)-1)
+  # sort(setNames(p$mean_growth_gdp_pc_14_19, p$country), decreasing = T) # max 14-19: CN = 6.15%, max 10-19:  CN 6.7%
+  p$gdp_pc_year <- sapply(1:nrow(p), function(c) { p[[paste0("gdp_pc_", min(2022, p$year[c]))]][c] }) 
+  
+  # Add country name
+  iso3 <- read.csv("../data/country_iso3.csv")
+  # iso3$country_code[!iso3$country_code %in% p$country_code] # TODO: many countries absent! AFG, CUB, LBY...
+  p <- merge(p, iso3)
+  p$country[p$country_code == "RUS"] <- "Russia"
+  p$country[p$country_code == "BOL"] <- "Bolivia"
+  p$country[p$country_code == "GUF"] <- "France"
+  p$country[p$country_code == "IRN"] <- "Iran"
+  p$country[p$country_code == "KOR"] <- "South Korea"
+  p$country[p$country_code == "LAO"] <- "Laos"
+  p$country[p$country_code == "MDA"] <- "Moldova"
+  p$country[p$country_code == "PSE"] <- "Palestine"
+  p$country[p$country_code == "SWZ"] <- "Swaziland"
+  p$country[p$country_code == "SYR"] <- "Syria"
+  p$country[p$country_code == "TZA"] <- "Tanzania"
+  p$country[p$country_code == "VEN"] <- "Venezuela"
+  p$country[p$country_code == "VNM"] <- "Vietnam"
+  #Missing in PIP : Afghanistan, Brunei, Cuba, Erythrée, Guinée équatoriale, Cambodge, Kuwait, Lybie, Liechtenstein, Nouvelle Calédonie, Nouvelle Zélande, Oman, Puerto Rico, Qatar, Sahara Occidental, Arabie Saoudite, Singapore, Somalie, Taiwan
+  countries_names <- setNames(p$country, p$country_code)
+  
+  # Merge with original Bolch et al. (2022) results  
+  bolch_table_original <- read.csv("../data/bolch_table_original.csv") # Table imported from Bolch et al. (2022) PDF using tabula.technology
+  p <- merge(p, bolch_table_original, all.x = T)
+  # Keep data from Bolch's survey years to replicate it
+  year_bolch <- setNames(p$bolch_year, p$country_code) # sum(!is.na(year_bolch)) # 123
+  data$year_bolch <- year_bolch[data$country_code]
+  temp <- data[data$year == data$year_bolch,]
+  temp <- temp %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile), values_fn = mean)
+  temp <- temp[!is.na(temp$country_code),!grepl("_NA", names(temp))]
+  # temp <- temp[,!names(temp) %in% c("year", "year_max")] # If we put it again, change 7 to 5 in 7:ncol...
+  names(temp) <- sub("avg_welfare_", "avg_", names(temp), fixed = T)
+  names(temp)[7:ncol(temp)] <- paste0("bolch_", names(temp)[7:ncol(temp)])
+  temp$mean_bolch <- rowSums(temp[,paste0("bolch_avg_", 1:100)] * temp[,paste0("bolch_pop_share_", 1:100)], na.rm = T)
+  p <- merge(p, temp, all.x = T) #, by = c("country_code", "reporting_level"))
+  
+  # Add Moatsos' basic need poverty lines (Moatsos, 2021) and Bare bones basket with Consumption Shares (Moatsos, 2016)
+  conversion_17_11 <- if (ppp_year == 2017) 2.15/1.9 else 1
+  bnpl <- read.xlsx("../data/Moatsos2021_BNPL.xlsx", rowNames = T) # /!\ This is in 2011$ and cannot be converted to 2017$ simply by applying a conversion factor (as we do below with 2.15/1.9)
+  for (c in p$country_code) if (c %in% colnames(bnpl)) p$bnpl[p$country_code == c] <- conversion_17_11 * bnpl[as.character(unique(p$year[p$country_code == c])), c] 
+  
+  bcs <- read.xlsx("../data/Moatsos2016_BCS.xlsx", rowNames = T) # For some countries (like India), CPIs were missing; while others (like DRC) are simply absent from Moatsos' data 
+  ppp11 <- read.xlsx("../data/LCU_per_PPP11.xlsx", rowNames = T) # World Bank (10/12/23) PPP conversion factor (LCU per int'l $, 2011) PA.NUS.PPP https://databank.worldbank.org/reports.aspx?source=2&series=PA.NUS.PPP&country#
+  for (c in p$country_code) if (sum(bcs$iso3 == c & !is.na(bcs$BBPlus)) > 1) { # /!\ For the many countries for which PIP survey is more recent than BCS estimates, we use the last year for which BCS is estimated.
+    c_year <- paste0(c, min(p$year[p$country_code == c], max(bcs$year[bcs$iso3 == c & !is.na(bcs$BBPlus)])))
+    # if (is.na(bcs[paste0(c, 2011), "CPI"]/bcs[c_year, "CPI"])) print(paste("CPI", c)) # CHN, IND, COM Comores, PNG Papua, TON. Have added manually CPI in the .xlsx for them (except COM: no data) from World Bank (12/10/2023) FP.CPI.TOTL Consumer Price Index.
+    # if (is.na(ppp11[c,"PPP11"])) print(paste0("PPP", c)) # none
+    p$bcs[p$country_code == c] <- conversion_17_11 * bcs[c_year, "BBPlus"] * (bcs[paste0(c, 2011), "CPI"]/bcs[c_year, "CPI"]) / ppp11[c,"PPP11"] / 365
+  }
+
+  # y makes the assumption of constant growth while Y assumes 6% growth after 2022
+  # p <- df # To run compute_distribution_2030, this line is needed to avoid bug (Indeed, urban/rural have been removed otherwise).
+  p <- compute_inequality(var = "bolch", df = p, return = "df")
+  p <- compute_distribution_2030(growth = "optimistic", df = p, growth_rate = 1.06)
+  p <- compute_distribution_2030(growth = "very_optimistic", df = p, growth_rate = 1.07, name_var = "Y7")
+  p <- compute_distribution_2030(growth = "trend", df = p)
+  p <- compute_distribution_2030(growth = "trend_pos", df = p)
+  p <- compute_distribution_2030(growth = "sdg8", df = p) # The SDG 8.1: sustained 7% growth starting over 2016-30.
+  p <- compute_distribution_2030(growth = "none", df = p)
+  p <- compute_distribution_2030(growth = "now", df = p)
+  # df <- p
+
+  p <- p[(!p$country_code %in% c("CHN", "IDN", "IND")) | p$reporting_level == "national",]
+  
+  return(p)
 }
+
+create_world_distribution <- function(df = p17) {
+  w <- data.frame(country = "World", pop_2022 = sum(p$pop_2022), pop_2030 = sum(p$pop_2030))
+  w <- compute_world_distribution(name_var_growth("optimistic"), df = df, wdf = w)  # ~ 1.5 min
+  w <- compute_world_distribution("Y7", df = df, wdf = w)  # ~ 1.5 min
+  w <- compute_world_distribution(name_var_growth("trend"), df = df, wdf = w)
+  w <- compute_world_distribution(name_var_growth("trend_pos"), df = df, wdf = w)
+  w <- compute_world_distribution(name_var_growth("sdg8"), df = df, wdf = w)
+  w <- compute_world_distribution(name_var_growth("none"), df = df, wdf = w)
+  w <- compute_world_distribution(name_var_growth("now"), df = df, wdf = w)
+  return(w)
+}
+
+# Load population
+pop <- read.csv("../data/future population by age 2022.csv") # https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2022_PopulationByAge5GroupSex_Medium.zip
+pop <- pop[, c("Location", "ISO2_code", "ISO3_code", "Time", "AgeGrpStart", "PopTotal")]
+pop$PopTotal <- 1e3 * pop$PopTotal
+pop <- pop[pop$Time %in% c(sort(unique(p$year)), 2030),]
+pop_iso3 <- aggregate(PopTotal ~ Time + ISO3_code, data = pop, FUN = sum)
+pop_iso3 <- pop_iso3 %>% pivot_wider(names_from = Time, values_from = PopTotal)
+names(pop_iso3) <- c("country_code", paste0("pop_", names(pop_iso3)[-1]))
+rm(pop)
+
+start <- Sys.time()
+p <- p17 <- create_p()
+p11 <- create_p(ppp_year = 2011)
+w <- create_world_distribution()
+# w11 <- create_world_distribution(df = p11)
+print(Sys.time() - start) # ~ 25 min
+beep()
+save.image(".RData")
 
 
 ##### Computations #####
 # p <- compute_inequality(var = name_var_growth("optimistic"), df = p, return = "df")
-# w <- compute_inequality(var = name_var_growth("optimistic"), df = w, return = "df") # TODO! poverty_gaps have changed
-(w$poverty_gap_2 <- compute_poverty_gap(df = w, threshold = 2.15, unit = 'threshold', growth = "now")) # 3.1% estimated in 2022 vs. official 2019: 2.6% (higher because 2019 vs. 2022?) official: https://data.worldbank.org/indicator/SI.POV.GAPS
-(w$poverty_gap_4 <- compute_poverty_gap(df = w, threshold = 3.65, unit = 'threshold', growth = "now")) # 8.1% vs. official: 8%
-(w$poverty_gap_7 <- compute_poverty_gap(df = w, threshold = 6.85, unit = 'threshold', growth = "now")) # 19% vs. official: 21%
+# w <- compute_inequality(var = name_var_growth("optimistic"), df = w, return = "df") 
+(w$poverty_gap_2 <- compute_poverty_gap(df = w, threshold = 2.15, unit = 'threshold', growth = "now")) # 2.2% estimated in 2022 vs. official 2019: 2.6% (higher because 2019 vs. 2022?) official: https://data.worldbank.org/indicator/SI.POV.GAPS
+(w$poverty_gap_4 <- compute_poverty_gap(df = w, threshold = 3.65, unit = 'threshold', growth = "now")) # 7.1% vs. official: 8%
+(w$poverty_gap_7 <- compute_poverty_gap(df = w, threshold = 6.85, unit = 'threshold', growth = "now")) # 19.8% vs. official: 21%
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 8.22, unit = '%', growth = "optimistic")) # 3.6% of world GDP to reach 250$/month
 (tax_revenues(df = w, thresholds = c(33, 66, 100, 200, 300), marginal_rates = c(1, 4, 8, 20, 30), return = '%', growth = "optimistic")) # 1.18% of world GDP
 compute_min_funded(revenues = tax_revenues(df = w, thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'pc', growth = "optimistic"))
@@ -414,7 +441,7 @@ df <- tax_revenues(df = p, scope_tax = w, name_tax = "min8", thresholds = c(1, 2
 (w$antipoverty_10_tax_100 <- compute_antipoverty_tax(df = w, exemption_threshold = 100, poverty_threshold = 10, growth = "optimistic")) # 8.66
 (w$y_expropriated_9 <- compute_antipoverty_maximum(df = w, threshold = 9, growth = "optimistic")) # 470
 
-# comparer bolch_index_1/2 avec 
+# comparer bolch_index_1/2 avec # TODO! debug
 p$bolch_poverty_rate_3 <- compute_poverty_rate(df = p, threshold = 3.44, growth = "bolch", return = "rate")
 p$poverty_rate_3 <- compute_poverty_rate(df = p, threshold = 3.44, growth = "now", return = "rate")
 p$bolch_index_1_original <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "bolch", return = "bolch") 
@@ -431,7 +458,8 @@ table_bolch_replication <- cbind("year" = p$year_bolch, "poverty_rate_replicated
                                  "bolch_1_replicated" = p$bolch_index_1_now, "bolch_1_original" = p$bolch_pec_1, "bolch_2_replicated" = p$bolch_index_2_now, "bolch_2_original" = p$bolch_pec_2)
 row.names(table_bolch_replication) <- p$country
 (table_bolch_replication <- table_bolch_replication[!is.na(table_bolch_replication[,5]) & p$pop_2022 > 20e6,]) # "Indicators from Bolch et al. (2022) replicated"
-# Why several Poland? Why some NA in year_bolch (because years don't coincide, perhaps because Dykstra recodes 2008.5 into 2009 and me 2008?) and bolch_poverty_rate_3?
+# Why two Poland? Because it has both a consumption and income reporting_level. TODO? remove one?
+# Why some NA in year_bolch (because years don't coincide, perhaps because Dykstra recodes 2008.5 into 2009 and me 2008?) and bolch_poverty_rate_3?
 cat(paste(kbl(table_bolch_replication, "latex", caption = "Indicators from Bolch et al. (2022) replicated", position = "b", escape = F, booktabs = T, digits = c(0, 2, 2, 2, 2, 2, 2), linesep = rep("", nrow(table_bolch)-1), longtable = T, label = "bolch_replication",
               col.names = c("\\makecell{Survey\\\\year}", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\replicated", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\original", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\replicated}", 
                             "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\original}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\replicated}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\original}")), collapse="\n"), file = "../tables/bolch_replication.tex") 
@@ -471,67 +499,73 @@ p$poverty_gap_7 <- compute_poverty_gap(threshold = 6.85, growth = "trend")
 p$percentile_expropriated_2 <- compute_antipoverty_maximum(df = p, threshold = 2.15, return = "percentile", growth = "trend")
 p$percentile_expropriated_4 <- compute_antipoverty_maximum(df = p, threshold = 3.65, return = "percentile", growth = "trend")
 p$percentile_expropriated_7 <- compute_antipoverty_maximum(df = p, threshold = 6.85, return = "percentile", growth = "trend")
-p$percentile_expropriated_13 <- compute_antipoverty_maximum(df = p, threshold = 13, return = "percentile", growth = "trend")
+p$percentile_expropriated_18 <- compute_antipoverty_maximum(df = p, threshold = 18.15, return = "percentile", growth = "trend")
 
 p$y_expropriated_2 <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "trend")
 p$y_expropriated_4 <- compute_antipoverty_maximum(df = p, threshold = 3.65, growth = "trend")
 p$y_expropriated_7 <- compute_antipoverty_maximum(df = p, threshold = 6.85, growth = "trend")
-p$y_expropriated_13 <- compute_antipoverty_maximum(df = p, threshold = 13, growth = "trend")
+p$y_expropriated_18 <- compute_antipoverty_maximum(df = p, threshold = 18.15, growth = "trend")
 
 p$percentile_expropriated_2_optimistic <- compute_antipoverty_maximum(df = p, threshold = 2.15, return = "percentile", growth = "optimistic")
 p$percentile_expropriated_4_optimistic <- compute_antipoverty_maximum(df = p, threshold = 3.65, return = "percentile", growth = "optimistic")
 p$percentile_expropriated_7_optimistic <- compute_antipoverty_maximum(df = p, threshold = 6.85, return = "percentile", growth = "optimistic")
-p$percentile_expropriated_13_optimistic <- compute_antipoverty_maximum(df = p, threshold = 13, return = "percentile", growth = "optimistic")
+p$percentile_expropriated_18_optimistic <- compute_antipoverty_maximum(df = p, threshold = 18.15, return = "percentile", growth = "optimistic")
 
 p$y_expropriated_2_optimistic <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "optimistic")
 p$y_expropriated_4_optimistic <- compute_antipoverty_maximum(df = p, threshold = 3.65, growth = "optimistic")
 p$y_expropriated_7_optimistic <- compute_antipoverty_maximum(df = p, threshold = 6.85, growth = "optimistic")
-p$y_expropriated_13_optimistic <- compute_antipoverty_maximum(df = p, threshold = 13, growth = "optimistic")
+p$y_expropriated_18_optimistic <- compute_antipoverty_maximum(df = p, threshold = 18.15, growth = "optimistic")
 
 # Antipoverty tax
-p$antipoverty_2_tax_13 <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 2.15, growth = "trend")
+p$antipoverty_2_tax_18 <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "trend")
 p$antipoverty_2_tax_7 <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "trend")
 p$antipoverty_2_tax_4 <- compute_antipoverty_tax(df = p, exemption_threshold = 3.65, poverty_threshold = 2.15, growth = "trend")
 p$antipoverty_2_tax_2 <- compute_antipoverty_tax(df = p, exemption_threshold = 2.15, poverty_threshold = 2.15, growth = "trend")
+p$antipoverty_bnpl_tax_bnpl <- compute_antipoverty_tax(df = p11, exemption_threshold = "bnpl", poverty_threshold = "bnpl", growth = "trend")
+p$antipoverty_bnpl_tax_7 <- compute_antipoverty_tax(df = p11, exemption_threshold = 5.5, poverty_threshold = "bnpl", growth = "trend") # In 2011PPP, 2.15/3.65/6.85 is 1.9/3.2/5.5 https://documents1.worldbank.org/curated/en/099700509122212929/pdf/IDU05b43a261041c504a5f0bb3405d0ef310b9e1.pdf
+p$antipoverty_bnpl_tax_18 <- compute_antipoverty_tax(df = p11, exemption_threshold = 15.31, poverty_threshold = "bnpl", growth = "trend") # 2011 Poverty line in the U.S. for a family of 4 is 15.31=22350/365/4 https://aspe.hhs.gov/2011-hhs-poverty-guidelines
+p$antipoverty_bcs_tax_bcs <- compute_antipoverty_tax(df = p11, exemption_threshold = "bcs", poverty_threshold = "bcs", growth = "trend")
+p$antipoverty_bcs_tax_7 <- compute_antipoverty_tax(df = p11, exemption_threshold = 5.5, poverty_threshold = "bcs", growth = "trend") # In 2011PPP, 2.15/3.65/6.85 is 1.9/3.2/5.5 https://documents1.worldbank.org/curated/en/099700509122212929/pdf/IDU05b43a261041c504a5f0bb3405d0ef310b9e1.pdf
+p$antipoverty_bcs_tax_18 <- compute_antipoverty_tax(df = p11, exemption_threshold = 15.31, poverty_threshold = "bcs", growth = "trend") # 2011 Poverty line in the U.S. for a family of 4 is 15.31=22350/365/4 https://aspe.hhs.gov/2011-hhs-poverty-guidelines
 p$antipoverty_4_tax_7 <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 3.65, growth = "trend")
-p$antipoverty_4_tax_13 <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 3.65, growth = "trend")
-p$antipoverty_7_tax_13 <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 6.85, growth = "trend")
-p$antipoverty_13_tax_13 <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 13, growth = "trend")
+p$antipoverty_4_tax_18 <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.65, growth = "trend")
+p$antipoverty_7_tax_18 <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 6.85, growth = "trend")
+p$antipoverty_18_tax_18 <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 18.15, growth = "trend")
 
-p$antipoverty_2_tax_13_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 2.15, growth = "optimistic")
+p$antipoverty_2_tax_18_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "optimistic")
 p$antipoverty_2_tax_7_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "optimistic")
 p$antipoverty_2_tax_4_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 3.65, poverty_threshold = 2.15, growth = "optimistic")
 p$antipoverty_2_tax_2_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 2.15, poverty_threshold = 2.15, growth = "optimistic")
 p$antipoverty_4_tax_7_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 3.65, growth = "optimistic")
-p$antipoverty_4_tax_13_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 3.65, growth = "optimistic")
-p$antipoverty_7_tax_13_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 6.85, growth = "optimistic")
-p$antipoverty_13_tax_13_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 13, growth = "optimistic")
+p$antipoverty_4_tax_18_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.65, growth = "optimistic")
+p$antipoverty_7_tax_18_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 6.85, growth = "optimistic")
+p$antipoverty_18_tax_18_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 18.15, growth = "optimistic")
 
 ##### Results ##### 
 sort(setNames(p$poverty_gap_2, p$country))
 sort(setNames(p$antipoverty_2_tax_2, p$country))
 sort(setNames(p$antipoverty_2_tax_7_optimistic, p$country))
 sort(setNames(p$y_expropriated_2, p$country), decreasing = T)
-sum(p$y_expropriated_2 < 13) # 19
-sum(p$pop_2030[p$y_expropriated_2 < 13]) # 700M
-sum(p$pop_2022[p$y_expropriated_2 < 13]) # 571M
+sum(p$y_expropriated_2 < 18.15) # 19
+sum(p$pop_2030[p$y_expropriated_2 < 18.15]) # 700M
+sum(p$pop_2022[p$y_expropriated_2 < 18.15]) # 571M
 sum(p$mean_Y < 6.85) # 8
 sum(p$pop_2030[p$mean_Y < 6.85]) # 300M
 sum(p$gdp_pc_2021 < 6.85*365, na.rm = T) # 22
 sum(p$pop_2022[p$gdp_pc_2021 < 6.85*365], na.rm = T) # 521M
 sort(setNames(p$gdp_pc_2030/365, p$country), decreasing = T)
-decrit("antipoverty_2_tax_13")
+decrit("antipoverty_2_tax_18")
 decrit("antipoverty_2_tax_7")
 decrit("antipoverty_2_tax_4")
 decrit("antipoverty_2_tax_2")
 decrit("antipoverty_4_tax_7")
-decrit("antipoverty_4_tax_13")
-decrit("antipoverty_7_tax_13")
-decrit("antipoverty_13_tax_13")
+decrit("antipoverty_4_tax_18")
+decrit("antipoverty_7_tax_18")
+decrit("antipoverty_18_tax_18")
 decrit("y_expropriated_2")
 decrit("y_expropriated_4")
 decrit("y_expropriated_7")
-decrit("y_expropriated_13")
+decrit("y_expropriated_18")
 
 
 # /!\ PROBLEM: huge discrepancies between PovcalNet and GDP pc data (this is because conso survey underestimates high-incomes and doesn't include investment), e.g. for MDG: 
@@ -539,15 +573,33 @@ p$mean_y_2022[p$country == "Madagascar"]
 p$gdp_pc_2022[p$country == "Madagascar"]/365 # GDP pc from World Bank
 
 
-#####  Maps ##### 
+#####  Maps ##### # TODO! replot
 plot_world_map("antipoverty_2_tax_2", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $2.15/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 plot_world_map("antipoverty_2_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
-plot_world_map("antipoverty_2_tax_13", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+plot_world_map("antipoverty_2_tax_18", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $13/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("antipoverty_bnpl_tax_bnpl", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove Basic Needs\nPoverty Line (BNPL)\nrequired to lift all\nabove BNPL\n", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("antipoverty_bnpl_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $5.5/day\n(in 2011 PPP$)\nrequired to lift all\nabove Basic Needs", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("antipoverty_bnpl_tax_18", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $15.3/day\n(in 2011 PPP$)\nrequired to lift all\nabove Basic Needs", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("antipoverty_bcs_tax_bcs", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove Basic Consumption\nPoverty Line (BCS PL)\nrequired to lift all\nabove BCS PL\n", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("antipoverty_bcs_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $5.5/day\n(in 2011 PPP$)\nrequired to lift all\nabove Basic Consumption", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("antipoverty_bcs_tax_18", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $15.3/day\n(in 2011 PPP$)\nrequired to lift all\nabove Basic Consumption", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 # plot_world_map("percentile_expropriated_2", breaks = c(-Inf, 0, 50, 90, 95, 99, 100), sep = " to ", end = "", strict_ineq_lower = T, 
 #                legend = "Percentile above which\nall should be expropriated\nto lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
@@ -561,7 +613,7 @@ plot_world_map("y_expropriated_2", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, In
 plot_world_map("y_expropriated_7", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
                legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $6.85/day\n(in $ 2017 PPP)", #fill_na = T,  
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
-plot_world_map("y_expropriated_13", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
+plot_world_map("y_expropriated_18", breaks = c(0, 2.15, 4, 7, 13, 18.15, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
                legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $13/day\n(in $ 2017 PPP)", #fill_na = T,  
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
 plot_world_map("poverty_gap_2", breaks = c(0, 2, 10, 20, 40, 60, 100), sep = " to ", end = "", strict_ineq_lower = FALSE, # svg, pdf 
@@ -574,7 +626,7 @@ plot_world_map("antipoverty_2_tax_2_optimistic", breaks = c(0, .1, 1, 5, 10, 25,
 plot_world_map("antipoverty_2_tax_7_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
-plot_world_map("antipoverty_2_tax_13_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+plot_world_map("antipoverty_2_tax_18_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $13/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 plot_world_map("y_expropriated_2_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
@@ -583,7 +635,7 @@ plot_world_map("y_expropriated_2_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 
 plot_world_map("y_expropriated_7_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
                legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $6.85/day\n(in $ 2017 PPP)", #fill_na = T,  
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
-plot_world_map("y_expropriated_13_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
+plot_world_map("y_expropriated_18_optimistic", breaks = c(0, 2.15, 4, 7, 13, 18.15, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
                legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $13/day\n(in $ 2017 PPP)", #fill_na = T,  
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
 
@@ -596,7 +648,7 @@ plot_world_map("antipoverty_2_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, I
 plot_world_map("antipoverty_2_tax_2", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), add_folder = 'fr_',
                legend = "Taux de taxe linéaire \nau-dessus de $2.15/jour\nnécessaire pour éradiquer\nl'extrême pauvreté à $2.15/jour\n(en 2017 PPA)", #fill_na = T, 
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T) 
-plot_world_map("antipoverty_2_tax_13", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), add_folder = 'fr_',
+plot_world_map("antipoverty_2_tax_18", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), add_folder = 'fr_',
                legend = "Taux de taxe linéaire\n au-dessus de $13/jour\nnécessaire pour éradiquer\nl'extrême pauvreté à $2.15/jour\n(en 2017 PPA)", #fill_na = T, 
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T) 
 # plot_world_map("percentile_expropriated_2", breaks = c(-Inf, 0, 50, 90, 95, 99, 100), sep = " to ", end = "", strict_ineq_lower = T, add_folder = 'fr_',
@@ -611,7 +663,7 @@ plot_world_map("y_expropriated_2", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, In
 plot_world_map("y_expropriated_7", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T,  add_folder = 'fr_',# svg, pdf
                legend = "Revenu journalier au\ndessus duquel tout devrait\nêtre exproprié pour élever \ntous les habitants du pays\nau-dessus de $6.85/jour\n(en $ 2017 PPA)", #fill_na = T,
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)
-plot_world_map("y_expropriated_13", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T,  add_folder = 'fr_',# svg, pdf
+plot_world_map("y_expropriated_18", breaks = c(0, 2.15, 4, 7, 13, 18.15, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T,  add_folder = 'fr_',# svg, pdf
                legend = "Revenu journalier au\ndessus duquel tout devrait\nêtre exproprié pour élever \ntous les habitants du pays\nau-dessus de $13/jour\n(en $ 2017 PPA)", #fill_na = T,
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)
 plot_world_map("poverty_gap_2", breaks = c(0, 2, 10, 20, 40, 60, 100), sep = " to ", end = "", strict_ineq_lower = FALSE,  add_folder = 'fr_',# svg, pdf
