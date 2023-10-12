@@ -35,14 +35,17 @@ find_pop_share_var <- function(var, df) {
 }
 compute_poverty_rate <- function(df = p, threshold = 3.44, growth = "optimistic", return = "rate") {
   y <- name_var_growth(growth)
-  df[[paste0(y, "poverty_rate_", round(threshold))]] <- 0
-  for (i in 1:100) df[[paste0(y, "poverty_rate_", round(threshold))]] <- df[[paste0(y, "poverty_rate_", round(threshold))]] + (df[[paste0(y, "_avg_", i)]] < threshold) * df[[paste0(find_pop_share_var(y, df), i)]]
+  name_poverty_rate <- paste0(y, "poverty_rate_", if (is.numeric(threshold)) round(threshold) else threshold)
+  if (is.character(threshold)) threshold <- df[[threshold]]
+  df[[name_poverty_rate]] <- 0
+  for (i in 1:100) df[[]] <- df[[name_poverty_rate]] + (df[[paste0(y, "_avg_", i)]] < threshold) * df[[paste0(find_pop_share_var(y, df), i)]]
   if (return == "df") return(df)
-  else return(df[[paste0(y, "poverty_rate_", round(threshold))]])
+  else return(df[[name_poverty_rate]])
 }
 # Average poverty gap. unit: 'mean' (in $/day/person), 'sum' (100 times 'mean'), '%' (in % of GDP), 'threshold' (in % of threshold), '$' (in $)
 compute_poverty_gap <- function(df = p, threshold = 2.15, unit = "sum", growth = "optimistic") {
   y <- name_var_growth(growth)
+  if (is.character(threshold)) threshold <- df[[threshold]]
   poverty_gaps <- sapply(1:100, function(i) { pmax(0, threshold - df[[paste0(y, "_avg_", i)]]) })
   pg <- if (!is.vector(poverty_gaps)) rowSums(poverty_gaps) else sum(poverty_gaps)
   if (unit != "sum") pg <- pg/100
@@ -54,6 +57,7 @@ compute_poverty_gap <- function(df = p, threshold = 2.15, unit = "sum", growth =
 # Percentile above which we expropriate all y to fill the poverty gap TODO? rename: anti-poverty cap
 compute_antipoverty_maximum <- function(df = p, threshold = 2.15, return = "y", growth = "optimistic") { 
   y <- name_var_growth(growth)
+  thresholds <- if (is.numeric(threshold)) rep(threshold, nrow(df)) else p[[threshold]]
   poverty_gap <- compute_poverty_gap(df = df, threshold = threshold, unit = "sum", growth = growth)
   percentile_expropriated <- rep(100, nrow(df))
   y_expropriated <- rep(Inf, nrow(df))
@@ -64,7 +68,7 @@ compute_antipoverty_maximum <- function(df = p, threshold = 2.15, return = "y", 
       funded <- funded + df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - y_expropriated[c] + (100 - percentile_expropriated[c]) * (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - y_expropriated[c])
       percentile_expropriated[c] <- percentile_expropriated[c] - 1
       # By convention, if we cannot close the poverty gap in the country, we set percentile_expropriated to 0 and y_expropriated at gdp_pc_2030
-      if (df[[paste0(y, "_min_", percentile_expropriated[c])]][c] < threshold) {
+      if (df[[paste0(y, "_min_", percentile_expropriated[c])]][c] < thresholds[c]) {
         percentile_expropriated[c] <- 0
         y_expropriated[c] <- df[[paste0("mean_", y)]][c] # df$gdp_pc_2030[c]/365
       }
@@ -72,11 +76,12 @@ compute_antipoverty_maximum <- function(df = p, threshold = 2.15, return = "y", 
   }
   if (return == "percentile") return(percentile_expropriated)
   else if (return == "df") {
-    df[[paste0(y, "_min_", round(poverty_threshold), "_cap")]] <- y_expropriated
-    df[[paste0(y, "_min_", round(poverty_threshold), "_cap_percentile")]] <- percentile_expropriated
-    for (i in 1:100) df[[paste0(y, "_min_", round(poverty_threshold), "_cap_avg_", i)]] <- pmax(threshold, pmin(y_expropriated, df[[paste0(y, "_avg_", i)]]))
-    df[[paste0("mean_", y, "_min_", round(poverty_threshold), "_cap")]] <- rowSums(df[,paste0(y, "_min_", round(poverty_threshold), "_cap_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
-    df <- compute_inequality(var = paste0(y, "_min_", round(poverty_threshold), "_cap"), df = df, return = "df")
+    name_var <- paste0(y, "_min_", if (is.numeric(threshold)) round(threshold) else threshold, "_cap")
+    df[[name_var]] <- y_expropriated
+    df[[paste0(name_var, "_percentile")]] <- percentile_expropriated
+    for (i in 1:100) df[[paste0(name_var, "_avg_", i)]] <- pmax(threshold, pmin(y_expropriated, df[[paste0(y, "_avg_", i)]]))
+    df[[paste0("mean_", name_var)]] <- rowSums(df[,paste0(name_var, "_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
+    df <- compute_inequality(var = , df = df, return = "df")
     return(df)
   }
   else return(y_expropriated)
@@ -245,8 +250,6 @@ p$country[p$country_code == "VNM"] <- "Vietnam"
 #Missing in PIP : Afghanistan, Brunei, Cuba, Erythrée, Guinée équatoriale, Cambodge, Kuwait, Lybie, Liechtenstein, Nouvelle Calédonie, Nouvelle Zélande, Oman, Puerto Rico, Qatar, Sahara Occidental, Arabie Saoudite, Singapore, Somalie, Taiwan
 countries_names <- setNames(p$country, p$country_code)
 
-iso3 <- read.csv("../data/country_iso3.csv")
-
 # Merge with original Bolch et al. (2022) results  
 bolch_table_original <- read.csv("../data/bolch_table_original.csv") # Table imported from Bolch et al. (2022) PDF using tabula.technology
 p <- merge(p, bolch_table_original, all.x = T)
@@ -256,10 +259,15 @@ data$year_bolch <- year_bolch[data$country_code]
 temp <- data[data$year == data$year_bolch,]
 temp <- temp %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile), values_fn = mean)
 temp <- temp[!is.na(temp$country_code),!grepl("_NA", names(temp))]
+# temp <- temp[,!names(temp) %in% c("year", "year_max")] # If we put it again, change 7 to 5 in 7:ncol...
 names(temp) <- sub("avg_welfare_", "avg_", names(temp), fixed = T)
 names(temp)[7:ncol(temp)] <- paste0("bolch_", names(temp)[7:ncol(temp)])
 temp$mean_bolch <- rowSums(temp[,paste0("bolch_avg_", 1:100)] * temp[,paste0("bolch_pop_share_", 1:100)], na.rm = T)
-p <- merge(p, temp, all.x = T, by = c("country_code", "reporting_level"))
+p <- merge(p, temp, all.x = T) #, by = c("country_code", "reporting_level"))
+
+# Add Moatsos' basic need poverty lines 
+bnpl <- read.xlsx("../data/Moatsos2021_BNPL.xlsx", rowNames = T) # /!\ This is in 2011$ and cannot be converted to 2017$ simply by applying a conversion factor (as we do below with 2.15/1.9)
+for (c in p$country_code) if (c %in% p$country_code & c %in% colnames(bnpl)) p$bnpl[p$country_code == c] <- 2.15/1.9 * bnpl[as.character(p$year[p$country_code == c]), c]
 
 compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL, name_var = NULL, df = p, pop_rurb = pop_rural_urban) {
   if (is.null(growth_rate)) growth_rate <- if (growth == "very_optimistic") 1.07 else 1.06
