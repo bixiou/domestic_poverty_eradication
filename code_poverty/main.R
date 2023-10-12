@@ -5,7 +5,7 @@
 # TODO!
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly
-# pourquoi w$mean_Y != w$mean_Y_tax_min8? Pourquoi theil est pas pareil dans p et w ?
+# pourquoi w$mean_Y != w$mean_Y_tax_min8? 
 
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021). On cheap diets, cite https://sites.tufts.edu/foodpricesfornutrition/research-and-publications/
 
@@ -179,8 +179,8 @@ compute_inequality <- function(var = name_var_growth("optimistic"), df = p, retu
   
   ineq <- df[, paste0(var, c("_top1", "_top10", "_bottom50", "_d9d1", "_d9d5", "_gini", "_theil"))]
   if (return == "df") {
-    if (nrow(df) == 1) print(ineq) 
-    else print(paste0(var," Theil-L: ", round(theil_within + theil_between, 3), " [within: ", round(theil_within, 3), " (", round(100*theil_within/theil), "%) / between: ", round(theil_between, 3), " (", round(100*theil_between/theil), "%)]"))
+    # if (nrow(df) == 1) print(ineq) 
+    # else print(paste0(var," Theil-L: ", round(theil, 3), " [within: ", round(theil_within, 3), " (", round(100*theil_within/theil), "%) / between: ", round(theil_between, 3), " (", round(100*theil_between/theil), "%)]"))
     return(df)
   } else if (return %in% c("gini", "Gini")) { return(df[[paste0(var, "_gini")]])
   } else if (return %in% c("top1")) { return(df[[paste0(var, "_top1")]])
@@ -193,7 +193,8 @@ compute_inequality <- function(var = name_var_growth("optimistic"), df = p, retu
   } else if (return %in% c("theil_between")) { return(theil_between) 
   } else if (return %in% c("theil_within_share")) { return(theil_within/theil) 
   } else if (return %in% c("theil_between_share")) { return(theil_between/theil) 
-  } else if (return %in% c("theil")) { return(theil) 
+  } else if (return %in% c("theil_total")) { return(theil) 
+  } else if (return %in% c("theil_total")) { return(c(theil, theil_within/theil, theil_between/theil)) 
   } else if (return %in% c("table", "ineq", "summary")) { return(ineq) 
   } else warning("'return' unknown")
 }
@@ -282,12 +283,9 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
   wdf[[paste0(var, "_max_0")]] <- 0
   for (i in 1:100) {
     wdf[[paste0(var, "_max_", i)]] <- wquantiles[wpercentiles[i]]
-    if (i == 1) wdf[[paste0(var, "_pop_share_1")]] <- wdf[[paste0(var, "_pop_share_1")]] <- wcdf[wpercentiles[1]] 
-    else wdf[[paste0(var, "_pop_share_", i)]] <- wcdf[wpercentiles[i]] - wcdf[wpercentiles[i-1]]
     wdf[[paste0(var, "_min_", i)]] <- wdf[[paste0(var, "_max_", i-1)]]
-    wdf[[paste0(var, "_avg_", i)]] <- (
-      sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * df[[paste0(var, "_avg_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))) / (
-        sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) })))
+    wdf[[paste0(var, "_pop_share_", i)]] <- sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))/sum(df[[pop_yr]])
+    wdf[[paste0(var, "_avg_", i)]] <- (sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * df[[paste0(var, "_avg_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))) / (wdf[[paste0(var, "_pop_share_", i)]]*sum(df[[pop_yr]]))
   }
   wdf[[paste0("mean_", var)]] <- rowSums(wdf[,paste0(var, "_avg_", 1:100)] * wdf[,paste0(var, "_pop_share_", 1:100)]) # mean(t(wdf[,grepl(paste0(var, "_avg"), names(wdf))]))
   
@@ -391,7 +389,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3) {
 }
 
 create_world_distribution <- function(df = p17) {
-  w <- data.frame(country = "World", pop_2022 = sum(p$pop_2022), pop_2030 = sum(p$pop_2030))
+  w <- data.frame(country = "World", pop_2022 = sum(df$pop_2022), pop_2030 = sum(df$pop_2030))
   w <- compute_world_distribution(name_var_growth("optimistic"), df = df, wdf = w)  # ~ 1.5 min
   w <- compute_world_distribution("Y7", df = df, wdf = w)  # ~ 1.5 min
   w <- compute_world_distribution(name_var_growth("trend"), df = df, wdf = w)
@@ -566,7 +564,6 @@ decrit("y_expropriated_2")
 decrit("y_expropriated_4")
 decrit("y_expropriated_7")
 decrit("y_expropriated_18")
-
 
 # /!\ PROBLEM: huge discrepancies between PovcalNet and GDP pc data (this is because conso survey underestimates high-incomes and doesn't include investment), e.g. for MDG: 
 p$mean_y_2022[p$country == "Madagascar"]
