@@ -5,7 +5,6 @@
 # TODO!
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly
-# pourquoi w$mean_Y != w$mean_Y_tax_min8? 
 
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021). On cheap diets, cite https://sites.tufts.edu/foodpricesfornutrition/research-and-publications/
 
@@ -109,17 +108,16 @@ compute_antipoverty_tax <- function(df = p, exemption_threshold = 6.85, poverty_
 # Computes the demogrant that can be funded with given revenues (in $ per person) 
 compute_min_funded <- function(revenues, var = name_var_growth("optimistic"), df = w, return = "min") {
   if (length(revenues) == 1) {
-    for (i in 1:100) df[[paste0("pop_share_", i)]] <- if (sub("_tax.*|_min.*", "", paste0(var, "_pop_share_", i)) %in% names(df)) df[[sub("_tax.*|_min.*", "", paste0(var, "_pop_share_", i))]] else df[[paste0("pop_share_", i)]]
-    cost <- df[[paste0(var, "_avg_", 1)]] * df[[paste0("pop_share_", 1)]]
-    cumulated_pop <- df[[paste0("pop_share_", 1)]]
-    i <- 1
+    cost <- (df[[paste0(var, "_avg_", 2)]] - df[[paste0(var, "_avg_", 1)]]) * df[[paste0(find_pop_share_var(var, df), 1)]]
+    cumulated_pop <- df[[paste0(find_pop_share_var(var, df), 1)]]
+    i <- 2
     while (cost < revenues) {
+      cumulated_pop <- cumulated_pop + df[[paste0(find_pop_share_var(var, df), i)]]
       cost <- cost + (df[[paste0(var, "_avg_", i+1)]] - df[[paste0(var, "_avg_", i)]]) * cumulated_pop
-      cumulated_pop <- cumulated_pop + df[[paste0("pop_share_", i+1)]]
       i <- i+1
     }
     demogrant <- df[[paste0(var, "_avg_", i)]] - (cost - revenues)/cumulated_pop # /!\ beware of this line
-    for (j in 1:i) df[[paste0(var, "_avg_", j)]] <- demogrant
+    for (j in 1:(i-1)) df[[paste0(var, "_avg_", j)]] <- demogrant
     if (return == "df") return(df)
     else if (return == "percentile") return(cumulated_pop)
     else return(demogrant)
@@ -129,26 +127,26 @@ compute_min_funded <- function(revenues, var = name_var_growth("optimistic"), df
 tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p, growth = "optimistic", return = '%', var = name_var_growth(growth), scope_tax = w) { 
   # thresholds (in $/day) and marginal_rates (in %) should be vectors of same length
   # scope_tax can be p or w depending on whether the revenues are recycled nationally or internationally
-  df$revenues <- 0
+  revenues <- 0
   marginal_rates <- c(0, marginal_rates)
   for (i in 1:length(thresholds)) {
-    taxable_base_all <- sapply(1:100, function(j) { pmax(0, df[[paste0(var, "_avg_", j)]] - thresholds[i])/100 })
-    df$taxable_base_i <- if (!is.vector(taxable_base_all)) rowSums(taxable_base_all) else sum(taxable_base_all)
-    df$revenues <- df$revenues + df$taxable_base_i * (marginal_rates[i+1] - marginal_rates[i])/100
+    taxable_base_all <- sapply(1:100, function(j) { pmax(0, df[[paste0(find_pop_share_var(var, df), j)]]*(df[[paste0(var, "_avg_", j)]] - thresholds[i])) })
+    taxable_base_i <- if (!is.vector(taxable_base_all)) rowSums(taxable_base_all) else sum(taxable_base_all)
+    revenues <- revenues + taxable_base_i * (marginal_rates[i+1] - marginal_rates[i])/100
   }
   pops <- ((growth == "now") * df$pop_2022 + (growth != "now") * df$pop_2030)
-  if (return == 'pc') return(df$revenues)
-  else if (return == 'total') return(df$revenues * 365 * pops)
+  if (return == 'pc') return(revenues)
+  else if (return == 'total') return(revenues * 365 * pops)
   else if (return == "df") { 
-    revenues <- if (nrow(scope_tax) == 1) sum(df$revenues * pops)/sum(pops) else df$revenues
+    revenues <- if (nrow(scope_tax) == 1) sum(revenues * pops)/sum(pops) else revenues
     demogrant <- compute_min_funded(revenues, var = var, df = scope_tax, return = "min")
     for (i in 1:100) df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]] <- pmax(demogrant, df[[paste0(var, "_avg_", i)]])
-    for (j in 1:length(thresholds)) for (i in 1:100) df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]] <- df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]]  - (marginal_rates[j+1]/100) * pmax(0, df[[paste0(var, "_avg_", i)]] - thresholds[j])
+    for (j in 1:length(thresholds)) for (i in 1:100) df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]] <- df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]]  - ((marginal_rates[j+1] - marginal_rates[j])/100) * pmax(0, df[[paste0(var, "_avg_", i)]] - thresholds[j])
     df[[paste0("mean_", var, "_tax_", name_tax)]] <- rowSums(df[,paste0(var, "_tax_", name_tax,  "_avg_", 1:100)] * df[,paste0(find_pop_share_var(var, df), 1:100)])
     df <- compute_inequality(var = paste0(var, "_tax_", name_tax), df = df, return = "df")
     return(df)
   }
-  else if (return %in% c("%", "% GDP")) return(df$revenues / df[[paste0("mean_", var)]])
+  else if (return %in% c("%", "% GDP")) return(revenues / df[[paste0("mean_", var)]])
 }
 compute_inequality <- function(var = name_var_growth("optimistic"), df = p, return = "df") {
   d <- df
