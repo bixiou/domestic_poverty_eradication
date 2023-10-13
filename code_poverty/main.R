@@ -4,6 +4,7 @@
 
 # TODO! 
 # faire tourner
+# demogrant for a given tax
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly
 
@@ -125,6 +126,8 @@ compute_min_funded <- function(revenues, var = name_var_growth("optimistic"), df
   } else if (nrow(df) == 1) { return(compute_min_funded(revenues = revenues, var = var, df = df, return = "min")) # Unused. Beware, revenues must be in $/person
   } else return(sapply(1:length(revenues), function(i) compute_min_funded(revenues = revenues[i], var = var, df = df[i,], return = "min")))
 }
+# /!\ These sorts of computations are flawed because the poverty gaps should be computed in MER, not PPP
+# TODO! conversion PPP -> MER: define a poverty line in PPP, compute the poverty gaps in MER country by country, aggregate them, find percentile of world distribution corresponding to world poverty gap, and associated MER poverty line.
 tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p, growth = "optimistic", return = '%', var = name_var_growth(growth), scope_tax = w) { 
   # thresholds (in $/day) and marginal_rates (in %) should be vectors of same length
   # scope_tax can be p or w depending on whether the revenues are recycled nationally or internationally
@@ -413,10 +416,20 @@ start <- Sys.time()
 p <- p17 <- create_p()
 p11 <- create_p(ppp_year = 2011)
 w <- create_world_distribution()
-# w11 <- create_world_distribution(df = p11)
-print(Sys.time() - start) # ~ 25 min
+# w11 <- create_world_distribution(df = p11) # 9 min
+print(Sys.time() - start) # 14+9 min
 beep()
 save.image(".RData")
+
+
+##### Book #####
+(w$poverty_gap_7 <- compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = "trend_pos")) # 4.1%
+w$mean_y_pos # 23
+w$y_pos_avg_50 # 10
+(tax_revenues(df = w, thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(2, 6, 15, 30, 50), return = '%', growth = "trend_pos")) # 3% of world GDP
+w <- tax_revenues(df = w, name_tax = "min8", thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(1, 4, 8, 20, 30), return = 'df', growth = "optimistic")
+w <- tax_revenues(df = w, name_tax = 'drastic', thresholds = c(1, 2, 3, 4, 5)*1e3/(365/12), marginal_rates = c(10, 20, 30, 40, 90), return = 'df', growth = "optimistic")
+
 
 
 ##### Computations #####
