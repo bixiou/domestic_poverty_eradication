@@ -2,7 +2,8 @@
 # En, 2p https://docs.google.com/document/d/12_JPK2F3Kj2CmRdMpL8hSPBPK-tImSLQc84Ordzz3tM/edit
 # Fr https://docs.google.com/document/d/1u41m1U0FGlvt6aGKzZET3MWr0ulz3tORPw1xVRSKek0/edit?usp=sharing
 
-# TODO!
+# TODO! 
+# faire tourner
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly
 
@@ -20,7 +21,7 @@
 ##### Functions #####
 name_var_growth <- function(growth = "optimistic") { 
   return(case_when(growth == "trend" ~ "y",
-                    growth == "positive_trend" ~ "y_pos",
+                    growth == "trend_pos" ~ "y_pos",
                     growth == "none" ~ "welfare",
                     growth == "now" ~ "y_2022",
                     growth == "bolch" ~ "bolch",
