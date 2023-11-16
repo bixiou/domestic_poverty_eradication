@@ -13,6 +13,7 @@
 # On definitions of poverty, cite: Woodward & Abdallah (10) - no data but based on infant mortality rate, Pritchett (06) - 15$ based on HIC poverty lines, Edward (06) - 7$ based on kink in relation between GDP and life expectancy
 # On global income distrib, cite Hellebrandt & Mauro (15)
 # TODO: lire and cite Pinkovskiy & Sala-i-Martin (09)
+# Cite Manuel et al. (18) (cost to end extreme poverty: 2.5 T$, incl. 150 G$ in countries lacking resources - vs. 200 G$ in ODA)
 
 # compare Bolch with the same survey years as them: not replicated because the data has been revised. They use old data (2014) and old survey years (2009). Using most recent PIP data is surely preferable.
 # Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), 
