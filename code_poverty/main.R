@@ -3,12 +3,16 @@
 # Fr https://docs.google.com/document/d/1u41m1U0FGlvt6aGKzZET3MWr0ulz3tORPw1xVRSKek0/edit?usp=sharing
 
 # TODO! 
-# faire tourner
+# faire tourner figs
 # demogrant for a given tax
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly
 
+# Cite Hoy & Sumner (16) who do almost the same thing (and even include reallocation of fuel subsidies and excess military spending), take 50% marginal tax > 10$/d as maximum
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021). On cheap diets, cite https://sites.tufts.edu/foodpricesfornutrition/research-and-publications/
+# On definitions of poverty, cite: Woodward & Abdallah (10) - no data but based on infant mortality rate, Pritchett (06) - 15$ based on HIC poverty lines, Edward (06) - 7$ based on kink in relation between GDP and life expectancy
+# On global income distrib, cite Hellebrandt & Mauro (15)
+# TODO: lire and cite Pinkovskiy & Sala-i-Martin (09)
 
 # compare Bolch with the same survey years as them: not replicated because the data has been revised. They use old data (2014) and old survey years (2009). Using most recent PIP data is surely preferable.
 # Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), 
@@ -26,6 +30,8 @@ name_var_growth <- function(growth = "optimistic") {
                     growth == "none" ~ "welfare",
                     growth == "now" ~ "y_2022",
                     growth == "bolch" ~ "bolch",
+                    growth == "strong" ~ "Y4",
+                    growth == "average" ~ "Y3",
                     growth == "optimistic" ~ "Y",
                     growth == "very_optimistic" ~ "Y7",
                     growth == "sdg8" ~ "y7",
@@ -202,7 +208,11 @@ compute_inequality <- function(var = name_var_growth("optimistic"), df = p, retu
 }
 
 compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL, name_var = NULL, df = p, pop_rurb = pop_rural_urban) {
-  if (is.null(growth_rate)) growth_rate <- if (growth == "very_optimistic") 1.07 else 1.06
+  # if (is.null(growth_rate)) growth_rate <- if (growth == "very_optimistic") 1.07 else { if (growth == "strong") 1.04 else 1.06 }
+  if (is.null(growth_rate)) growth_rate <- case_when(growth == "average" ~ 1.03,
+                                                    growth == "very_optimistic" ~ 1.07,
+                                                    growth == "strong" ~ 1.045,
+                                                    TRUE ~ 1.06)
   y <- if (is.null(name_var)) name_var_growth(growth) else name_var
   if (grepl("trend", growth)) { 
     df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + df$mean_growth_gdp_pc_14_19)^8 
@@ -217,7 +227,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     df$growth_gdp_pc_year_30_sdg <- df$gdp_pc_2030_sdg/df$gdp_pc_year
     df$growth_gdp_pc_year_30_sdg[is.na(df$growth_gdp_pc_year_30_sdg)] <- 1.07^15
     growths <- df$growth_gdp_pc_year_30_sdg
-  } else if (grepl("optimistic", growth)) {
+  } else if (grepl("optimistic|strong|average", growth)) {
     df$gdp_pc_max_2030 <- df$gdp_pc_2022 * growth_rate^8 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
     df$growth_gdp_pc_max_year_30 <- df$gdp_pc_max_2030/df$gdp_pc_year
     df$growth_gdp_pc_max_year_30[is.na(df$growth_gdp_pc_max_year_30)] <- growth_rate^(2030 - df$year[is.na(df$growth_gdp_pc_max_year_30)])
@@ -379,7 +389,9 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3) {
   p <- compute_distribution_2030(growth = "optimistic", df = p, growth_rate = 1.06)
   p <- compute_distribution_2030(growth = "very_optimistic", df = p, growth_rate = 1.07, name_var = "Y7")
   p <- compute_distribution_2030(growth = "trend", df = p)
-  p <- compute_distribution_2030(growth = "trend_pos", df = p)
+  p <- compute_distribution_2030(growth = "trend_pos", df = p) # TODO! compute average trend/trend_pos growth
+  p <- compute_distribution_2030(growth = "strong", df = p, growth_rate = 1.045, name_var = "Y4")
+  p <- compute_distribution_2030(growth = "average", df = p, growth_rate = 1.03, name_var = "Y3")
   p <- compute_distribution_2030(growth = "sdg8", df = p) # The SDG 8.1: sustained 7% growth starting over 2016-30.
   p <- compute_distribution_2030(growth = "none", df = p)
   p <- compute_distribution_2030(growth = "now", df = p)
@@ -396,6 +408,8 @@ create_world_distribution <- function(df = p17) {
   w <- compute_world_distribution("Y7", df = df, wdf = w)  # ~ 1.5 min
   w <- compute_world_distribution(name_var_growth("trend"), df = df, wdf = w)
   w <- compute_world_distribution(name_var_growth("trend_pos"), df = df, wdf = w)
+  w <- compute_world_distribution("Y4", df = df, wdf = w)
+  w <- compute_world_distribution("Y3", df = df, wdf = w)
   w <- compute_world_distribution(name_var_growth("sdg8"), df = df, wdf = w)
   w <- compute_world_distribution(name_var_growth("none"), df = df, wdf = w)
   w <- compute_world_distribution(name_var_growth("now"), df = df, wdf = w)
@@ -423,7 +437,17 @@ save.image(".RData")
 
 
 ##### Book #####
-(w$poverty_gap_7 <- compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = "trend_pos")) # 4.1%
+p$mean_y_2022[p$country == "Democratic Republic of the Congo"] + 44/0.4/(365/12) # 0.4 is the PPP conversion factor in 2022 https://databank.worldbank.org/source/world-development-indicators/Series/PA.NUS.PPPC.RF
+(p$mean_y_2022[p$country == "Democratic Republic of the Congo"] + 44/0.4/(365/12))/p$mean_y_2022[p$country == "Democratic Republic of the Congo"] # x2.4
+p$mean_y_2022[p$country == "Sri Lanka"] # 8.3
+(compute_poverty_rate(df = w, threshold = 7.5, growth = "trend_pos")) # 39% of 8.33G i.e. 3.25G sum(p$pop_2030). GDP2030 = 100*1.03^7= 123T
+(w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '%', growth = "trend_pos")) # 5.16% GDP
+(w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '%', growth = "strong")) # 4.1% GDP / 3% growth: 5.5% PG, 3.5: 5, 4: 4.55, 4.5: 4, 5: 0.37
+# (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '$', growth = "optimistic")) # 2.7T$
+# (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '$', growth = "trend_pos")) # 3.6T$
+# (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '$', growth = "none")) # 11% / 5.8T$ (6.85$: 4.8T)
+sum(p$pop_2022[p$mean_y_2022 < 7.5]) # 3.2G
+sum(p$pop_2022[p$gdp_pc_2021 < 7.5*365], na.rm = T) # 600M
 w$mean_y_pos # 23
 w$y_pos_avg_50 # 10
 (tax_revenues(df = w, thresholds = c(1, 2, 3, 6, 9)*1e3/(365/12), marginal_rates = c(2, 6, 15, 30, 50), return = '%', growth = "trend_pos")) # 3% of world GDP
