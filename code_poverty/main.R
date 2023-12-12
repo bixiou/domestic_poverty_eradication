@@ -427,6 +427,8 @@ pop_iso3 <- pop_iso3 %>% pivot_wider(names_from = Time, values_from = PopTotal)
 names(pop_iso3) <- c("country_code", paste0("pop_", names(pop_iso3)[-1]))
 rm(pop)
 
+pop_rural_urban <- read.csv2("../data/pop_rural_urban.csv") # Last updated 07/05/2023 https://databank.worldbank.org/source/population-estimates-and-projections/preview/on#
+
 start <- Sys.time()
 p <- p17 <- create_p()
 p11 <- create_p(ppp_year = 2011)
@@ -442,6 +444,7 @@ p$mean_y_2022[p$country == "Democratic Republic of the Congo"] + 44/0.4/(365/12)
 (p$mean_y_2022[p$country == "Democratic Republic of the Congo"] + 44/0.4/(365/12))/p$mean_y_2022[p$country == "Democratic Republic of the Congo"] # x2.4
 p$mean_y_2022[p$country == "Sri Lanka"] # 8.3
 (compute_poverty_rate(df = w, threshold = 7.5, growth = "trend_pos")) # 39% of 8.33G i.e. 3.25G sum(p$pop_2030). GDP2030 = 100*1.03^7= 123T
+compute_poverty_rate(df = w, threshold = 7.5, growth = "strong")
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '%', growth = "trend_pos")) # 5.16% GDP
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '%', growth = "strong")) # 4.1% GDP / 3% growth: 5.5% PG, 3.5: 5, 4: 4.55, 4.5: 4, 5: 0.37
 # (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '$', growth = "optimistic")) # 2.7T$
