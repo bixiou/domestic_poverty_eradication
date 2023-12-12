@@ -428,6 +428,8 @@ pop_iso3 <- pop_iso3 %>% pivot_wider(names_from = Time, values_from = PopTotal)
 names(pop_iso3) <- c("country_code", paste0("pop_", names(pop_iso3)[-1]))
 rm(pop)
 
+pop_rural_urban <- read.csv2("../data/pop_rural_urban.csv") # Last updated 07/05/2023 https://databank.worldbank.org/source/population-estimates-and-projections/preview/on#
+
 start <- Sys.time()
 p <- p17 <- create_p()
 p11 <- create_p(ppp_year = 2011)
