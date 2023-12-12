@@ -12,8 +12,9 @@
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021). On cheap diets, cite https://sites.tufts.edu/foodpricesfornutrition/research-and-publications/
 # On definitions of poverty, cite: Woodward & Abdallah (10) - no data but based on infant mortality rate, Pritchett (06) - 15$ based on HIC poverty lines, Edward (06) - 7$ based on kink in relation between GDP and life expectancy
 # On global income distrib, cite Hellebrandt & Mauro (15)
-# TODO: lire and cite Pinkovskiy & Sala-i-Martin (09)
+# TODO: lire and cite Lahoti et al (16), Pinkovskiy & Sala-i-Martin (09)
 # Cite Manuel et al. (18) (cost to end extreme poverty: 2.5 T$, incl. 150 G$ in countries lacking resources - vs. 200 G$ in ODA)
+# Cite Deaton (05) on survey vs. tax data
 
 # compare Bolch with the same survey years as them: not replicated because the data has been revised. They use old data (2014) and old survey years (2009). Using most recent PIP data is surely preferable.
 # Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), 
@@ -26,16 +27,16 @@
 
 ##### Functions #####
 name_var_growth <- function(growth = "optimistic") { 
-  return(case_when(growth == "trend" ~ "y",
-                    growth == "trend_pos" ~ "y_pos",
-                    growth == "none" ~ "welfare",
-                    growth == "now" ~ "y_2022",
-                    growth == "bolch" ~ "bolch",
-                    growth == "strong" ~ "Y4",
-                    growth == "average" ~ "Y3",
-                    growth == "optimistic" ~ "Y",
-                    growth == "very_optimistic" ~ "Y7",
-                    growth == "sdg8" ~ "y7",
+  return(case_when(growth == "trend" ~ "y", # 2014-19 trend extended over 2023-30
+                    growth == "trend_pos" ~ "y_pos", # max 2014-19 trend, 0
+                    growth == "none" ~ "welfare", # original data (~2017, cf. p$year)
+                    growth == "now" ~ "y_2022", # in 2022 (original data rescaled with observed GDP growth)
+                    growth == "bolch" ~ "bolch", # replicates Bolch data (using their data)
+                    growth == "strong" ~ "Y4", # 4.5% growth over 2023-30
+                    growth == "average" ~ "Y3", # 3% growth over 2023-30
+                    growth == "optimistic" ~ "Y", # 6% growth over 2023-30
+                    growth == "very_optimistic" ~ "Y7", # 7% growth over 2023-30
+                    growth == "sdg8" ~ "y7", # 7% growth over 2015-30
                     TRUE ~ ""))
 } 
 find_pop_share_var <- function(var, df) {
@@ -442,9 +443,13 @@ p$mean_y_2022[p$country == "Democratic Republic of the Congo"] + 44/0.4/(365/12)
 (p$mean_y_2022[p$country == "Democratic Republic of the Congo"] + 44/0.4/(365/12))/p$mean_y_2022[p$country == "Democratic Republic of the Congo"] # x2.4
 p$mean_y_2022[p$country == "Sri Lanka"] # 8.3
 (compute_poverty_rate(df = w, threshold = 7.5, growth = "trend_pos")) # 39% of 8.33G i.e. 3.25G sum(p$pop_2030). GDP2030 = 100*1.03^7= 123T
+(compute_poverty_rate(df = w, threshold = 7.5, growth = "strong")) # 33% 
+(compute_poverty_rate(df = w, threshold = 7.5, growth = "now")) # 48% => 36% in terms of posttax income (Gethin 23, p. 77) / 29% => 24% using WID data
+(compute_poverty_rate(df = w, threshold = 10, growth = "now")) # 57%
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '%', growth = "trend_pos")) # 5.16% GDP
 (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '%', growth = "strong")) # 4.1% GDP / 3% growth: 5.5% PG, 3.5: 5, 4: 4.55, 4.5: 4, 5: 0.37
-# (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '$', growth = "optimistic")) # 2.7T$
+(w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '$', growth = "strong")) # 3.3T$ = 2.2% of 150T$ i.e. GDP in 2030 with 4.5% growth
+1420*4# (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '$', growth = "optimistic")) # 2.7T$
 # (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '$', growth = "trend_pos")) # 3.6T$
 # (w$poverty_gap_8 <- compute_poverty_gap(df = w, threshold = 7.5, unit = '$', growth = "none")) # 11% / 5.8T$ (6.85$: 4.8T)
 sum(p$pop_2022[p$mean_y_2022 < 7.5]) # 3.2G
@@ -475,6 +480,9 @@ df <- tax_revenues(df = p, scope_tax = w, name_tax = "min8", thresholds = c(1, 2
 (w$antipoverty_8_tax_100 <- compute_antipoverty_tax(df = w, exemption_threshold = 100, poverty_threshold = 8.22, growth = "optimistic")) # 4.2
 (w$antipoverty_10_tax_100 <- compute_antipoverty_tax(df = w, exemption_threshold = 100, poverty_threshold = 10, growth = "optimistic")) # 8.66
 (w$y_expropriated_9 <- compute_antipoverty_maximum(df = w, threshold = 9, growth = "optimistic")) # 470
+(w$antipoverty_7_tax_100 <- compute_antipoverty_tax(df = w, exemption_threshold = 100, poverty_threshold = 7.5, growth = "strong")) # 22%
+(w$y_expropriated_7 <- compute_antipoverty_maximum(df = w, threshold = 7.5, growth = "strong")) # 7.7k$
+compute_min_funded(revenues = tax_revenues(df = w, thresholds = c(3, 6, 9)*1e3/(365/12), marginal_rates = c(10, 30, 80), return = 'pc', growth = "strong")) # 7.48
 
 # comparer bolch_index_1/2 avec # TODO! debug
 p$bolch_poverty_rate_3 <- compute_poverty_rate(df = p, threshold = 3.44, growth = "bolch", return = "rate")
