@@ -1,0 +1,290 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% NATURE CLIMATE CHANGE FORMAT %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Comment "% WPcomment" lines, uncomment "% NCCcomment" lines as well as the lines below, replace all citet/citep by cite
+
+% \documentclass{nature}
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{eurosym}
+% % The following allows keeping figures within the text (otherwise nature.cls would ignore them)
+% \usepackage{graphicx}
+% \makeatletter
+% \let\saved@includegraphics\includegraphics
+% \AtBeginDocument{\let\includegraphics\saved@includegraphics}
+% \renewenvironment*{figure}{\@float{figure}}{\end@float}
+% \makeatother
+
+% Nature guidelines (not NCC!)
+% Sections can only be used in Articles.  Contributions should be organized in the sequence: title, text, methods, references, Supplementary Information line (if any), acknowledgements, interest declaration, corresponding author line, tables, figure legends.
+
+% No subsubsection nor paragraph
+
+% Spelling must be British English (Oxford English Dictionary)
+
+%Each figure legend should begin with a brief title for the whole figure and continue with a short description of each panel and the symbols used. For contributions with methods sections, legends should not contain any details of methods, or exceed 100 words (fewer than 500 words in total for the whole paper). In contributions without methods sections, legends should be fewer than 300 words (800 words or fewer in total for the whole paper).
+
+% Articles are restricted to 50 references,
+
+% In addition, a cover letter needs to be written with the
+% following:
+% \begin{enumerate}
+%  \item A 100 word or less summary indicating on scientific grounds
+% why the paper should be considered for a wide-ranging journal like
+% \textsl{Nature} instead of a more narrowly focussed journal.
+%  \item A 100 word or less summary aimed at a non-scientific audience,
+% written at the level of a national newspaper.  It may be used for
+% \textsl{Nature}'s press release or other general publicity.
+%  \item The cover letter should state clearly what is included as the
+% submission, including number of figures, supporting manuscripts
+% and any Supplementary Information (specifying number of items and
+% format).
+%  \item The cover letter should also state the number of
+% words of text in the paper; the number of figures and parts of
+% figures (for example, 4 figures, comprising 16 separate panels in
+% total); a rough estimate of the desired final size of figures in
+% terms of number of pages; and a full current postal address,
+% telephone and fax numbers, and current e-mail address.
+% \end{enumerate}
+
+% See \textsl{Nature}'s website
+% (\texttt{http://www.nature.com/nature/submit/gta/index.html}) for
+% complete submission guidelines.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% WORKING PAPER FORMAT %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Comment "% NCCcomment" lines, uncomment "% WPcomment" lines as well as the lines below
+\documentclass[12pt,english]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tgpagella} % Palatino text only
+\usepackage{mathpazo}  % Palatino math & text
+\usepackage[left=1.5in,right=1.5in,top=1.5in,bottom=1.5in]{geometry}
+% \linespread{1.5}
+% \usepackage[super,comma,sort]{natbib} % WPcomment
+\usepackage[round,sort&compress]{natbib} % NCCcomment
+\usepackage{url} % [hyphens]
+\usepackage[hyperpageref]{backref} % back references biblio. Needs latexmk at compilation.
+\usepackage[pagebackref]{hyperref}
+% \usepackage{multibib} % incompatible with backref
+\hypersetup{
+  colorlinks=true, % breaklinks=true,
+  urlcolor=purple,    % color of external links
+  linkcolor=blue,  % color of toc, list of figs etc.
+  citecolor=violet,   % color of links to bibliography
+}
+\usepackage{bm}
+\usepackage{indentfirst}
+\usepackage{tocbibind}
+\setcitestyle{aysep={}} 
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{eurosym}
+\usepackage{amsfonts}
+\usepackage{enumerate}
+\usepackage{babel}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{supertabular}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{dsfont}
+\usepackage{fancyvrb}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{comment}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{gensymb}
+\usepackage{textcomp}
+
+\usepackage{tabulary}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{fullpage}
+\usepackage{morefloats}
+\usepackage{makecell}
+\usepackage{lscape}
+\usepackage{pdflscape}
+\usepackage{longtable}
+\usepackage{rotating}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage{titletoc}
+\usepackage[export]{adjustbox}
+\usepackage[anythingbreaks]{breakurl} % for links
+\usepackage{multicol}
+\newsavebox\ltmcbox % For net gain table over two columns
+%\usepackage[nomarkers,figuresonly]{endfloat} % Figures at the end
+%\usepackage[section,below]{placeins} % Floats placed in the section they appear in.
+\renewcommand{\floatpagefraction}{.99}
+\newenvironment{stretchpars}{\par\setlength{\parfillskip}{0pt}}{\par} % to justify a line
+
+% % Getting landscape page and page number/footer on bottom of page (instead of to the left)
+% \fancypagestyle{mylandscape}{
+% \fancyhf{} %Clears the header/footer
+% \fancyfoot{% Footer
+% \makebox[\textwidth][r]{% Right
+%   \rlap{\hspace{1.5cm}% Push out of margin by \footskip
+%     \smash{% Remove vertical height
+%       \raisebox{13.6cm}{% Raise vertically
+%         \rotatebox{90}{\thepage}}}}}}% Rotate counter-clockwise
+% \renewcommand{\headrulewidth}{0pt}% No header rule
+% \renewcommand{\footrulewidth}{0pt}% No footer rule
+% }
+
+% \fancypagestyle{page_left}{%
+% 	\renewcommand{\headrulewidth}{0pt}
+%   \fancyhf{}
+%   \fancyfoot[OC]{%
+%       \begin{tikzpicture}[remember picture,overlay]
+%           \node[xshift=1cm] (number) at (current page.west) {\thepage};
+%       \end{tikzpicture}
+%   }%
+% }
+% \renewcommand{\thesubfigure}{\Alph{subfigure}}
+
+% \newcites{App}{Appendix References}
+
+% \captionsetup[table]{skip=-10pt}
+% \begin{document}
+
+% \maketitle
+
+% \clearpage
+% % \startcontents
+% % \printcontents{ }{1}{\section{\contentsname}}
+% % \clearpage
+% \section{Introduction\label{sec:intro}}
+
+% % \clearpage
+% \renewcommand{\bibsection}{\section{\refname}}
+% \bibliographystyle{naturemag}
+% \bibliography{global_tax_attitudes}
+% % \stopcontents
+
+% \end{document}
+
+
+\title{Shortfall of Domestic Resources to Eradicate Extreme Poverty} 
+
+\author{Adrien Fabre$^{1,2}$} % WPcomment
+\author{Adrien Fabre\footnote{CNRS, CIRED. E-mail: adrien.fabre@cnrs.fr.}
+I thank Michalis Moatsos for his help in using his data. I thank Thomas Goumont and Elise Thai for assistance. I declare that I also serve as president of Global Redistribution Advocates.} % NCCcomment
+
+\date{\today} % NCCcomment
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+{\textbf{\href{https://github.com/bixiou/domestic_poverty_eradication/raw/main/paper/poverty.pdf}{Link to most recent version}}}
+\end{center}
+
+
+% WPcomment
+% \begin{affiliations}
+% \item CNRS
+% \item CIRED
+% \end{affiliations}
+
+% \begin{small} % NCCcomment
+\begin{abstract}
+
+\end{abstract}
+
+% TODO!
+\textbf{JEL codes:} 
+\textbf{Keywords:} 
+
+\tableofcontents
+
+\onehalfspacing % NCCcomment
+
+%\clearpage
+
+\section{Introduction}% NCCcomment
+
+
+\paragraph{Literature} 
+
+
+
+\section{Results}
+\subsection{Data}\label{subsec:data}
+% Why using PIP compared to alternatives (WIID adjusted to GDP; (GCIP stops in 2013; WID only covers 38 countries with post-tax data))? Most recent data and best estimation of poor's consumption.
+% Not clear which is more accurate between survey and national accounts (Deaton 05), especially in low-income countries, as agricultural production is indirectly measured in national accounts. Also, in Africa, mean conso is similar between national accounts and surveys (Deaton 05). Also, WIID adjust to GDP PPP but we should adjust to national conso, not GDP. Martinez (22) shows that autocracies overestimate GDP growth by 35%. 
+
+\subsection{The effect of balanced growth}
+% - Poverty rates and gaps with different growth scenarios: Table 1
+% This assumption is the same than PIP's https://pip.worldbank.org/about
+
+\subsection{Antipoverty caps}
+% - Cap to eradicate poverty: minimum of 2.7\$/day in MDG with 7\% growth, 1.74 with trend growth (1\%): Figure 1
+% - would have worked well if it had been 7\% since 2016
+
+\subsection{Antipoverty taxes}
+% By default, 6\% (7?) growth starting in 2023
+% - Tax rate to eradicate poverty: above 7, 18: Figure 2
+% - Even worse when considering Moatsos' BCS line
+
+\subsection{The credible potential of domestic redistribution}
+% - Demogrant that can be funded with a given national tax: Figure 3
+
+\subsection{The potential of global redistribution}
+% - One example of global redistribution (incl. largest recipients/contributors)
+% - Inequality indicators BAU / national / global redistr: Table 2
+
+
+\section{Discussion} 
+
+% \begin{methods}  % WPcomment
+  \begin{small} % NCCcomment
+%Put methods in here.  If you are going to subsection it, use \subsection commands.  Methods section should be less than 800 words and if it is less than 200 words, it can be incorporated into the main text.
+\section*{\normalsize Methods}\label{sec:methods} % NCCcomment
+\addcontentsline{toc}{section}{\nameref{sec:methods}}
+% \subsection*{\small Data quality.} % WPcomment % TODO attrition analysis
+\paragraph{\small Data quality.} % NCCcomment
+
+
+\section*{\normalsize Data and code availability}
+
+All data and code of as well as figures of the paper are available on \href{https://github.com/bixiou/domestic_poverty_eradication}{github.com/bixiou/domestic\_poverty\_eradication}. 
+
+% \end{methods} % WPcomment
+\end{small}  % NCCcomment
+
+% \bibliographystyle{naturemag_noURL} % nature class works only with style naturemag or naturemag_noURL, and naturemag bugs if there are certain URLs (like .pdf). Also, nature class only works with \cite, not \citet or \citep.  % WPcomment
+\renewcommand{\url}[1]{\href{#1}{Link}} % NCCcomment
+\bibliographystyle{plainnaturl_clean} % NCCcomment
+\bibliography{global_tax_attitudes}
+
+\appendix % NCCcomment
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\thefigure}{A\arabic{figure}}
+\setcounter{figure}{0}
+\setcounter{table}{0}
+
+% \input{app} 
+
+\clearpage
+\listoftables
+\listoffigures
+% WPcomment
+%% Here is the endmatter stuff: Supplementary Info, etc.
+%% Use \item's to separate, default label is "Acknowledgements"
+% \begin{addendum} % 177 words
+%  \item We are grateful 
+%  \item[Competing Interests] The authors declare that they have no
+% competing interests.
+% \item[JEL codes] 
+% \item[Keywords] 
+%  \item[Correspondence] Correspondence and requests for materials
+% should be addressed to Adrien Fabre~(email: fabre.adri1@gmail.com).
+% \end{addendum}
+
+
+\end{document}

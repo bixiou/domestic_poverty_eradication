@@ -6,8 +6,9 @@
 # faire tourner figs
 # demogrant for a given tax
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
-# combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly
+# combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly. => WID post-tax income data is only available in 38 countries (https://wid.world/summary-table/)
 
+# There is an R package to access PIP: pipR
 # Cite Hoy & Sumner (16) who do almost the same thing (and even include reallocation of fuel subsidies and excess military spending), take 50% marginal tax > 10$/d as maximum
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021). On cheap diets, cite https://sites.tufts.edu/foodpricesfornutrition/research-and-publications/
 # On definitions of poverty, cite: Woodward & Abdallah (10) - no data but based on infant mortality rate, Pritchett (06) - 15$ based on HIC poverty lines, Edward (06) - 7$ based on kink in relation between GDP and life expectancy
