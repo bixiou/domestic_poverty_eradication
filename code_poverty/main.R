@@ -7,6 +7,7 @@
 # demogrant for a given tax
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
 # combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly. => WID post-tax income data is only available in 38 countries (https://wid.world/summary-table/)
+# TODO check which has lowest HFCE p.c. Check proportion of countries without HFCE data. Check how Lakner & Milanovic (13) handle cases with HFCE lower than survey mean. Scale up by HFCE (or use Anand & Segal's method) as robustness.
 
 # There is an R package to access PIP: pipR
 # Cite Hoy & Sumner (16) who do almost the same thing (and even include reallocation of fuel subsidies and excess military spending), take 50% marginal tax > 10$/d as maximum
@@ -15,7 +16,9 @@
 # On global income distrib, cite Hellebrandt & Mauro (15)
 # TODO: lire and cite Lahoti et al (16), Pinkovskiy & Sala-i-Martin (09)
 # Cite Manuel et al. (18) (cost to end extreme poverty: 2.5 T$, incl. 150 G$ in countries lacking resources - vs. 200 G$ in ODA)
-# Cite Deaton (05) on survey vs. tax data
+# Cite Deaton (05) and Prydz et al. (22) on survey vs. tax data
+# To justify not rescaling: cite Angrist et al. (21) that GDP poorly measures agricultural output, Martinez (22) that dictators inflate estimates.
+# On estimates of poverty rate in 2030: Karver et al. (12), Chandy et al. (13), Bicaba et al. (17)
 
 # compare Bolch with the same survey years as them: not replicated because the data has been revised. They use old data (2014) and old survey years (2009). Using most recent PIP data is surely preferable.
 # Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), 
