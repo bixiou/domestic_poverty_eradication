@@ -4,11 +4,8 @@
 
 # TODO! 
 # faire tourner figs
-# demogrant for a given tax
-# If I want to have realistic estimates: Use 2027 IMF projections -- will be in the envelope of none - very_optimistic
-# If I want to have realistic estimates: Estimate recent growth on past one and project using a formula of type future growth = 0.84+0.35*(recent growth) -- will be a middle ground between our average (world growth) and (country) trend
-# calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
-# Impute top incomes from WID (as in Anand & Segal, 15) 
+# calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté. => done no? just use return = 'df' in antipoverty_tax/maximum
+# demogrant for a given tax in MER (more important for the book than for the paper)
 
 # There is an R package to access PIP: pipR
 # Cite Hoy & Sumner (16) who do almost the same thing (and even include reallocation of fuel subsidies and excess military spending), take 50% marginal tax > 10$/d as maximum
@@ -36,7 +33,7 @@
 
 ##### Functions #####
 name_var_growth <- function(growth = "optimistic") { 
-  return(case_when(growth == "trend" ~ "y", # 2014-19 trend extended over 2023-30
+  return(case_when(growth == "trend" ~ "y", # 2014-19 trend extended over 2022-30
                     growth == "trend_pos" ~ "y_pos", # max 2014-19 trend, 0
                     growth == "none" ~ "welfare", # original data (~2017, cf. p$year)
                     growth == "now" ~ "y_2022", # in 2022 (original data rescaled with observed GDP growth)
@@ -46,6 +43,8 @@ name_var_growth <- function(growth = "optimistic") {
                     growth == "optimistic" ~ "Y", # 6% growth over 2023-30
                     growth == "very_optimistic" ~ "Y7", # 7% growth over 2023-30
                     growth == "sdg8" ~ "y7", # 7% growth over 2015-30
+                    growth == "reg" ~ "y_reg", # Forecasts future growth using a quadratic model of past growth (middle ground between our average (world growth) and (country) trend)
+                    growth == "imf" ~ "y_imf", # Uses IMF forecasts (in the envelope of none - very_optimistic)
                     TRUE ~ ""))
 } 
 find_pop_share_var <- function(var, df) {
@@ -144,7 +143,7 @@ compute_min_funded <- function(revenues, var = name_var_growth("optimistic"), df
   } else return(sapply(1:length(revenues), function(i) compute_min_funded(revenues = revenues[i], var = var, df = df[i,], return = "min")))
 }
 # /!\ These sorts of computations are flawed because the poverty gaps should be computed in MER, not PPP
-# TODO! conversion PPP -> MER: define a poverty line in PPP, compute the poverty gaps in MER country by country, aggregate them, find percentile of world distribution corresponding to world poverty gap, and associated MER poverty line.
+# TODO! conversion PPP -> MER: define a poverty line in PPP, compute the poverty gaps in MER country by country, aggregate them, find percentile of world MER distribution corresponding to world poverty gap, and associated MER poverty line.
 tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p, growth = "optimistic", return = '%', var = name_var_growth(growth), scope_tax = w) { 
   # thresholds (in $/day) and marginal_rates (in %) should be vectors of same length
   # scope_tax can be p or w depending on whether the revenues are recycled nationally or internationally
@@ -238,6 +237,14 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     df$growth_gdp_pc_year_30_sdg <- df$gdp_pc_2030_sdg/df$gdp_pc_year
     df$growth_gdp_pc_year_30_sdg[is.na(df$growth_gdp_pc_year_30_sdg)] <- 1.07^15
     growths <- df$growth_gdp_pc_year_30_sdg
+  } else if (growth == "imf") {
+    df$growth_gdp_pc_year_30_imf <- df$gdp_pc_2030_imf/df$gdp_pc_year
+    # df$growth_gdp_pc_year_30_imf[is.na(df$growth_gdp_pc_year_30_imf)] <- mean(df$gdp_pc_2030_imf/df$gdp_pc_2022, na.rm = T)^(15/8)
+    growths <- df$growth_gdp_pc_year_30_imf
+  } else if (growth == "reg") {
+    df$growth_gdp_pc_year_30_reg <- df$gdp_pc_2030_reg/df$gdp_pc_year
+    # df$growth_gdp_pc_year_30_ref[is.na(df$growth_gdp_pc_year_30_reg)] <- mean(df$gdp_pc_2030_reg/df$gdp_pc_2022, na.rm = T)^(15/8)
+    growths <- df$growth_gdp_pc_year_30_reg
   } else if (grepl("optimistic|strong|average", growth)) {
     df$gdp_pc_max_2030 <- df$gdp_pc_2022 * growth_rate^8 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
     df$growth_gdp_pc_max_year_30 <- df$gdp_pc_max_2030/df$gdp_pc_year
@@ -344,7 +351,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) {
   if (rescale) p$welfare_avg_100 <- p$welfare_avg_100 + 100 * (p$scaling_factor - 1) * p$mean_welfare
   if (rescale) p$mean_welfare <- rowSums(p[,paste0("welfare_avg_", 1:100)] * p[,paste0("pop_share_", 1:100)])
   
-  # Estimate future GDP pc
+  # Estimate GDP pc in 2022 assuming country growth same as 2014-19
   gdp_pc <- read_excel("../data/gdp_pc_ppp.xls") # Fetched in 2023 NY.GDP.PCAP.PP.KD
   colnames(gdp_pc)[-1] <- paste0("gdp_pc_", colnames(gdp_pc)[-1])
   p <- merge(p, gdp_pc)
@@ -353,6 +360,19 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) {
   p$mean_growth_gdp_pc_14_19 <- pmax(0, (p$gdp_pc_2019/p$gdp_pc_2014)^(1/5)-1)
   # sort(setNames(p$mean_growth_gdp_pc_14_19, p$country), decreasing = T) # max 14-19: CN = 6.15%, max 10-19:  CN 6.7%
   p$gdp_pc_year <- sapply(1:nrow(p), function(c) { p[[paste0("gdp_pc_", min(2022, p$year[c]))]][c] }) 
+  
+  # Project GDP pc in 2030 using IMF forecast
+  imf <- read.xlsx("../data/IMF_WEO_2023.xlsx") # WEO (2023) https://www.imf.org/en/Publications/WEO/weo-database/2023/October NGDPRPPPPC
+  imf <- imf[imf$WEO.Subject.Code == "NGDPRPPPPC",] # GDP pc PPP constant $
+  imf$growth_2022_2028 <- as.numeric(imf$`2028`)/as.numeric(imf$`2022`)
+  imf$growth_2026_2028 <- as.numeric(imf$`2028`)/as.numeric(imf$`2026`)
+  imf$growth_2022_2030 <- imf$growth_2026_2028 * imf$growth_2022_2028 # Guyana outlier, is projected to grow by a factor of 10 between 2018 and 2028
+  p$gdp_pc_2030_imf <- sapply(p$country_code, function(c) { imf$growth_2022_2030[imf$country_code == c] * unique(p$gdp_pc_2022[p$country_code == c]) })
+
+  # Project GDP pc in 2030 using quadratic model of past growth
+  # summary(lm(I(gdp_pc_2019/gdp_pc_2011) ~ I(gdp_pc_2011/gdp_pc_1991) + I((gdp_pc_2011/gdp_pc_1991)^2), data = gdp_pc)) # Adj-R²: .27, the best from the models I have tested (linear or quadratic with different time periods). 0.9507844 + 0.1470747x - 0.0046657x²
+  p$gdp_pc_2030_reg <- (0.9507844 + 0.1470747 * (p$gdp_pc_2022/p$gdp_pc_2002) - 0.0046657 * (p$gdp_pc_2022/p$gdp_pc_2002)^2) * p$gdp_pc_2022
+  # plot(p$gdp_pc_2030_imf/p$gdp_pc_2022, p$gdp_pc_2030_reg/p$gdp_pc_2022, xlim = c(0.8, 1.7), ylim = c(0.8, 1.7))
   
   # Add country name
   iso3 <- read.csv("../data/country_iso3.csv")
@@ -406,6 +426,8 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) {
   # y makes the assumption of constant growth while Y assumes 6% growth after 2022
   # p <- df # To run compute_distribution_2030, this line is needed to avoid bug (Indeed, urban/rural have been removed otherwise).
   p <- compute_inequality(var = "bolch", df = p, return = "df")
+  p <- compute_distribution_2030(growth = "reg", df = p)
+  p <- compute_distribution_2030(growth = "imf", df = p)
   p <- compute_distribution_2030(growth = "optimistic", df = p, growth_rate = 1.06)
   p <- compute_distribution_2030(growth = "very_optimistic", df = p, growth_rate = 1.07, name_var = "Y7")
   p <- compute_distribution_2030(growth = "trend", df = p)
@@ -606,6 +628,58 @@ p$antipoverty_4_tax_18_optimistic <- compute_antipoverty_tax(df = p, exemption_t
 p$antipoverty_7_tax_18_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 6.85, growth = "optimistic")
 p$antipoverty_18_tax_18_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 18.15, growth = "optimistic")
 
+# Poverty gap
+p$s_poverty_gap_2 <- compute_poverty_gap(growth = "trend", df = s)
+p$s_poverty_gap_4 <- compute_poverty_gap(threshold = 3.65, growth = "trend", df = s)
+p$s_poverty_gap_7 <- compute_poverty_gap(threshold = 6.85, growth = "trend", df = s)
+
+# Percentile expropriated
+p$s_percentile_expropriated_2 <- compute_antipoverty_maximum(df = s, threshold = 2.15, return = "percentile", growth = "trend")
+p$s_percentile_expropriated_4 <- compute_antipoverty_maximum(df = s, threshold = 3.65, return = "percentile", growth = "trend")
+p$s_percentile_expropriated_7 <- compute_antipoverty_maximum(df = s, threshold = 6.85, return = "percentile", growth = "trend")
+p$s_percentile_expropriated_18 <- compute_antipoverty_maximum(df = s, threshold = 18.15, return = "percentile", growth = "trend")
+
+p$s_y_expropriated_2 <- compute_antipoverty_maximum(df = s, threshold = 2.15, growth = "trend")
+p$s_y_expropriated_4 <- compute_antipoverty_maximum(df = s, threshold = 3.65, growth = "trend")
+p$s_y_expropriated_7 <- compute_antipoverty_maximum(df = s, threshold = 6.85, growth = "trend")
+p$s_y_expropriated_18 <- compute_antipoverty_maximum(df = s, threshold = 18.15, growth = "trend")
+
+p$s_percentile_expropriated_2_optimistic <- compute_antipoverty_maximum(df = s, threshold = 2.15, return = "percentile", growth = "optimistic")
+p$s_percentile_expropriated_4_optimistic <- compute_antipoverty_maximum(df = s, threshold = 3.65, return = "percentile", growth = "optimistic")
+p$s_percentile_expropriated_7_optimistic <- compute_antipoverty_maximum(df = s, threshold = 6.85, return = "percentile", growth = "optimistic")
+p$s_percentile_expropriated_18_optimistic <- compute_antipoverty_maximum(df = s, threshold = 18.15, return = "percentile", growth = "optimistic")
+
+p$s_y_expropriated_2_optimistic <- compute_antipoverty_maximum(df = s, threshold = 2.15, growth = "optimistic")
+p$s_y_expropriated_4_optimistic <- compute_antipoverty_maximum(df = s, threshold = 3.65, growth = "optimistic")
+p$s_y_expropriated_7_optimistic <- compute_antipoverty_maximum(df = s, threshold = 6.85, growth = "optimistic")
+p$s_y_expropriated_18_optimistic <- compute_antipoverty_maximum(df = s, threshold = 18.15, growth = "optimistic")
+
+# Antipoverty tax
+p$s_antipoverty_2_tax_18 <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "trend")
+p$s_antipoverty_2_tax_7 <- compute_antipoverty_tax(df = s, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "trend")
+p$s_antipoverty_2_tax_4 <- compute_antipoverty_tax(df = s, exemption_threshold = 3.65, poverty_threshold = 2.15, growth = "trend")
+p$s_antipoverty_2_tax_2 <- compute_antipoverty_tax(df = s, exemption_threshold = 2.15, poverty_threshold = 2.15, growth = "trend")
+# p$s_antipoverty_bnpl_tax_bnpl <- compute_antipoverty_tax(df = s11, exemption_threshold = "bnpl", poverty_threshold = "bnpl", growth = "trend")
+# p$s_antipoverty_bnpl_tax_7 <- compute_antipoverty_tax(df = s11, exemption_threshold = 5.5, poverty_threshold = "bnpl", growth = "trend") # In 2011PPP, 2.15/3.65/6.85 is 1.9/3.2/5.5 https://documents1.worldbank.org/curated/en/099700509122212929/pdf/IDU05b43a261041c504a5f0bb3405d0ef310b9e1.pdf
+# p$s_antipoverty_bnpl_tax_18 <- compute_antipoverty_tax(df = s11, exemption_threshold = 15.31, poverty_threshold = "bnpl", growth = "trend") # 2011 Poverty line in the U.S. for a family of 4 is 15.31=22350/365/4 https://aspe.hhs.gov/2011-hhs-poverty-guidelines
+# p$s_antipoverty_bcs_tax_bcs <- compute_antipoverty_tax(df = s11, exemption_threshold = "bcs", poverty_threshold = "bcs", growth = "trend")
+# p$s_antipoverty_bcs_tax_7 <- compute_antipoverty_tax(df = s11, exemption_threshold = 5.5, poverty_threshold = "bcs", growth = "trend") # In 2011PPP, 2.15/3.65/6.85 is 1.9/3.2/5.5 https://documents1.worldbank.org/curated/en/099700509122212929/pdf/IDU05b43a261041c504a5f0bb3405d0ef310b9e1.pdf
+# p$s_antipoverty_bcs_tax_18 <- compute_antipoverty_tax(df = s11, exemption_threshold = 15.31, poverty_threshold = "bcs", growth = "trend") # 2011 Poverty line in the U.S. for a family of 4 is 15.31=22350/365/4 https://aspe.hhs.gov/2011-hhs-poverty-guidelines
+p$s_antipoverty_4_tax_7 <- compute_antipoverty_tax(df = s, exemption_threshold = 6.85, poverty_threshold = 3.65, growth = "trend")
+p$s_antipoverty_4_tax_18 <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 3.65, growth = "trend")
+p$s_antipoverty_7_tax_18 <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 6.85, growth = "trend")
+p$s_antipoverty_18_tax_18 <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 18.15, growth = "trend")
+
+p$s_antipoverty_2_tax_18_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "optimistic")
+p$s_antipoverty_2_tax_7_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "optimistic")
+p$s_antipoverty_2_tax_4_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 3.65, poverty_threshold = 2.15, growth = "optimistic")
+p$s_antipoverty_2_tax_2_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 2.15, poverty_threshold = 2.15, growth = "optimistic")
+p$s_antipoverty_4_tax_7_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 6.85, poverty_threshold = 3.65, growth = "optimistic")
+p$s_antipoverty_4_tax_18_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 3.65, growth = "optimistic")
+p$s_antipoverty_7_tax_18_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 6.85, growth = "optimistic")
+p$s_antipoverty_18_tax_18_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 18.15, growth = "optimistic")
+
+
 ##### Results ##### 
 sort(setNames(p$poverty_gap_2, p$country))
 sort(setNames(p$antipoverty_2_tax_2, p$country))
@@ -634,10 +708,12 @@ decrit("y_expropriated_18")
 
 # /!\ PROBLEM: huge discrepancies between PovcalNet and GDP pc data (this is because conso survey underestimates high-incomes and doesn't include investment), e.g. for MDG: 
 p$mean_y_2022[p$country == "Madagascar"]
+p$mean_y_2022[p$country == "Madagascar"]
+p$scaling_factor[p$country == "Madagascar"]
 p$gdp_pc_2022[p$country == "Madagascar"]/365 # GDP pc from World Bank
 
 
-#####  Maps ##### # TODO! replot
+#####  Maps ##### 
 plot_world_map("antipoverty_2_tax_2", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $2.15/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
@@ -704,7 +780,7 @@ plot_world_map("y_expropriated_18_optimistic", breaks = c(0, 2.15, 4, 7, 13, 18.
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
 
 
-#Maps in French
+##### Maps in French #####
 plot_world_map("antipoverty_2_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), add_folder = 'fr_',
                # labels = sub("≤", "<", agg_thresholds(c(0), c(0, .1, 1, 5, 10, 25, 50, 100, Inf), sep = "to", return = "levels")),
                legend = "Taux de taxe linéaire \nau-dessus de $6.85/jour\nnécessaire pour éradiquer\nl'extrême pauvreté à $2.15/jour\n(en 2017 PPA)", #fill_na = T, 
@@ -734,8 +810,87 @@ plot_world_map("poverty_gap_2", breaks = c(0, 2, 10, 20, 40, 60, 100), sep = " t
                legend = "Écart de pauvreté (en %)\nà $2.15/jour (en $ 2017 PPA)", #fill_na = T,
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .05, trim = T)
 
+##### Maps with rescaling #####
+plot_world_map("s_antipoverty_2_tax_2", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $2.15/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("s_antipoverty_2_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("s_antipoverty_2_tax_18", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $13/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# plot_world_map("s_antipoverty_bnpl_tax_bnpl", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+#                legend = "Linear tax rate\nabove Basic Needs\nPoverty Line (BNPL)\nrequired to lift all\nabove BNPL\n", #fill_na = T,  
+#                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# plot_world_map("s_antipoverty_bnpl_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+#                legend = "Linear tax rate\nabove $5.5/day\n(in 2011 PPP$)\nrequired to lift all\nabove Basic Needs", #fill_na = T,  
+#                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# plot_world_map("s_antipoverty_bnpl_tax_18", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+#                legend = "Linear tax rate\nabove $15.3/day\n(in 2011 PPP$)\nrequired to lift all\nabove Basic Needs", #fill_na = T,  
+#                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# plot_world_map("s_antipoverty_bcs_tax_bcs", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+#                legend = "Linear tax rate\nabove Basic Consumption\nPoverty Line (BCS PL)\nrequired to lift all\nabove BCS PL\n", #fill_na = T,  
+#                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# plot_world_map("s_antipoverty_bcs_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+#                legend = "Linear tax rate\nabove $5.5/day\n(in 2011 PPP$)\nrequired to lift all\nabove Basic Consumption", #fill_na = T,  
+#                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# plot_world_map("s_antipoverty_bcs_tax_18", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+#                legend = "Linear tax rate\nabove $15.3/day\n(in 2011 PPP$)\nrequired to lift all\nabove Basic Consumption", #fill_na = T,  
+#                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# plot_world_map("percentile_expropriated_2", breaks = c(-Inf, 0, 50, 90, 95, 99, 100), sep = " to ", end = "", strict_ineq_lower = T, 
+#                legend = "Percentile above which\nall should be expropriated\nto lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+#                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# plot_world_map("percentile_expropriated_7", breaks = c(-Inf, 0, 50, 90, 95, 99, 100), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
+#                legend = "Percentile above which\nall should be expropriated\nto lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+#                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("s_y_expropriated_2", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
+               legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $2.15/day\n(in $ 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
+plot_world_map("s_y_expropriated_7", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
+               legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $6.85/day\n(in $ 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
+plot_world_map("s_y_expropriated_18", breaks = c(0, 2.15, 4, 7, 13, 18.15, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
+               legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $13/day\n(in $ 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
+plot_world_map("s_poverty_gap_2", breaks = c(0, 2, 10, 20, 40, 60, 100), sep = " to ", end = "", strict_ineq_lower = FALSE, # svg, pdf 
+               legend = "Poverty gap (in %)\n at $2.15/day\n(in $ 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .05, trim = T)  
+
+plot_world_map("s_antipoverty_2_tax_2_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $2.15/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("s_antipoverty_2_tax_7_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("s_antipoverty_2_tax_18_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $13/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+plot_world_map("s_y_expropriated_2_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
+               legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $2.15/day\n(in $ 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
+plot_world_map("s_y_expropriated_7_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
+               legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $6.85/day\n(in $ 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
+plot_world_map("s_y_expropriated_18_optimistic", breaks = c(0, 2.15, 4, 7, 13, 18.15, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, # svg, pdf 
+               legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $13/day\n(in $ 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .05, trim = T)  
+
+
 mean(p$hfce/p$mean_welfare, na.rm = T) # 1.44 (20% NA)
 mean((p$hfce/p$mean_welfare)[p$country_code %in% SSA], na.rm = T) # 1.32 (18% NA)
 mean((p$hfce/p$mean_welfare)[p$country_code %in% LIC], na.rm = T) # 1.12 (32% NA)
+mean(p$scaling_factor == 1, na.rm = T) # 15% HFCE < mean income
+mean((p$scaling_factor == 1)[p$country_code %in% SSA], na.rm = T) # 25% HFCE < mean income
+mean((p$scaling_factor == 1)[p$country_code %in% LIC], na.rm = T) # 41% HFCE < mean income
 LIC <- c("AFG", "BFA", "BDI", "TCD", "COG", "ERI", "ETH", "GMB", "GIN", "GNB", "PRK", "LBR", "MDG", "MWI", "MLI", "MOZ", "NER", "RWA", "SOM", "SRE", "SDN", "SSD", "SYR", "TGO", "UGA", "YEM", "ZMB") # 2023 official classification. LIC: 650M people
 SSA <- c("SDN", "AGO", "GIN", "GMB", "GNB", "GNQ", "BDI", "BEN", "BFA", "SEN", "BWA", "CAF", "SLE", "SOM", "SSD", "CIV", "CMR", "COD", "COG", "COM", "LBR", "LSO", "SWZ", "TCD", "TGO", "MLI", "MDG", "DJI", "ERI", "ESH", "ETH", "MWI", "MUS", "MRT", "MOZ", "TZA", "UGA", "ZMB", "ZWE", "NGA", "NER", "NAM", "GHA", "GAB")
+summary(lm(I(gdp_pc_2019/gdp_pc_2011) ~ I(gdp_pc_2011/gdp_pc_1991) + I((gdp_pc_2011/gdp_pc_1991)^2), data = gdp_pc)) # Adj-R²: .27, the best from the models I have tested (linear or quadratic with different time periods). 0.9507844 + 0.1470747x - 0.0046657x²
+summary(lm(I(gdp_pc_2019/gdp_pc_2017) ~ I(gdp_pc_2017/gdp_pc_2002) + I((gdp_pc_2017/gdp_pc_2002)^2), data = gdp_pc))
+
+
+##### Paper #####
+mean(p$year < 2022 & p$year > 2017)
+# table(p$year)
+# table(p$year[p$country_code %in% LIC])
+mean(p$hfce/p$mean_welfare, na.rm = T) # 1.44 (20% NA)
