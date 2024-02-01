@@ -5,29 +5,34 @@
 # TODO! 
 # faire tourner figs
 # demogrant for a given tax
+# If I want to have realistic estimates: Use 2027 IMF projections -- will be in the envelope of none - very_optimistic
+# If I want to have realistic estimates: Estimate recent growth on past one and project using a formula of type future growth = 0.84+0.35*(recent growth) -- will be a middle ground between our average (world growth) and (country) trend
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté.
-# combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly. => WID post-tax income data is only available in 38 countries (https://wid.world/summary-table/)
-# TODO check which has lowest HFCE p.c. Check proportion of countries without HFCE data. Check how Lakner & Milanovic (13) handle cases with HFCE lower than survey mean. Scale up by HFCE (or use Anand & Segal's method) as robustness.
+# Impute top incomes from WID (as in Anand & Segal, 15) 
 
 # There is an R package to access PIP: pipR
 # Cite Hoy & Sumner (16) who do almost the same thing (and even include reallocation of fuel subsidies and excess military spending), take 50% marginal tax > 10$/d as maximum
+# On estimates of poverty rate in 2030: Karver et al. (12): IMF proj - 1pp, Chandy et al. (13) EIU - 10%, Bicaba et al. (17) EIU - 10%, Lakner et al. (22); on future global income distrib, Hellebrandt & Mauro (15): IMF proj and one sensitivity analysis with 0.84+0.35*(past growth)
+# Cite GCIP (Lahoti et al., 16), WIID (Gradín, 21) and WID as alternative sources
+# Cite Lakner & Milanovic (16), Anand & Segal (15) on estimating global income distribution; and Pinkovskiy & Sala-i-Martin (09), Jordá & Niño-Zarazúa (19) on parametric estimates of global distribution.
+# Cite Deaton (05) and Prydz et al. (22) on survey vs. tax data
+# Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), Manuel et al. (18) (cost to end extreme poverty: 2.5 T$, incl. 150 G$ in countries lacking resources - vs. 200 G$ in ODA)
 # Cite Ortiz et al. (18), computing the costs of an UBI at the national poverty line (Figure 2, 3). On Theil, cite Chancel & Piketty (2021). On cheap diets, cite https://sites.tufts.edu/foodpricesfornutrition/research-and-publications/
 # On definitions of poverty, cite: Woodward & Abdallah (10) - no data but based on infant mortality rate, Pritchett (06) - 15$ based on HIC poverty lines, Edward (06) - 7$ based on kink in relation between GDP and life expectancy
-# On global income distrib, cite Hellebrandt & Mauro (15)
-# TODO: lire and cite Lahoti et al (16), Pinkovskiy & Sala-i-Martin (09)
-# Cite Manuel et al. (18) (cost to end extreme poverty: 2.5 T$, incl. 150 G$ in countries lacking resources - vs. 200 G$ in ODA)
-# Cite Deaton (05) and Prydz et al. (22) on survey vs. tax data
-# To justify not rescaling: cite Angrist et al. (21) that GDP poorly measures agricultural output, Martinez (22) that dictators inflate estimates.
-# On estimates of poverty rate in 2030: Karver et al. (12), Chandy et al. (13), Bicaba et al. (17)
+# To justify not rescaling: cite Angrist et al. (21) that GDP poorly measures agricultural output, Martinez (22) that dictators inflate estimates; Deaton (2001) argues that in India approximately half of the gap between national accounts consumption and household surveys is due to imputed rents.
 
 # compare Bolch with the same survey years as them: not replicated because the data has been revised. They use old data (2014) and old survey years (2009). Using most recent PIP data is surely preferable.
-# Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), 
 # World Bank (2022): "It became clear that the global goal of ending extreme poverty by 2030 would not be achieved."
 # SDG: "2. We commit ourselves to working tirelessly for the full implementation of this Agenda by 2030. We recognize that eradicating poverty in all its forms and dimensions, including extreme poverty, is the greatest global challenge and an indispensable requirement for sustainable development. 
 #          We are committed to achieving sustainable development in its three dimensions – economic, social and environmental – in a balanced and integrated manner. We will also build upon the achievements of the Millennium Development Goals and seek to address their unfinished business."  ttps://sdgs.un.org/2030agenda
 #       "41. We recognize that each country has primary responsibility for its own economic and social development."
 #       "60. We reaffirm our strong commitment to the full implementation of this new Agenda. We recognize that we will not be able to achieve our ambitious Goals and targets without a revitalized and enhanced Global Partnership and comparably ambitious means of implementation. 
 #            The revitalized Global Partnership will facilitate an intensive global engagement in support of implementation of all the goals and targets, bringing together Governments, civil society, the private sector, the United Nations system and other actors and mobilizing all available resources."
+
+# Past ideas:
+# combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly. => WID post-tax income data is only available in 38 countries (https://wid.world/summary-table/)
+# Use GDP growth projections (EIU paid, OECD (or PwC) incomplete, consensuseconomics.com paid, IMF 2027), cf. Hellebrandt & Mauro (15) for different growth projections method
+# check which has lowest HFCE p.c.: Burundi, < 2$ in 2022
 
 ##### Functions #####
 name_var_growth <- function(growth = "optimistic") { 
@@ -314,7 +319,7 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
 
 ##### Data #####
 # PIP/PovcalNet data is *per capita* (without adjustment for household composition).
-create_p <- function(ppp_year = 2017, pop_iso = pop_iso3) { 
+create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) { 
   data <- read.csv(paste0("../data/Povcalnet ", ppp_year, ".csv")) # https://datacatalogfiles.worldbank.org/ddh-published/0063646/DR0090251/world_100bin.csv?versionId=2023-05-31T15:19:01.1473846Z on https://datacatalog.worldbank.org/search/dataset/0063646
   
   # Data cleaning
@@ -329,6 +334,15 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3) {
   # Add population
   p <- merge(p, pop_iso)
   p$pop_year <- sapply(1:nrow(p), function(c) { p[[paste0("pop_", p$year[c])]][c] }) # in thousands
+  
+  # HFCE
+  temp <- read.xlsx("../data/HFCEpc.xlsx") # Household Final Consumption Expenditures https://data.worldbank.org/indicator/NE.CON.PRVT.PP.KD 31/01/2024
+  p$hfce <- sapply(p$country_code, function(c) { temp[[as.character(unique(p$year[p$country_code == c]))]][temp$country_code == c] })
+  p$hfce <- (p$hfce/p$pop_year)/365
+  p$scaling_factor <- pmax(1, p$hfce/p$mean_welfare) # Rescale only if survey income < HFCE, as in Lakner & Milanovic (2013)
+  p$scaling_factor[is.na(p$scaling_factor)] <- 1.1235 # impute mean((p$hfce/p$mean_welfare)[p$country_code %in% LIC], na.rm = T)
+  if (rescale) p$welfare_avg_100 <- p$welfare_avg_100 + 100 * (p$scaling_factor - 1) * p$mean_welfare
+  if (rescale) p$mean_welfare <- rowSums(p[,paste0("welfare_avg_", 1:100)] * p[,paste0("pop_share_", 1:100)])
   
   # Estimate future GDP pc
   gdp_pc <- read_excel("../data/gdp_pc_ppp.xls") # Fetched in 2023 NY.GDP.PCAP.PP.KD
@@ -358,7 +372,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3) {
   p$country[p$country_code == "VEN"] <- "Venezuela"
   p$country[p$country_code == "VNM"] <- "Vietnam"
   #Missing in PIP : Afghanistan, Brunei, Cuba, Erythrée, Guinée équatoriale, Cambodge, Kuwait, Lybie, Liechtenstein, Nouvelle Calédonie, Nouvelle Zélande, Oman, Puerto Rico, Qatar, Sahara Occidental, Arabie Saoudite, Singapore, Somalie, Taiwan
-  countries_names <- setNames(p$country, p$country_code)
+  countries_names <- setNames(p$country, p$country_code) # /!\ TODO Poland appears twice
   
   # Merge with original Bolch et al. (2022) results  
   bolch_table_original <- read.csv("../data/bolch_table_original.csv") # Table imported from Bolch et al. (2022) PDF using tabula.technology
@@ -436,8 +450,10 @@ pop_rural_urban <- read.csv2("../data/pop_rural_urban.csv") # Last updated 07/05
 
 start <- Sys.time()
 p <- p17 <- create_p()
+s <- create_p(rescale = T)
 p11 <- create_p(ppp_year = 2011)
 w <- create_world_distribution()
+ws <- create_world_distribution(df = s)
 # w11 <- create_world_distribution(df = p11) # 9 min
 print(Sys.time() - start) # 14+9 min
 beep()
@@ -717,3 +733,9 @@ plot_world_map("y_expropriated_18", breaks = c(0, 2.15, 4, 7, 13, 18.15, 40, 100
 plot_world_map("poverty_gap_2", breaks = c(0, 2, 10, 20, 40, 60, 100), sep = " to ", end = "", strict_ineq_lower = FALSE,  add_folder = 'fr_',# svg, pdf
                legend = "Écart de pauvreté (en %)\nà $2.15/jour (en $ 2017 PPA)", #fill_na = T,
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .05, trim = T)
+
+mean(p$hfce/p$mean_welfare, na.rm = T) # 1.44 (20% NA)
+mean((p$hfce/p$mean_welfare)[p$country_code %in% SSA], na.rm = T) # 1.32 (18% NA)
+mean((p$hfce/p$mean_welfare)[p$country_code %in% LIC], na.rm = T) # 1.12 (32% NA)
+LIC <- c("AFG", "BFA", "BDI", "TCD", "COG", "ERI", "ETH", "GMB", "GIN", "GNB", "PRK", "LBR", "MDG", "MWI", "MLI", "MOZ", "NER", "RWA", "SOM", "SRE", "SDN", "SSD", "SYR", "TGO", "UGA", "YEM", "ZMB") # 2023 official classification. LIC: 650M people
+SSA <- c("SDN", "AGO", "GIN", "GMB", "GNB", "GNQ", "BDI", "BEN", "BFA", "SEN", "BWA", "CAF", "SLE", "SOM", "SSD", "CIV", "CMR", "COD", "COG", "COM", "LBR", "LSO", "SWZ", "TCD", "TGO", "MLI", "MDG", "DJI", "ERI", "ESH", "ETH", "MWI", "MUS", "MRT", "MOZ", "TZA", "UGA", "ZMB", "ZWE", "NGA", "NER", "NAM", "GHA", "GAB")
