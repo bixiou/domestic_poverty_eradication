@@ -304,7 +304,7 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
   pop_yr <- if (grepl("2022|now", var)) "pop_2022" else "pop_2030"
   wquantiles <- unique(sort(unlist(sapply(1:100, function(i) {df[[paste0(var, "_max_", i)]] }))))
   wcdf <- c() # ~ 1 min
-  for (q in wquantiles) wcdf <- c(wcdf, sum(sapply(1:100, function(j) { sum((df[[paste0(var, "_max_", j)]] <= q) * df[[paste0("pop_share_", j)]] * df[[pop_yr]]) })))
+  for (q in wquantiles) wcdf <- c(wcdf, sum(sapply(1:100, function(j) { sum((df[[paste0(var, "_max_", j)]] <= q) * df[[paste0("pop_share_", j)]] * df[[pop_yr]], na.rm = T) })))
   wpop <- wcdf[length(wcdf)]
   wcdf <- wcdf/wpop
   wpercentiles <- findInterval(seq(0, 1, .01), wcdf)[-1] # computes the indices for which the pop_share is lesser or equal to the percentiles.
@@ -542,13 +542,17 @@ p$bolch_index_2_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.
 
 growth_scenarios <- setNames(c("now", "trend", "trend_pos", "imf", "reg", "none", "average", "strong", "optimistic", "very_optimistic", "sdg8"), # , "bolch"
                              c("2022 Estimate", "Trend (2014-2019)", "Max(Trend, 0)", "IMF forecast", "Quadratic model", "0% growth", "3% growth", "4.5% growth", "6% growth", "7% growth", "7% growth since 2015"))
-table_bolch_replication <- cbind("scenario" = names(growth_scenarios), rate2 = sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 2.15, growth = s, return = "rate")), 
-                                 rate4 = sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 3.65, growth = s, return = "rate")), 
-                                 rate7 = sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 6.85, growth = s, return = "rate")), 
-                                 gap2 = sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 2.15, unit = '%', growth = s)), 
-                                 gap4 = sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 3.65, unit = '%', growth = s)), 
-                                 gap7 = sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = s)))
-row.names(table_bolch_replication) <- p$country
+table_poverty <- cbind("scenario" = names(growth_scenarios), rate2 = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 2.15, growth = s, return = "rate")), 
+                                 "rate4" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 3.65, growth = s, return = "rate")), 
+                                 "rate7" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 6.85, growth = s, return = "rate")), 
+                                 "gap2" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 2.15, unit = '%', growth = s)), 
+                                 "gap4" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 3.65, unit = '%', growth = s)), 
+                                 "gap7" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = s)))
+# row.names(table_poverty) <- growth_scenarios
+cat(paste(kbl(table_poverty, "latex", caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios. Poverty rates are expressed in % of world population and poverty gaps in % of world GDP. Poverty lines are in PPP.", position = "b", escape = F, booktabs = T, digits = 1, label = "tab:poverty",
+              col.names = c("\\makecell{Survey\\\\year}", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\replicated", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\original", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\replicated}", 
+                            "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\original}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\replicated}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\original}")), collapse="\n"), file = "../tables/poverty.tex") 
+
 
 mean_gap(p$bolch_poverty_rate_3, p$bolch_poverty_rate_original) # 50%
 mean_gap(p$bolch_index_1_now, p$bolch_pec_1) # 21%
