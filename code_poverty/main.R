@@ -542,16 +542,17 @@ p$bolch_index_2_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.
 
 growth_scenarios <- setNames(c("now", "trend", "trend_pos", "imf", "reg", "none", "average", "strong", "optimistic", "very_optimistic", "sdg8"), # , "bolch"
                              c("2022 Estimate", "Trend (2014-2019)", "Max(Trend, 0)", "IMF forecast", "Quadratic model", "0% growth", "3% growth", "4.5% growth", "6% growth", "7% growth", "7% growth since 2015"))
-table_poverty <- cbind("scenario" = names(growth_scenarios), rate2 = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 2.15, growth = s, return = "rate")), 
+table_poverty <- cbind(#"scenario" = names(growth_scenarios), 
+                                 "rate2" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 2.15, growth = s, return = "rate")), 
                                  "rate4" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 3.65, growth = s, return = "rate")), 
                                  "rate7" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 6.85, growth = s, return = "rate")), 
                                  "gap2" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 2.15, unit = '%', growth = s)), 
                                  "gap4" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 3.65, unit = '%', growth = s)), 
-                                 "gap7" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = s)))
-# row.names(table_poverty) <- growth_scenarios
-cat(paste(kbl(table_poverty, "latex", caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios. Poverty rates are expressed in % of world population and poverty gaps in % of world GDP. Poverty lines are in PPP.", position = "b", escape = F, booktabs = T, digits = 1, label = "tab:poverty",
-              col.names = c("\\makecell{Survey\\\\year}", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\replicated", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\original", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\replicated}", 
-                            "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\original}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\replicated}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\original}")), collapse="\n"), file = "../tables/poverty.tex") 
+                                 "gap7" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = s))) 
+cat(sub("\\toprule\n", "\\ Growth scenario & \\multicolumn{3}{c}{Poverty rate} & \\multicolumn{3}{c}{Poverty gap} \\toprule\n (Poverty line in \\$/day)", 
+        paste(kbl(table_poverty, "latex", caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios. Poverty rates are expressed in \\% of world population and poverty gaps in \\% of world GDP. Poverty lines are in PPP \\$/day.", 
+              row.names = T, position = "b", escape = F, booktabs = T, digits = c(1, 1, 1, 2, 2, 2), label = "tab:poverty", 
+              col.names = c("2.15", "3.65", "6.85", "2.15", "3.65", "6.85")), collapse="\n"), fixed = T), file = "../tables/poverty.tex") 
 
 
 mean_gap(p$bolch_poverty_rate_3, p$bolch_poverty_rate_original) # 50%
