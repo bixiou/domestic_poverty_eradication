@@ -446,6 +446,8 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) {
 
 create_world_distribution <- function(df = p17) {
   w <- data.frame(country = "World", pop_2022 = sum(df$pop_2022), pop_2030 = sum(df$pop_2030))
+  w <- compute_world_distribution(name_var_growth("imf"), df = df, wdf = w)
+  w <- compute_world_distribution(name_var_growth("reg"), df = df, wdf = w)
   w <- compute_world_distribution(name_var_growth("optimistic"), df = df, wdf = w)  # ~ 1.5 min
   w <- compute_world_distribution("Y7", df = df, wdf = w)  # ~ 1.5 min
   w <- compute_world_distribution(name_var_growth("trend"), df = df, wdf = w)
@@ -537,6 +539,16 @@ p$bolch_index_1_now <- compute_antipoverty_tax(df = p, exemption_threshold = 3.4
 p$bolch_index_2_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now", return = "bolch")
 (bolch_index_1 <- round(sort(setNames(p$bolch_index_1_now, p$country), decreasing = T), 2))
 (bolch_index_2 <- round(sort(setNames(p$bolch_index_2_now, p$country), decreasing = T), 2))
+
+growth_scenarios <- setNames(c("now", "trend", "trend_pos", "imf", "reg", "none", "average", "strong", "optimistic", "very_optimistic", "sdg8"), # , "bolch"
+                             c("2022 Estimate", "Trend (2014-2019)", "Max(Trend, 0)", "IMF forecast", "Quadratic model", "0% growth", "3% growth", "4.5% growth", "6% growth", "7% growth", "7% growth since 2015"))
+table_bolch_replication <- cbind("scenario" = names(growth_scenarios), rate2 = sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 2.15, growth = s, return = "rate")), 
+                                 rate4 = sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 3.65, growth = s, return = "rate")), 
+                                 rate7 = sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 6.85, growth = s, return = "rate")), 
+                                 gap2 = sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 2.15, unit = '%', growth = s)), 
+                                 gap4 = sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 3.65, unit = '%', growth = s)), 
+                                 gap7 = sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = s)))
+row.names(table_bolch_replication) <- p$country
 
 mean_gap(p$bolch_poverty_rate_3, p$bolch_poverty_rate_original) # 50%
 mean_gap(p$bolch_index_1_now, p$bolch_pec_1) # 21%

@@ -61,8 +61,8 @@
 \usepackage{mathpazo}  % Palatino math & text
 \usepackage[left=1.5in,right=1.5in,top=1.5in,bottom=1.5in]{geometry}
 % \linespread{1.5}
-% \usepackage[super,comma,sort]{natbib} % WPcomment
-\usepackage[round,sort&compress]{natbib} % NCCcomment
+\usepackage[super,comma,sort]{natbib} % WPcomment
+% \usepackage[round,sort&compress]{natbib} % NCCcomment
 \usepackage{url} % [hyphens]
 \usepackage[hyperpageref]{backref} % back references biblio. Needs latexmk at compilation.
 \usepackage[pagebackref]{hyperref}
@@ -215,29 +215,31 @@ I thank Michalis Moatsos for his help in using his data. I thank Thomas Goumont 
 
 \section{Results}
 \subsection{Data}\label{subsec:data}
-% Why using PIP compared to alternatives (WIID adjusted to GDP; (GCIP stops in 2013; WID only covers 38 countries with post-tax data))? Most recent data and best estimation of poor's consumption.
+% => Why using PIP compared to alternatives (WIID adjusted to GDP; (GCIP stops in 2013; WID only covers 38 countries with post-tax data))? Most recent data and best estimation of poor's consumption.
 % Not clear which is more accurate between survey and national accounts (Deaton 05), especially in low-income countries, as agricultural production is indirectly measured in national accounts. Also, in Africa, mean conso is similar between national accounts and surveys (Deaton 05). Also, WIID adjust to GDP PPP but I should adjust to national conso, not GDP. Martinez (22) shows that autocracies overestimate GDP growth by 35%. 
-% Prydz et al. (22) argue that NAS are more accurate but show that the discrepancy between survey mean consumption and NAS HFCE is not that large: 22%, and 13.7% for low-income countries. HFCE is broader (and encompasses spending of non-profit entities like NGOs). Also, if one scales up the conso distribution, one should also scale up the poverty line (as it is based on conso surveys): if one does that, poverty rates are on average the same, they change due to variation in survey/NAS discrepancies. 
+% Prydz et al. (22) argue that NAS are more accurate but show that the discrepancy between survey mean consumption and NAS HFCE is not that large: 22%, and 13.7% for low-income countries. HFCE is broader (and encompasses spending of non-profit entities like NGOs). => Also, if one scales up the conso distribution, one should also scale up the poverty line (as it is based on conso surveys): if one does that, poverty rates are on average the same, they change due to variation in survey/NAS discrepancies. 
 % I can adjust to HFCE as robustness check https://data.worldbank.org/indicator/NE.CON.PRVT.PP.KD with the assumption that the extra money is held by the rich (>13$/day), 
 The percentiles of each country's income (or consumption) are estimated by the Poverty and Inequality Platform (PIP) of the World Bank (ex-PovcalNet). This data is based on purchasing power parity (PPP) and given in constant 2017 \$. PIP aggregates the most recent household surveys (60\% of countries were surveyed between 2018 and 2021). 
 
-In low-income countries (those of greatest interest to us), PIP provides data on the per capita \textit{consumption} (rather than income). Thereby, the data does not capture services procured by the government. Another potential concern with household surveys is that the aggregate (national) consumption they imply is generally lower than the one estimated in national accounts. This discrepancy comes from measurement errors on both sides: on the one hand, household surveys suffer from underreporting of top incomes and large expenditures; on the other hand, national accounts do not properly account for informal work %and auto-consumption, 
-and tend to inflate agricultural output.\cite{deaton_measuring_2005,prydz_disparities_2022-1} % TODO: cite
-Furthermore, authoritarian countries have been shown to produce inflated GDP statistics, except for countries below the GDP threshold of eligibility for preferential loans by the World Bank. % TODO: cite international development association
-While the ratio of Household Final Consumption Expenditures (HFCE) from national accounts is 44\% greater than the aggregate value from household surveys, the ``discrepancy ratio'' is largest for middle-income countries, and is only 12\% for low-income countries. % TODO: cite
+In low-income countries (those of greatest interest to us), PIP provides data on the per capita \textit{consumption} (rather than income). Thereby, the data does not capture services procured by the government. Another potential concern with household surveys is that the aggregate (national) consumption they imply is generally lower than the one estimated in national accounts.\cite{deaton_measuring_2005,prydz_disparities_2022} This discrepancy comes from measurement errors on both sides: on the one hand, household surveys suffer from underreporting of top incomes and large expenditures; on the other hand, national accounts do not properly account for informal work %and auto-consumption, 
+and tend to inflate agricultural output.\cite{aangrist_why_2021} 
+Furthermore, autoritarian countries have been shown to produce inflated GDP statistics, except for countries below the GDP threshold of eligibility for preferential loans by the World Bank.\cite{martinez_how_2022} % international development association
+While the ratio of Household Final Consumption Expenditures (HFCE) from national accounts is 44\% greater than the aggregate value from household surveys, the ``discrepancy ratio'' is largest for middle-income countries, and is only 12\% for low-income countries. 
 Because household surveys are best suited to estimate consumption by the poorest, I use unadjusted PIP data in our baseline. 
 
-As a robustness check, I also re-derive our main results after adjusting aggregate consumption by the discrepancy ratio (computed using World Bank's data). In line with the literature,\cite{lakner_global_2013,anand_chapter_2015} I impute the extra consumption to the top percentile. I do not perform the rescaling on the 15\% of countries with HFCE lower than its aggregate consumption from PIP, and I assume a discrepancy ratio of +12\% for the 20\% of countries lacking data on HFCE. 
+As a robustness check, I also re-derive our main results after adjusting aggregate consumption by the discrepancy ratio (computed using World Bank data). In line with the literature,\cite{lakner_global_2013,anand_chapter_2015} I impute the extra consumption to the top percentile. I do not perform the rescaling on the 15\% of countries with HFCE lower than its aggregate consumption from PIP, and I assume a discrepancy ratio of +12\% for the 20\% of countries lacking data on HFCE. 
 
-As is common in this literature, I assume that each percentile grows at the same rate between the country's survey year and 2030. 
-I rescale incomes by the observed growth of GDP p.c. (in PPP) up to 2022 (using World Bank's data) and by different methods for the 2022--2030 period. 
-These methods include: extending the 2014--2019 growth trend (excluding COVID years); extending the trend for growing countries and assuming no growth when GDP p.c. has contracted between 2014 and 2019; assuming a constant growth (of either 0\%, 3\%, 4.5\%, 6\%, or 7\%); using IMF forecasts (extended up to 2030 by replicating the 2026--2028 forecasted growth in 2028--2030); projecting future growth using a quadratic model that predicts the 2011--2019 growth based on the 1991-2011 growth (then applied to 2022--2030 using the 2002--2022 growth). I deviate from this two-step procedure assess the original SDG goal, as I assume a constant growth of 7\% starting in 2015.
+As is common in this literature,\cite{karver_mdgs_2012,hellebrandt_future_2015,bicaba_can_2017} my baseline assumes ``balanced growth'', meaning that each percentile grows at the same rate between the country's survey year and 2030. 
+I rescale incomes by the observed growth of GDP p.c. (in PPP) up to 2022 (using World Bank data) and by different methods for the 2022--2030 period. 
+These methods include: extending the 2014--2019 growth trend (which excludes COVID years); extending the trend for growing countries and assuming no growth when GDP p.c. has contracted between 2014 and 2019; assuming a constant growth (of either 0\%, 3\%, 4.5\%, 6\%, or 7\%); using IMF forecasts\cite{imf_world_2023} (extended up to 2030 by replicating the 2026--2028 forecasted growth in 2028--2030); projecting future growth using a quadratic model that predicts the 2011--2019 growth based on the 1991-2011 growth (then applied to 2022--2030 using the 2002--2022 growth). I deviate from this two-step procedure assess the original SDG goal, as I assume a constant growth of 7\% starting in 2015.
 
 
 
 \subsection{The effect of balanced growth}
 % - Poverty rates and gaps with different growth scenarios: Table 1
 % This assumption is the same than PIP's https://pip.worldbank.org/about
+
+To estimate global poverty rates, the World Bank scales up the percentiles measured in household surveys by the country's GDP growth between the survey year and the year of interest. I project global poverty rates and poverty gaps in 2030 using the same assumption of balanced growth, for a range of growth scenarios (Table \ref{tab:poverty_rates}).
 
 \subsection{Antipoverty caps}
 % - Cap to eradicate poverty: minimum of 2.7\$/day in MDG with 7\% growth, 1.74 with trend growth (1\%): Figure 1
