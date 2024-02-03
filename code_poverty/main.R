@@ -224,7 +224,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
                                                     growth == "strong" ~ 1.045,
                                                     TRUE ~ 1.06)
   y <- if (is.null(name_var)) name_var_growth(growth) else name_var
-  if (grepl("trend", growth)) { # TODO! allow negative trend
+  if (grepl("trend", growth)) { # TODO! allow negative trend  
     df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + df$mean_growth_gdp_pc_14_19)^8 
     df$growth_gdp_pc_year_30 <- df$gdp_pc_2030/df$gdp_pc_year
     # df$country_code[is.na(df$gdp_pc_year)] # "SSD" "SYR" "VEN" "YEM"
