@@ -171,13 +171,14 @@
 \title{Shortfall of Domestic Resources to Eradicate Extreme Poverty} 
 
 \author{Adrien Fabre$^{1,2}$} % WPcomment
-\author{Adrien Fabre\footnote{CNRS, CIRED. E-mail: adrien.fabre@cnrs.fr.}
-I thank Michalis Moatsos for his help in using his data. I thank Thomas Goumont and Elise Thai for assistance. I declare that I also serve as president of Global Redistribution Advocates.} % NCCcomment
+% \author{Adrien Fabre\footnote{CNRS, CIRED. E-mail: adrien.fabre@cnrs.fr.}
+% I thank Michalis Moatsos for his help in using his data. I thank Thomas Goumont and Elise Thai for assistance. I declare that I also serve as president of Global Redistribution Advocates.} % NCCcomment TODO
 
 \date{\today} % NCCcomment
 
 \begin{document}
 
+\sloppy
 \maketitle
 
 \begin{center}
@@ -231,24 +232,53 @@ As a robustness check, I also re-derive our main results after adjusting aggrega
 
 As is common in this literature,\cite{karver_mdgs_2012,hellebrandt_future_2015,bicaba_can_2017} my baseline assumes ``balanced growth'', meaning that each percentile grows at the same rate between the country's survey year and 2030. 
 I rescale incomes by the observed growth of GDP p.c. (in PPP) up to 2022 (using World Bank data) and by different methods for the 2022--2030 period. 
-These methods include: extending the 2014--2019 growth trend (which excludes COVID years); extending the trend for growing countries and assuming no growth when GDP p.c. has contracted between 2014 and 2019; assuming a constant growth (of either 0\%, 3\%, 4.5\%, 6\%, or 7\%); using IMF forecasts\cite{imf_world_2023} (extended up to 2030 by replicating the 2026--2028 forecasted growth in 2028--2030); projecting future growth using a quadratic model that predicts the 2011--2019 growth based on the 1991-2011 growth (then applied to 2022--2030 using the 2002--2022 growth). I deviate from this two-step procedure assess the original SDG goal, as I assume a constant growth of 7\% starting in 2015.
+These methods include: extending the 2014--2019 growth trend (which excludes COVID years); extending the trend for growing countries and assuming no growth when GDP p.c. has contracted between 2014 and 2019; assuming a constant growth (of either 0\%, 3\%, 4.5\%, 6\%, or 7\%); using IMF forecasts\cite{imf_world_2023} (extended up to 2030 by replicating the 2026--2028 forecasted growth in 2028--2030); projecting future growth using an autoregressive quadratic model that predicts the 2011--2019 growth based on the 1991-2011 growth (then applied to 2022--2030 using the 2002--2022 growth). I deviate from this two-step procedure assess the original SDG goal, as I assume a constant growth of 7\% starting in 2015.
 
 
 
 \subsection{The effect of balanced growth}
-% - Poverty rates and gaps with different growth scenarios: Table 1
-% This assumption is the same than PIP's https://pip.worldbank.org/about
 
-To estimate global poverty rates, the World Bank scales up the percentiles measured in household surveys by the country's GDP growth between the survey year and the year of interest. I project global poverty rates and poverty gaps in 2030 using the same assumption of balanced growth, for a range of growth scenarios (Table \ref{tab:poverty}).
+To estimate global poverty rates, the World Bank scales up the percentiles measured in household surveys by the country's GDP growth between the survey year and the year of interest. I project global poverty rates and poverty gaps in 2030 using the same assumption of balanced growth (i.e., constant inequality), for a range of growth scenarios (Table \ref{tab:poverty}). 
+
+\input{../tables/poverty.tex}
+
+My estimates of 2022 global poverty rates closely align with the 2019 estimates from the World Bank: 9\% of the world population living with less than 2.15\$/day, 24\% below 3.65\$/day, and 47\% below 6.85\$/day. 
+The poverty gap is the cost that separates people below the poverty line from that line. For example, if 10\% of the population earns 1.65\$/day and 90\% of the population earns more than 2.15\$/day, the poverty gap is $0.1 \cdot (2.15 - 1.65) = 0.05\$/\text{day}$. 
+I estimate the extreme poverty gap at 0.25\% of the world GDP. This is a first approximation of what it would cost to lift everyone out of extreme poverty, defined with the \$2.15/day poverty line. 
+
+
+Assuming that each country will continue to grow at the same rate as in the recent past, %grow over 2022--2030 at the same rate as over 2014--2019, %a balanced growth for 2022--2030 at the rate observed in the country over 2014--2019, 
+I estimate that 6\% of the world population will live in extreme poverty in 2030. I find very similar estimates using a simple yet realistic model to predict a country's growth (an autoregressive projection based on its growth over the last 20 years). 
+% With a balanced growth at a rate of 3\% in each country, extreme poverty would decline slightly more than in the realistic projections, at 5\%.
+If each country grows by 3\% each year, extreme poverty would decline slightly more than in the realistic projections, at 5\%. 
+Although steady growth reduces poverty, growth alone cannot achieve the first SDG: If the world grows by 7\% each year, the extreme poverty rate would still be 3\% in 2030. Even if the world had experienced a 7\% growth rate starting in 2015 (when the SDGs were adopted), extreme poverty would not be completely eliminated, at 1\% of the world population in 2030. 
+As we cannot rely on growth alone to eliminate poverty, let us add domestic redistribution to the equation.
 
 \subsection{Antipoverty caps}
+
+To fill the poverty gap at the least welfare cost, the cost should be borne by the wealthiest. 
+Indeed, if it were possible to expropriate top income individuals 
+without reducing their activity, the welfare-maximizing transfer would consist of capping top incomes to finance an income floor. 
+In reality, an income cap would deter economic activity, but abstracting from the distorsive aspect of the policy, the income cap required to fill the poverty gap can be used as a coarse but telling proxy for the capacity of domestic resource mobilization. 
+
+Taking as a baseline the scenario with a balanced growth at a rate of 3\%, I estimate the income cap that each country should impose to fill the extreme poverty gap with the exproriated income (Figure \ref{fig:antipoverty_cap}). In Madagascar, the average income would fall short of \$2.15/day in this scenario, at \$2.02/day. Given that Madagascar grew at 1\% per year between 2014 and 2019, ...
+
+\begin{figure}[h]
+\caption{Income cap eradicating extreme poverty (in \$/day). In this idealized policy, all income above the cap is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. %abstracting away from distorsions and implementation costs. Growth is 3\% over 2022--2030.
+}\label{fig:antipoverty_cap}
+\makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+{../figures/y_expropriated_2_average.pdf}}
+\end{figure}
 % - Cap to eradicate poverty: minimum of 2.7\$/day in MDG with 7\% growth, 1.74 with trend growth (1\%): Figure 1
 % - would have worked well if it had been 7\% since 2016
 
 \subsection{Antipoverty taxes}
-% By default, 6\% (7?) growth starting in 2023
+% By default, 6\% (7?) growth starting in 2023 
 % - Tax rate to eradicate poverty: above 7, 18: Figure 2
 % - Even worse when considering Moatsos' BCS line
+
+% antipoverty_2_tax_7_average
+% antipoverty_2_tax_18_very_optimistic
 
 \subsection{The credible potential of domestic redistribution}
 % - Demogrant that can be funded with a given national tax: Figure 3
