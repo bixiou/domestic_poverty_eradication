@@ -893,6 +893,7 @@ summary(lm(I(gdp_pc_2019/gdp_pc_2017) ~ I(gdp_pc_2017/gdp_pc_2002) + I((gdp_pc_2
 
 ##### Paper #####
 # Data
+p$scaling_factor[p$country %in% c("Burundi", "Democratic Republic of the Congo")]
 mean(p$year < 2022 & p$year > 2017)
 # table(p$year)
 # table(p$year[p$country_code %in% LIC])
