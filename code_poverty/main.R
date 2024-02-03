@@ -922,7 +922,25 @@ p$y_expropriated_2_average <- compute_antipoverty_maximum(df = p, threshold = 2.
 plot_world_map("y_expropriated_2_average", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
                legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $2.15/day\n(in $ 2017 PPP)", #fill_na = T,  
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .07, trim = T)  
-sort(setNames(p$y_expropriated_2_average, p$country))
+sort(setNames(p$y_expropriated_2_average, p$country), decreasing = T)
+
+setNames(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)]-1, p$country[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])
+s$country[s$mean_y_2022 < 3 & !is.na(s$gdp_pc_2014)]
+mean(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
+max(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
+mean(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
+max(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
+
+p$y_expropriated_2_very_optimistic <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "very_optimistic")
+sort(setNames(p$y_expropriated_2_very_optimistic, p$country), decreasing = T)
+p$s_y_expropriated_2_very_optimistic <- compute_antipoverty_maximum(df = s, threshold = 2.15, growth = "very_optimistic")
+sort(setNames(p$s_y_expropriated_2_very_optimistic, p$country), decreasing = T)
+p$y_expropriated_2_sdg8 <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "sdg8")
+sort(setNames(p$y_expropriated_2_sdg8, p$country), decreasing = T)
+
+plot_world_map("y_expropriated_2_very_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
+               legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $2.15/day\n(in $ 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 p$s_y_expropriated_2_average <- compute_antipoverty_maximum(df = s, threshold = 2.15, growth = "average")
 plot_world_map("s_y_expropriated_2_average", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
