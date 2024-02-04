@@ -507,7 +507,6 @@ w <- tax_revenues(df = w, name_tax = "min8", thresholds = c(1, 2, 3, 6, 9)*1e3/(
 w <- tax_revenues(df = w, name_tax = 'drastic', thresholds = c(1, 2, 3, 4, 5)*1e3/(365/12), marginal_rates = c(10, 20, 30, 40, 90), return = 'df', growth = "optimistic")
 
 
-
 ##### Computations #####
 # p <- compute_inequality(var = name_var_growth("optimistic"), df = p, return = "df")
 # w <- compute_inequality(var = name_var_growth("optimistic"), df = w, return = "df") 
@@ -985,6 +984,11 @@ plot_world_map("antipoverty_bcs_tax_bcs", breaks = c(0, .1, 1, 5, 10, 25, 50, 10
 
 
 # Demogrant for given tax
+p$demogrant_7__5 <- compute_min_funded(revenues = tax_revenues(df = p, thresholds = 6.85, marginal_rates = 5, return = 'pc', growth = "average"), var = name_var_growth("average"), df = p)
+sort(setNames(p$demogrant_7__5, p$country))
+plot_world_map("demogrant_7__5", breaks = c(0, 1, 2.15, 4, 7, 10, 18, 30, Inf), end = "$", sep = "$ to ",
+               legend = "Income floor\nthat can be funded\nwith a 5% tax\nabove $6.85/day\n(in 2017 PPP $/day)", #fill_na = T,  
+               save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 p$antipoverty_2_tax_7_sdg8 <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "sdg8")
 sort(setNames(p$antipoverty_2_tax_7_sdg8, p$country))
