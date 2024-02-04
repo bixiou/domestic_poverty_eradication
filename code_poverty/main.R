@@ -975,10 +975,12 @@ plot_world_map("s_antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5,
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 sort(setNames(p$bcs, p$country), decreasing = T)
-p$antipoverty_bcs_tax_7 <- compute_antipoverty_tax(df = p11, exemption_threshold = 5.5, poverty_threshold = "bcs", growth = "average") # In 2011PPP, 2.15/3.65/6.85 is 1.9/3.2/5.5 https://documents1.worldbank.org/curated/en/099700509122212929/pdf/IDU05b43a261041c504a5f0bb3405d0ef310b9e1.pdf
-sum(p$antipoverty_bcs_tax_7 > 100, na.rm = T)
-plot_world_map("antipoverty_bcs_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
-               legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove Basic Consumption\n(in 2017 PPP)", #fill_na = T,  
+p$antipoverty_bcs_tax_bcs <- compute_antipoverty_tax(df = p11, exemption_threshold = "bcs", poverty_threshold = "bcs", growth = "average") # In 2011PPP, 2.15/3.65/6.85 is 1.9/3.2/5.5 https://documents1.worldbank.org/curated/en/099700509122212929/pdf/IDU05b43a261041c504a5f0bb3405d0ef310b9e1.pdf
+weighted.median(p$bcs, p$pop_2030, na.rm = T)
+sum(p$antipoverty_bcs_tax_bcs > 100, na.rm = T)
+sort(setNames(p$antipoverty_bcs_tax_bcs, p$country), decreasing = T)
+plot_world_map("antipoverty_bcs_tax_bcs", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove Basic Consumption\nrequired to lift all\nabove Basic Consumption\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 
