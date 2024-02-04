@@ -479,7 +479,7 @@ p11 <- create_p(ppp_year = 2011)
 w <- create_world_distribution()
 ws <- create_world_distribution(df = s)
 # w11 <- create_world_distribution(df = p11) # 9 min
-print(Sys.time() - start) # 14+9 min
+print(Sys.time() - start) # 50 min
 beep()
 save.image(".RData")
 
@@ -906,17 +906,19 @@ table_poverty <- cbind(#"scenario" = names(growth_scenarios),
   "rate2" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 2.15, growth = s, return = "rate")), 
   "rate4" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 3.65, growth = s, return = "rate")), 
   "rate7" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 6.85, growth = s, return = "rate")), 
+  "rate18" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 18.15, growth = s, return = "rate")), 
   "gap2" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 2.15, unit = '%', growth = s)), 
   "gap4" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 3.65, unit = '%', growth = s)), 
-  "gap7" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = s))) 
-cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{3}{c}{Poverty rate} & \\multicolumn{3}{c}{Poverty gap} \\\\ \n (Poverty line in \\$/day)", 
+  "gap7" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = s)),
+  "gap18" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 18.15, unit = '%', growth = s))) 
+cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty rate (\\%)} & \\multicolumn{4}{c}{Poverty gap (\\% of GDP} \\\\ \n (Poverty line in \\$/day)", 
         paste(kbl(table_poverty, "latex", caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios. Poverty rates are expressed in \\% of world population and poverty gaps in \\% of world GDP. Poverty lines are in PPP \\$/day.", 
-                  row.names = T, position = "h", escape = F, booktabs = T, digits = c(1, 1, 1, 2, 2, 2), label = "poverty_full", linesep = rep("", nrow(table_poverty)-1), 
-                  col.names = c("2.15", "3.65", "6.85", "2.15", "3.65", "6.85")), collapse="\n"), fixed = T), file = "../tables/poverty_full.tex") 
-cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{3}{c}{Poverty rate} & \\multicolumn{3}{c}{Poverty gap} \\\\ \n (Poverty line in \\$/day)", 
+                  row.names = T, position = "h", escape = F, booktabs = T, digits = c(1, 1, 1, 1, 2, 2, 2, 2), label = "poverty_full", linesep = rep("", nrow(table_poverty)-1), 
+                  col.names = c("2.15", "3.65", "6.85", "18.15", "2.15", "3.65", "6.85", "18.15")), collapse="\n"), fixed = T), file = "../tables/poverty_full.tex") 
+cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty rate (\\%)} & \\multicolumn{4}{c}{Poverty gap (\\% of GDP)} \\\\ \n (Poverty line in \\$/day)", 
         paste(kbl(table_poverty[c(1, 2, 5, 7, 10, 11),], "latex", caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios. Poverty rates are expressed in \\% of world population and poverty gaps in \\% of world GDP. Poverty lines are in PPP \\$/day.", 
-                  row.names = T, position = "h", escape = F, booktabs = T, digits = c(1, 1, 1, 2, 2, 2), label = "poverty", linesep = rep("", nrow(table_poverty)-1), 
-                  col.names = c("2.15", "3.65", "6.85", "2.15", "3.65", "6.85")), collapse="\n"), fixed = T), file = "../tables/poverty.tex") 
+                  row.names = T, position = "h", escape = F, booktabs = T, digits = c(1, 1, 1, 1, 2, 2, 2, 2), label = "poverty", linesep = rep("", nrow(table_poverty)-1), 
+                  col.names = c("2.15", "3.65", "6.85", "18.15", "2.15", "3.65", "6.85", "18.15")), collapse="\n"), fixed = T), file = "../tables/poverty.tex") 
 
 # Antipoverty cap
 p$y_expropriated_2_average <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "average")
@@ -948,16 +950,20 @@ plot_world_map("s_y_expropriated_2_average", breaks = c(0, 2.15, 4, 7, 13, 20, 4
                legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $2.15/day\n(in $ 2017 PPP)", #fill_na = T,  
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
-
 # Antipoverty taxes
 p$antipoverty_2_tax_7_average <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "average")
 plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+sort(setNames(p$antipoverty_2_tax_7_average, p$country), decreasing = T)
+wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA]) # 49%
+wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% LIC], p$pop_2030[p$country_code %in% LIC]) # 64%
+
 p$antipoverty_2_tax_18_very_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "very_optimistic")
 plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $18/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
 
 p$s_antipoverty_2_tax_7_average <- compute_antipoverty_tax(df = s, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "average")
 plot_world_map("s_antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
@@ -966,4 +972,20 @@ plot_world_map("s_antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 
 p$s_antipoverty_2_tax_18_very_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "very_optimistic")
 plot_world_map("s_antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $18/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+
+sort(setNames(p$bcs, p$country), decreasing = T)
+p$antipoverty_bcs_tax_7 <- compute_antipoverty_tax(df = p11, exemption_threshold = 5.5, poverty_threshold = "bcs", growth = "average") # In 2011PPP, 2.15/3.65/6.85 is 1.9/3.2/5.5 https://documents1.worldbank.org/curated/en/099700509122212929/pdf/IDU05b43a261041c504a5f0bb3405d0ef310b9e1.pdf
+sum(p$antipoverty_bcs_tax_7 > 100, na.rm = T)
+plot_world_map("antipoverty_bcs_tax_7", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove Basic Consumption\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+
+
+# Demogrant for given tax
+
+p$antipoverty_2_tax_7_sdg8 <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "sdg8")
+sort(setNames(p$antipoverty_2_tax_7_sdg8, p$country))
+plot_world_map("antipoverty_2_tax_7_sdg8", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
