@@ -103,10 +103,11 @@ agg_thresholds <- function(vec, thresholds, labels = NULL, sep = " - ", begin = 
     if (strict_ineq_lower) vec_agg[(vec <= thresholds[i] & vec < max_i & vec > thresholds[i-1]) | (vec == max_i & i == length(thresholds)) | (vec == thresholds[i] & i < length(thresholds) & vec < max_i) | (i == 2 & vec == min)] <- (thresholds[i] + thresholds[i-1])/2
     else vec_agg[(vec < thresholds[i] & vec >= thresholds[i-1] & vec > min_i) | (vec == min_i & i == 2) | (vec == thresholds[i-1] & i > 2 & vec > min_i) | (i == length(thresholds) & vec == max)] <- (thresholds[i] + thresholds[i-1])/2
   }
-  if (min == -Inf & strict_ineq_lower) levels[1] <- sub(paste0("-Inf", sep), "≤ ", levels[1])
-  if (min == -Inf & !strict_ineq_lower) levels[1] <- sub(paste0("-Inf", sep), "< ", levels[1])
-  if (max == Inf & strict_ineq_lower) levels[length(levels)] <- sub(paste0("(.*)", sep, "Inf"), "> \\1", levels[length(levels)]) # sub(" ", "", sep)
-  if (max == Inf & !strict_ineq_lower) levels[length(levels)] <- sub(paste0("(.*)", sep, "Inf"), "≥ \\1", levels[length(levels)]) # sub(" ", "", sep)
+  sep_escaped <- str_replace_all(sep, "(\\W)", "\\\\\\1")
+  if (min == -Inf & strict_ineq_lower) levels[1] <- sub(paste0("-Inf", sep_escaped), "≤ ", levels[1])
+  if (min == -Inf & !strict_ineq_lower) levels[1] <- sub(paste0("-Inf", sep_escaped), "< ", levels[1])
+  if (max == Inf & strict_ineq_lower) levels[length(levels)] <- sub(paste0("(.*)", sep_escaped, "Inf"), "> \\1", levels[length(levels)]) # sub(" ", "", sep)
+  if (max == Inf & !strict_ineq_lower) levels[length(levels)] <- sub(paste0("(.*)", sep_escaped, "Inf"), "≥ \\1", levels[length(levels)]) # sub(" ", "", sep)
   levels <- gsub("000 ", ",000 ", gsub("-", "–", levels))
   vec_agg[is.na(vec)] <- NA
   vec_agg <- as.item(vec_agg, labels = structure(values, names = levels), missing.values = c("",NA), annotation=Label(vec))
