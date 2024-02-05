@@ -3,7 +3,7 @@
 # Fr https://docs.google.com/document/d/1u41m1U0FGlvt6aGKzZET3MWr0ulz3tORPw1xVRSKek0/edit?usp=sharing
 
 # TODO! 
-# faire tourner figs
+# faire tourner figs après ajouter le scénario de croissance
 # calculer Gini sans redistribution, et avec redistribution linéaire vs. expropriative => indicateur: réduction de Gini nécessaire pour éradiquer pauvreté. => done no? just use return = 'df' in antipoverty_tax/maximum
 # demogrant for a given tax in MER (more important for the book than for the paper)
 
@@ -884,7 +884,7 @@ mean((p$hfce/p$mean_welfare)[p$country_code %in% LIC], na.rm = T) # 1.12 (32% NA
 mean(p$scaling_factor == 1, na.rm = T) # 15% HFCE < mean income
 mean((p$scaling_factor == 1)[p$country_code %in% SSA], na.rm = T) # 25% HFCE < mean income
 mean((p$scaling_factor == 1)[p$country_code %in% LIC], na.rm = T) # 41% HFCE < mean income
-LIC <- c("AFG", "BFA", "BDI", "TCD", "COG", "ERI", "ETH", "GMB", "GIN", "GNB", "PRK", "LBR", "MDG", "MWI", "MLI", "MOZ", "NER", "RWA", "SOM", "SRE", "SDN", "SSD", "SYR", "TGO", "UGA", "YEM", "ZMB") # 2023 official classification. LIC: 650M people
+LIC <- c("AFG", "BFA", "BDI", "TCD", "COD", "ERI", "ETH", "GMB", "GIN", "GNB", "PRK", "LBR", "MDG", "MWI", "MLI", "MOZ", "NER", "RWA", "SOM", "SRE", "SDN", "SSD", "SYR", "TGO", "UGA", "YEM", "ZMB") # 2023 official classification. LIC: 650M people
 SSA <- c("SDN", "AGO", "GIN", "GMB", "GNB", "GNQ", "BDI", "BEN", "BFA", "SEN", "BWA", "CAF", "SLE", "SOM", "SSD", "CIV", "CMR", "COD", "COG", "COM", "LBR", "LSO", "SWZ", "TCD", "TGO", "MLI", "MDG", "DJI", "ERI", "ESH", "ETH", "MWI", "MUS", "MRT", "MOZ", "TZA", "UGA", "ZMB", "ZWE", "NGA", "NER", "NAM", "GHA", "GAB")
 summary(lm(I(gdp_pc_2019/gdp_pc_2011) ~ I(gdp_pc_2011/gdp_pc_1991) + I((gdp_pc_2011/gdp_pc_1991)^2), data = gdp_pc)) # Adj-R²: .27, the best from the models I have tested (linear or quadratic with different time periods). 0.9507844 + 0.1470747x - 0.0046657x²
 summary(lm(I(gdp_pc_2019/gdp_pc_2017) ~ I(gdp_pc_2017/gdp_pc_2002) + I((gdp_pc_2017/gdp_pc_2002)^2), data = gdp_pc))
@@ -984,11 +984,26 @@ plot_world_map("antipoverty_bcs_tax_bcs", breaks = c(0, .1, 1, 5, 10, 25, 50, 10
 
 
 # Demogrant for given tax
-p$demogrant_7__5 <- compute_min_funded(revenues = tax_revenues(df = p, thresholds = 6.85, marginal_rates = 5, return = 'pc', growth = "average"), var = name_var_growth("average"), df = p)
-sort(setNames(p$demogrant_7__5, p$country))
-plot_world_map("demogrant_7__5", breaks = c(0, 1, 2.15, 4, 7, 10, 18, 30, Inf), end = "$", sep = "$ to ",
+p$demogrant_7__10 <- compute_min_funded(revenues = tax_revenues(df = p, thresholds = 6.85, marginal_rates = 10, return = 'pc', growth = "average"), var = name_var_growth("average"), df = p)
+sort(setNames(p$demogrant_7__10, p$country))
+sort(setNames(p$demogrant_7__10, p$country)[p$country_code %in% LIC])
+sum(p$demogrant_7__10 < 2.15)
+length(LIC)
+sum(p$demogrant_7__10 < 2.15 & p$country_code %in% LIC)
+plot_world_map("demogrant_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
+               legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)", #fill_na = T,  
+               save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+
+p$demogrant_7__10_very_optimistic <- compute_min_funded(revenues = tax_revenues(df = p, thresholds = 6.85, marginal_rates = 10, return = 'pc', growth = "very_optimistic"), var = name_var_growth("very_optimistic"), df = p)
+sum(p$demogrant_7__10_very_optimistic < 2.15)
+p$s_demogrant_7__10_very_optimistic <- compute_min_funded(revenues = tax_revenues(df = s, thresholds = 6.85, marginal_rates = 10, return = 'pc', growth = "very_optimistic"), var = name_var_growth("very_optimistic"), df = s)
+sum(p$s_demogrant_7__10_very_optimistic < 2.15)
+plot_world_map("demogrant_7__10_very_optimistic", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
                legend = "Income floor\nthat can be funded\nwith a 5% tax\nabove $6.85/day\n(in 2017 PPP $/day)", #fill_na = T,  
                save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+p$demogrant_7__10_sdg8 <- compute_min_funded(revenues = tax_revenues(df = p, thresholds = 6.85, marginal_rates = 10, return = 'pc', growth = "sdg8"), var = name_var_growth("sdg8"), df = p)
+sum(p$demogrant_7__10_sdg8 < 2.15)
+sort(setNames(p$demogrant_7__10_sdg8, p$country), decreasing = T)
 
 p$antipoverty_2_tax_7_sdg8 <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "sdg8")
 sort(setNames(p$antipoverty_2_tax_7_sdg8, p$country))
