@@ -211,7 +211,7 @@
 
 
 \paragraph{Literature} 
-
+% “As things stand, the world is not on track to end poverty by 2030,” (UN, 22)
 
 
 \section{Results}
@@ -220,7 +220,7 @@
 % Not clear which is more accurate between survey and national accounts (Deaton 05), especially in low-income countries, as agricultural production is indirectly measured in national accounts. Also, in Africa, mean conso is similar between national accounts and surveys (Deaton 05). Also, WIID adjust to GDP PPP but I should adjust to national conso, not GDP. Martinez (22) shows that autocracies overestimate GDP growth by 35%. 
 % Prydz et al. (22) argue that NAS are more accurate but show that the discrepancy between survey mean consumption and NAS HFCE is not that large: 22%, and 13.7% for low-income countries. HFCE is broader (and encompasses spending of non-profit entities like NGOs). => Also, if one scales up the conso distribution, one should also scale up the poverty line (as it is based on conso surveys): if one does that, poverty rates are on average the same, they change due to variation in survey/NAS discrepancies. 
 % I can adjust to HFCE as robustness check https://data.worldbank.org/indicator/NE.CON.PRVT.PP.KD with the assumption that the extra money is held by the rich (>13$/day), 
-The percentiles of each country's income (or consumption) are estimated by the Poverty and Inequality Platform (PIP) of the World Bank (ex-PovcalNet). This data is based on purchasing power parity (PPP) and given in constant 2017 \$. PIP aggregates the most recent household surveys (60\% of countries were surveyed between 2018 and 2021). 
+The percentiles of each country's post-tax income (or consumption) are estimated by the Poverty and Inequality Platform (PIP) of the World Bank (ex-PovcalNet). This data is based on purchasing power parity (PPP) and given in constant 2017 \$. PIP aggregates the most recent household surveys (60\% of countries were surveyed between 2018 and 2021). 
 
 In low-income countries (those of greatest interest to us), PIP provides data on the per capita \textit{consumption} (rather than income). Thereby, the data does not capture services procured by the government. Another potential concern with household surveys is that the aggregate (national) consumption they imply is generally lower than the one estimated in national accounts.\cite{deaton_measuring_2005,prydz_disparities_2022} This discrepancy comes from measurement errors on both sides: on the one hand, household surveys suffer from underreporting of top incomes and large expenditures; on the other hand, national accounts do not properly account for informal work %and auto-consumption, 
 and tend to inflate agricultural output.\cite{aangrist_why_2021} 
@@ -287,7 +287,7 @@ To give a last example of the shortfall of resources in the lowest-income countr
 }\label{fig:antipoverty_cap}
 \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
 {../figures/y_expropriated_2_average.pdf}}
-\end{figure}
+\end{figure} % TODO change thresholds
 
 In most of the paper, I focus on the definition of extreme poverty employed in the first SDG. However, the \$2.15 threshold has been criticized for inaccurately measuring poverty. % TODO cite
 First, this poverty line %is too low to procure just a healthy diet, it is 
@@ -341,11 +341,17 @@ Figure \ref{fig:demogrant_7__10} presents the income floor that can funded in 20
 At least two of the SDGs spell out how the elimination of extreme poverty could be funded. % https://sdgs.un.org/2030agenda
 First, the target 8.1 aims for ``at least 7 per cent gross domestic product growth per annum in the least developed countries''. As we have seen, a sustained high growth would have permitted the least developed countries to eliminate extreme poverty through the mobilization of their domestic resources. However, high growth has never materialized in these countries. 
 Second, the target 17.2 calls for ``Developed countries to implement fully their official development assistance commitments, including the commitment by many developed countries to achieve the target of 0.7 per cent of ODA/GNI to developing countries and 0.15 to 0.20 per cent of ODA/GNI to least developed countries'' (LDCs). Foreign aid falls short of both the overall target (at 0.36\% of developed countries' GNI) and the LDCs' target (at 0.06\%). Although European countries taken together respect their commitment, the other do not. In particular, the U.S. only allocates 0.22\% of its GNI to foreign aid.\cite{oecd_oda_2023} The global extreme poverty gap (0.17\% of global real GDP) is a bit lower than the shortfall of foreign aid relative to the target (0.2\% of global nominal GDP), suggesting that extreme poverty could be eradicated if developed countries respected their commitment. % OECD (high-income) countries represent 59% (61%) of the world nominal GDP, so shortfall of aid is 0.34*0.59=0.2% of global GDP in nominal. https://data.worldbank.org/indicator/NY.GDP.MKTP.CD
-To meet the broader SDGs and ``end poverty in all its forms'', the 0.7\% target would not suffice and global redistribution would need to be significantly increased. 
+To meet the broader SDGs and ``end poverty in all its forms'', the 0.7\% target would not suffice and global redistribution would need to be significantly increased. % TODO system change
 
 \subsection{The potential of global redistribution}
 
-In this section, we explore the potential of global redistributive policies to close the global poverty gap. 
+In this section, we explore the potential of globally redistributive policies to close the global poverty gap. 
+% The wealth tax simulator of the World Inequality Lab\cite{chancel_world_2022} shows that a global 1.05\% marginal tax on wealth above \$100 million would collect 0.2\% of the global GDP, enough to close the extreme poverty gap. Alternativaly, one can collect the same amount (around \$200 billion per year) with a 2.8\% tax above \$1 billion or with a 0.47\% tax above \$5 million.
+In the baseline scenario of 3\% growth, a 1.2\% marginal tax above 100\$/day (i.e. \$36,500/year) would raise revenues equal to the 2030 extreme poverty gap. To raise 1\% of the world GDP and finance an \$4/day income floor, the rate should be increased to 8\%. However, to end poverty in all its forms, about 5\% of global consumption should be redirected to the poor, enough to raise the global income floor to \$7.15/day. 
+% TODO!? Use ws instead of w? => do it everywhere then
+
+
+
 % - One example of global redistribution (incl. largest recipients/contributors)
 % x Inequality indicators BAU / national / global redistr: Table 2
 
