@@ -67,6 +67,7 @@ compute_poverty_gap <- function(df = p, threshold = 2.15, unit = "sum", growth =
   if (is.character(threshold)) threshold <- df[[threshold]] 
   poverty_gaps <- sapply(1:100, function(i) { pmax(0, threshold - df[[paste0(y, "_avg_", i)]]) })
   pg <- if (!is.vector(poverty_gaps)) rowSums(poverty_gaps * df[,paste0(find_pop_share_var(var = name_var_growth(growth), df), 1:100)]) else sum(poverty_gaps * df[,paste0(find_pop_share_var(var = name_var_growth(growth), df), 1:100)])
+  if (unit == "sum") pg <- 100*pg
   if (unit %in% c("percent", "%")) pg <- pg/df[[paste0("mean_", y)]]
   if (unit %in% c("threshold", "% threshold")) pg <- pg/threshold
   if (unit %in% c("money", "dollar", "$")) pg <- pg * 365 * ((growth == "now") * df$pop_2022 + (growth != "now") * df$pop_2030)
@@ -76,7 +77,7 @@ compute_poverty_gap <- function(df = p, threshold = 2.15, unit = "sum", growth =
 compute_antipoverty_maximum <- function(df = p, threshold = 2.15, return = "y", growth = "optimistic") { 
   y <- name_var_growth(growth)
   thresholds <- if (is.numeric(threshold)) rep(threshold, nrow(df)) else p[[threshold]]
-  poverty_gap <- compute_poverty_gap(df = df, threshold = threshold, unit = "sum", growth = growth)
+  poverty_gap <- compute_poverty_gap(df = df, threshold = threshold, unit = "mean", growth = growth)
   percentile_expropriated <- rep(100, nrow(df))
   y_expropriated <- rep(Inf, nrow(df))
   df[[paste0(find_pop_share_var(var = name_var_growth(growth), df), 101)]] <- 0
@@ -160,7 +161,7 @@ tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p
   marginal_rates <- c(0, marginal_rates)
   for (i in 1:length(thresholds)) {
     taxable_base_all <- sapply(1:100, function(j) { pmax(0, df[[paste0(find_pop_share_var(var, df), j)]]*(df[[paste0(var, "_avg_", j)]] - thresholds[i])) })
-    taxable_base_i <- 100 * if (!is.vector(taxable_base_all)) rowSums(taxable_base_all * df[,paste0(find_pop_share_var(var = name_var_growth(growth), df), 1:100)]) else sum(taxable_base_all * df[,paste0(find_pop_share_var(var = name_var_growth(growth), df), 1:100)])
+    taxable_base_i <- if (!is.vector(taxable_base_all)) rowSums(taxable_base_all) else sum(taxable_base_all)
     revenues <- revenues + taxable_base_i * (marginal_rates[i+1] - marginal_rates[i])/100
   }
   pops <- ((growth == "now") * df$pop_2022 + (growth != "now") * df$pop_2030)
@@ -174,6 +175,14 @@ tax_revenues <- function(thresholds, marginal_rates, name_tax = "custom", df = p
     for (j in 1:length(thresholds)) for (i in 1:100) df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]] <- df[[paste0(var, "_tax_", name_tax,  "_avg_", i)]]  - ((marginal_rates[j+1] - marginal_rates[j])/100) * pmax(0, df[[paste0(var, "_avg_", i)]] - thresholds[j])
     for (j in 1:length(thresholds)) for (i in 1:100) df[[paste0(var, "_tax_", name_tax,  "_max_", i)]] <- df[[paste0(var, "_tax_", name_tax,  "_max_", i)]]  - ((marginal_rates[j+1] - marginal_rates[j])/100) * pmax(0, df[[paste0(var, "_max_", i)]] - thresholds[j])
     df[[paste0("mean_", var, "_tax_", name_tax)]] <- rowSums(df[,paste0(var, "_tax_", name_tax,  "_avg_", 1:100)] * df[,paste0(find_pop_share_var(var, df), 1:100)])
+    if (nrow(df) > 1) {
+      df[[paste0("gain_", var, "_tax_", name_tax)]] <- df[[paste0("mean_", var, "_tax_", name_tax)]]/df[[paste0("mean_", var)]] - 1
+      international_transfer <- sum(pmax(0, df[[paste0("mean_", var, "_tax_", name_tax)]] - df[[paste0("mean_", var)]]) * pops, na.rm = T)/sum(df[[paste0("mean_", var)]] * pops, na.rm = T)
+      print(paste("International transfer (relative to world income):", round(international_transfer, 4)))
+    } else {
+      df[[paste0("gain_", var, "_tax_", name_tax)]] <- rowSums(pmax(0, df[,paste0(var, "_tax_", name_tax,  "_avg_", 1:100)] - df[,paste0(var, "_avg_", 1:100)]) * df[,paste0(find_pop_share_var(var, df), 1:100)])
+      print(paste("Inter-personal transfer (relative to world income):", round(df[[paste0("gain_", var, "_tax_", name_tax)]], 4)))
+    }
     df <- compute_inequality(var = paste0(var, "_tax_", name_tax), df = df, return = "df")
     return(df)
   }
@@ -494,6 +503,13 @@ print(Sys.time() - start) # 20 min
 beep()
 save.image(".RData")
 
+# wr <- w
+# r <- p
+# p <- s
+# w <- ws
+# 
+# p <- r
+# w <- wr
 
 ##### Book #####
 p$mean_y_2022[p$country == "Democratic Republic of the Congo"] + 44/0.4/(365/12) # 0.4 is the PPP conversion factor in 2022 https://databank.worldbank.org/source/world-development-indicators/Series/PA.NUS.PPPC.RF
@@ -931,12 +947,14 @@ cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty 
                   row.names = T, position = "h", escape = F, booktabs = T, digits = c(1, 1, 1, 1, 2, 2, 2, 2), label = "poverty", linesep = rep("", nrow(table_poverty)-1), 
                   col.names = c("2.15", "3.65", "6.85", "18.15", "2.15", "3.65", "6.85", "18.15")), collapse="\n"), fixed = T), file = "../tables/poverty.tex") 
 
+
 # Antipoverty cap
 p$y_expropriated_2_average <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "average")
 plot_world_map("y_expropriated_2_average", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
                legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $2.15/day\n(in $ 2017 PPP)", #fill_na = T,  
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 sort(setNames(p$y_expropriated_2_average, p$country), decreasing = T)
+# TODO! change colors
 
 setNames(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)]-1, p$country[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])
 s$country[s$mean_y_2022 < 3 & !is.na(s$gdp_pc_2014)]
@@ -972,6 +990,12 @@ wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% LIC], p$pop_2030[p$co
 
 p$antipoverty_2_tax_18_very_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "very_optimistic")
 plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+               legend = "Linear tax rate\nabove $18/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
+
+p$antipoverty_2_tax_18_average <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "average")
+plot_world_map("antipoverty_2_tax_18_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $18/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
@@ -1017,7 +1041,7 @@ p$demogrant_7__10_sdg8 <- compute_min_funded(revenues = tax_revenues(df = p, thr
 sum(p$demogrant_7__10_sdg8 < 2.15)
 sort(setNames(p$demogrant_7__10_sdg8, p$country), decreasing = T)
 
-p$antipoverty_2_tax_7_sdg8 <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "sdg8", scope_tax = p)
+p$antipoverty_2_tax_7_sdg8 <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "sdg8")
 sort(setNames(p$antipoverty_2_tax_7_sdg8, p$country))
 plot_world_map("antipoverty_2_tax_7_sdg8", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
@@ -1035,13 +1059,23 @@ p <- tax_revenues(df = p, thresholds = 6.85, marginal_rates = 10, return = 'df',
 w <- compute_world_distribution(var = "Y3_tax_7__10_w") 
 w$Y3_tax_7__10_w_gini # 51%
 compute_poverty_gap(df = w, threshold = 6.85, unit = "%", growth = "Y3_tax_7__10_w") # 0
-w$Y3_tax_7__10_w_avg_1 # 8.36$
+w$Y3_tax_7__10_w_avg_1 # 8.42$
+
+compute_min_funded(revenues = tax_revenues(df = w, thresholds = 100, marginal_rates = 10, return = 'pc', growth = "average", name_tax = "100__10_w", scope_tax = w), var = name_var_growth("average"), df = w) # 4.27
+compute_antipoverty_tax(df = w, exemption_threshold = 100, poverty_threshold = 2.15, growth = "average") # 1.2%
+compute_antipoverty_tax(df = w, exemption_threshold = 274, poverty_threshold = 2.15, growth = "average") # 8%
+w <- tax_revenues(df = w, thresholds = 100, marginal_rates = 1.18, return = 'df', growth = "average", name_tax = "100__1") # 1% of world GDP, 3.4% transferred
+p <- tax_revenues(df = p, thresholds = 100, marginal_rates = 1.18, return = 'df', growth = "average", scope_tax = w, name_tax = "100__1") # 0.14% in international transfers
+100*sort(setNames(p$gain_Y3_tax_100__1, p$country))
+sum((p$gain_Y3_tax_100__1 * p$pop_2030 * p$mean_Y3)[p$country_code %in% LIC])/sum((p$pop_2030 * p$mean_Y3)[p$country_code %in% LIC]) # 3%
+
 
 # w$mean_Y3_tax_7__10
 # w$mean_Y3
 as.numeric(w[,paste0("welfare_avg_", 1:100)])
 as.numeric(w[,paste0("Y_avg_", 1:100)])
 w[,paste0("Y3_tax_7__10_avg_", 1:100)]
+w[,c(paste0("Y3_avg_", 97:100), paste0("Y3_min_", 97:100), paste0("Y3_pop_share_", 97:100))]
 # w[,paste0("Y3_tax_7__10_pop_share_", 1:100)]
 w <- compute_inequality(df = w, var = "Y3", recompute = T)
 
@@ -1056,7 +1090,8 @@ w$Y3_top1
 compute_poverty_gap(df = w, threshold = 4, unit = '%', growth = "average") # 1%
 compute_antipoverty_tax(df = w, poverty_threshold = 4, exemption_threshold = 100, growth = "average") # 8%
 compute_antipoverty_maximum(df = w, threshold = 4, growth = "average") # top1
-tax_revenues(df = w, thresholds = 100, marginal_rates = 8.25, return = '%', growth = "average") # 1% of world GDP
+w <- tax_revenues(df = w, thresholds = 100, marginal_rates = 8, return = 'df', growth = "average", name_tax = "100__8") # 1% of world GDP, 23% transferred
+p <- tax_revenues(df = p, thresholds = 100, marginal_rates = 8, return = 'df', growth = "average", scope_tax = w, name_tax = "100__8") # 1% in international transfers
 
 # Tax for 3% GDP
 compute_poverty_gap(df = w, threshold = 5.85, unit = '%', growth = "average") # 3%
@@ -1069,6 +1104,14 @@ compute_poverty_gap(df = w, threshold = 7.15, unit = '%', growth = "average") # 
 compute_antipoverty_tax(df = w, poverty_threshold = 7.15, exemption_threshold = 100, growth = "average") # 40% 
 compute_antipoverty_maximum(df = w, threshold = 7.15, growth = "average") # 170
 tax_revenues(df = w, thresholds = c(100, 200), marginal_rates = c(25, 75), return = '%', growth = "average") # 5% of world GDP
+sum(sapply(1:100, function(i) w[[paste0("Y3_max_", i)]] < 100))
+(5000*12/365-100)*0.25/(5000*12/365) # 9.8%
+((10000*12/365-200)*0.5+(10000*12/365-100)*0.25)/(10000*12/365)
+sum(sapply(1:100, function(i) ws[[paste0("Y3_max_", i)]] < 1e5*12/365))
+(1.5e5*12/365-1e5*12/365)*0.15/(1.5e5*12/365)
+
+# With w
+compute_antipoverty_tax(df = w, poverty_threshold = 2.15, exemption_threshold = 1e5/365, growth = "average") # 8% => this one
 
 # With ws
 compute_antipoverty_tax(df = ws, poverty_threshold = 2.15, exemption_threshold = 1e5/365, growth = "average") # 0.47% => this one
