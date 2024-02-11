@@ -1063,7 +1063,7 @@ w$Y3_tax_7__10_w_avg_1 # 8.42$
 
 compute_min_funded(revenues = tax_revenues(df = w, thresholds = 100, marginal_rates = 10, return = 'pc', growth = "average", name_tax = "100__10_w", scope_tax = w), var = name_var_growth("average"), df = w) # 4.27
 compute_antipoverty_tax(df = w, exemption_threshold = 100, poverty_threshold = 2.15, growth = "average") # 1.2%
-compute_antipoverty_tax(df = w, exemption_threshold = 274, poverty_threshold = 2.15, growth = "average") # 8%
+compute_antipoverty_tax(df = w, exemption_threshold = 274, poverty_threshold = 2.15, growth = "average") # 8  %
 w <- tax_revenues(df = w, thresholds = 100, marginal_rates = 1.18, return = 'df', growth = "average", name_tax = "100__1") # 1% of world GDP, 3.4% transferred
 p <- tax_revenues(df = p, thresholds = 100, marginal_rates = 1.18, return = 'df', growth = "average", scope_tax = w, name_tax = "100__1") # 0.14% in international transfers
 100*sort(setNames(p$gain_Y3_tax_100__1, p$country))
