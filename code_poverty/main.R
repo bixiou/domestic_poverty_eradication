@@ -576,7 +576,7 @@ row.names(table_bolch_replication) <- p$country
 (table_bolch_replication <- table_bolch_replication[!is.na(table_bolch_replication[,5]) & p$pop_2022 > 20e6,]) # "Indicators from Bolch et al. (2022) replicated"
 # Why two Poland? Because it has both a consumption and income reporting_level. TODO? remove one?
 # Why some NA in year_bolch (because years don't coincide, perhaps because Dykstra recodes 2008.5 into 2009 and me 2008?) and bolch_poverty_rate_3?
-cat(paste(kbl(table_bolch_replication, "latex", caption = "Indicators from Bolch et al. (2022) replicated", position = "b", escape = F, booktabs = T, digits = c(0, 2, 2, 2, 2, 2, 2), linesep = rep("", nrow(table_bolch)-1), longtable = T, label = "bolch_replication",
+cat(paste(kbl(table_bolch_replication, "latex", caption = "Indicators from Bolch et al. (2022) replicated", position = "b", escape = F, booktabs = T, digits = c(0, 2, 2, 2, 2, 2, 2), linesep = rep("", nrow(table_bolch_replication)-1), longtable = T, label = "bolch_replication",
               col.names = c("\\makecell{Survey\\\\year}", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\replicated", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day\\\\original", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\replicated}", 
                             "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)\\\\original}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\replicated}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)\\\\original}")), collapse="\n"), file = "../tables/bolch_replication.tex") 
 # The discrepancy comes from the difference in datasets. The ratio between mean_bolch (from my recent data) and Dykstra mean (in SummaryStatistics.csv) varies from 1.2 (Argentina) to 2.1 (Burundi). 
@@ -586,7 +586,7 @@ cat(paste(kbl(table_bolch_replication, "latex", caption = "Indicators from Bolch
 # Update of Bolch et al. (2022) fraction of poverty gap eliminable by raising taxes above threshold / tax rate needed (2$ in S1, 13$ in S2). What are 2/13 05$ in 17$? Based on 2.15/1.25: 3.44. While U.S. poverty line a family of 4 (13$ in 05PPP) is 18.15 (26500/4/365) in 2021 https://aspe.hhs.gov/2021-poverty-guidelines
 (table_bolch_update <- cbind("year" = p$year, "poverty_rate" = p$poverty_rate_3, "bolch_1" = p$bolch_index_1_now, "bolch_2" = p$bolch_index_2_now))
 row.names(table_bolch_update) <- p$country
-cat(paste(kbl(table_bolch_update[p$pop_2022 > 20e6,], "latex", caption = "Indicators from Bolch et al. (2022) with updated data", position = "b", escape = F, booktabs = T, digits = c(0, 2, 2, 2), linesep = rep("", nrow(table_bolch)-1), longtable = T, label = "bolch_update",
+cat(paste(kbl(table_bolch_update[p$pop_2022 > 20e6,], "latex", caption = "Indicators from Bolch et al. (2022) with updated data", position = "b", escape = F, booktabs = T, digits = c(0, 2, 2, 2), linesep = rep("", nrow(table_bolch_update)-1), longtable = T, label = "bolch_update",
               col.names = c("\\makecell{Survey\\\\year}", "\\makecell{Poverty rate\\\\at $\\$_{05PPP}$2}/day", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$2/day)}", "\\makecell{Poverty Eradication Capacity\\\\Scenario 1 (tax above \\$18/day)}")), collapse="\n"), file = "../tables/bolch_update.tex") 
 
 
@@ -993,6 +993,23 @@ plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 1
                legend = "Linear tax rate\nabove $18/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)", #fill_na = T,  
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
+
+p$antipoverty_4_tax_4_now <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "now")
+sum(p$antipoverty_4_tax_4_now > 1) # 76
+p$antipoverty_4_tax_18_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now")
+p$antipoverty_4_tax_18_average <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "average")
+sum(p$antipoverty_4_tax_18_now > 1) # 98
+sum(p$antipoverty_4_tax_18_average > 1) # 79
+# p$s_antipoverty_4_tax_18_now <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now")
+# p$s_antipoverty_4_tax_18_average <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "average")
+# sum(p$s_antipoverty_4_tax_18_now > 1) # 86
+# sum(p$s_antipoverty_4_tax_18_average > 1) # 66
+
+p$antipoverty_2_tax_18_trend <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "trend")
+p$mean_growth_gdp_pc_14_19[p$country == "India"] # 5.5%
+p$antipoverty_2_tax_18_very_optimistic[p$country == "India"] # 10%
+p$antipoverty_2_tax_18_trend[p$country == "India"] # 36%
+p$antipoverty_2_tax_18_average[p$country == "India"] # 156%
 
 p$antipoverty_2_tax_18_average <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "average")
 plot_world_map("antipoverty_2_tax_18_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
