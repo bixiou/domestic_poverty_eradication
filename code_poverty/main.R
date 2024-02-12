@@ -950,11 +950,10 @@ cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty 
 
 # Antipoverty cap
 p$y_expropriated_2_average <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "average")
-plot_world_map("y_expropriated_2_average", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
+plot_world_map("y_expropriated_2_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf),
                legend = "Daily income above\nwhich all should\nbe expropriated\nto lift all in the country\nabove $2.15/day\n(in $ 2017 PPP)", #fill_na = T,  
-               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .07, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)])  
 sort(setNames(p$y_expropriated_2_average, p$country), decreasing = T)
-# TODO! change colors
 
 setNames(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)]-1, p$country[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])
 s$country[s$mean_y_2022 < 3 & !is.na(s$gdp_pc_2014)]

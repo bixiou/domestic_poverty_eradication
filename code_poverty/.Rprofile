@@ -151,7 +151,7 @@ Levels <- function(variable, data = p, miss = TRUE, numbers = FALSE, values = TR
 
 
 plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = FALSE, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, add_folder = '',
-                           breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, sep = "% to ", end = "%", strict_ineq_lower = FALSE) {
+                           breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, sep = "% to ", end = "%", strict_ineq_lower = FALSE, colors = NULL) {
   if (is.null(breaks)) breaks <- c(-Inf, seq(0, 1, .2), Inf)
   if (is.null(labels)) labels <- sub("≤", "<", sub("≥", ">", agg_thresholds(c(0), breaks, sep = sep, end = end, strict_ineq_lower = strict_ineq_lower, return = "levels")))
   if (is.null(limits)) limits <- c(-.01, 100.01)
@@ -169,11 +169,12 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
   df <- merge(df, df_na, all = T)
   
   df$group <- cut(df$mean, breaks = breaks, labels = labels, right = strict_ineq_lower)
+  if (is.null(colors)) colors <- color(length(breaks)-1, rev_color = rev_color)
   
   if (!continuous) {
     (plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = fct_rev(group)), map = world_map) + coord_proj("+proj=robin", xlim = c(-135, 178.5), ylim = c(-56, 84)) + #geom_sf() + #devtools::install_github("eliocamp/ggalt@new-coord-proj") update ggplot2 xlim = c(162, 178.5) for mercator
        geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', size = 0,  fill = NA) + expand_limits(x = world_map$long, y = world_map$lat) + theme_void() + theme(legend.position = c(legend_x, .29)) + # coord_fixed() +
-       scale_fill_manual(name = legend, drop = FALSE, values = color(length(breaks)-1, rev_color = rev_color))) #, na.value = "grey50" +proj=eck4 (equal area) +proj=wintri (compromise) +proj=robin (compromise, default) Without ggalt::coord_proj(), the default use is a sort of mercator
+       scale_fill_manual(name = legend, drop = FALSE, values = colors)) #, na.value = "grey50" +proj=eck4 (equal area) +proj=wintri (compromise) +proj=robin (compromise, default) Without ggalt::coord_proj(), the default use is a sort of mercator
   } else {
     (plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = mean), map = world_map) + coord_proj("+proj=robin") + #geom_sf() + #devtools::install_github("eliocamp/ggalt@new-coord-proj")
        geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', fill = NA) + expand_limits(x = world_map$long, y = world_map$lat) + theme_void() + coord_fixed() +
