@@ -244,7 +244,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
                                                     growth == "strong" ~ 1.045,
                                                     TRUE ~ 1.06)
   y <- if (is.null(name_var)) name_var_growth(growth) else name_var
-  if (grepl("trend", growth)) { # TODO! allow negative trend  
+  if (grepl("trend", growth)) { 
     df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + df$mean_growth_gdp_pc_14_19)^8 
     df$growth_gdp_pc_year_30 <- df$gdp_pc_2030/df$gdp_pc_year
     # df$country_code[is.na(df$gdp_pc_year)] # "SSD" "SYR" "VEN" "YEM"
@@ -420,14 +420,17 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) {
   # Keep data from Bolch's survey years to replicate it
   year_bolch <- setNames(p$bolch_year, p$country_code) # sum(!is.na(year_bolch)) # 123
   data$year_bolch <- year_bolch[data$country_code]
+  for (c in unique(data$country_code)) {
+    rows_to_change <- data$country_code == c & data$year_bolch %in% (unique(data$year[data$country_code == c])+1) & !data$year_bolch %in% unique(data$year[data$country_code == c])
+    data$year_bolch[rows_to_change] <- data$year_bolch[rows_to_change] - 1 }
   temp <- data[data$year == data$year_bolch,]
   temp <- temp %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile), values_fn = mean)
-  temp <- temp[!is.na(temp$country_code),!grepl("_NA", names(temp))]
+  temp <- temp[!is.na(temp$country_code),!grepl("_NA|year_max|welfare_type|year$", names(temp))]
   # temp <- temp[,!names(temp) %in% c("year", "year_max")] # If we put it again, change 7 to 5 in 7:ncol...
   names(temp) <- sub("avg_welfare_", "avg_", names(temp), fixed = T)
-  names(temp)[7:ncol(temp)] <- paste0("bolch_", names(temp)[7:ncol(temp)])
+  names(temp)[4:ncol(temp)] <- paste0("bolch_", names(temp)[4:ncol(temp)])
   temp$mean_bolch <- rowSums(temp[,paste0("bolch_avg_", 1:100)] * temp[,paste0("bolch_pop_share_", 1:100)], na.rm = T)
-  p <- merge(p, temp, all.x = T) #, by = c("country_code", "reporting_level"))
+  p <- merge(p, temp, all.x = T, by = c("country_code", "reporting_level")) #, by = c("country_code", "reporting_level"))
   
   # Add Moatsos' basic need poverty lines (Moatsos, 2021) and Bare bones basket with Consumption Shares (Moatsos, 2016)
   conversion_17_11 <- if (ppp_year == 2017) 2.15/1.9 else 1
@@ -993,12 +996,19 @@ plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 1
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
 
-p$antipoverty_4_tax_4_now <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "now")
-sum(p$antipoverty_4_tax_4_now > 1) # 76
-p$antipoverty_4_tax_18_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now")
-p$antipoverty_4_tax_18_average <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "average")
-sum(p$antipoverty_4_tax_18_now > 1) # 98
-sum(p$antipoverty_4_tax_18_average > 1) # 79
+p$antipoverty_4_tax_4_bolch <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "bolch")
+sum(p$antipoverty_4_tax_4_bolch > 1, na.rm = T) # 85
+p$antipoverty_4_tax_22_bolch <- compute_antipoverty_tax(df = p, exemption_threshold = 22.36, poverty_threshold = 3.44, growth = "bolch")
+sum(p$antipoverty_4_tax_22_bolch > 1, na.rm = T) # 101
+# p$antipoverty_2_tax_13_bolch <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 2, growth = "bolch")
+# sum(p$antipoverty_2_tax_13_bolch > 1, na.rm = T) # 76
+# p$antipoverty_4_tax_4_now <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "now")
+# sum(p$antipoverty_4_tax_4_now > 1) # 76
+# p$antipoverty_4_tax_18_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now")
+p$antipoverty_4_tax_22_average <- compute_antipoverty_tax(df = p, exemption_threshold = 22.36, poverty_threshold = 3.44, growth = "average")
+sum(p$antipoverty_4_tax_22_average > 1) # 84
+p$antipoverty_4_tax_4_average <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "average")
+sum(p$antipoverty_4_tax_4_average > 1) # 59
 # p$s_antipoverty_4_tax_18_now <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now")
 # p$s_antipoverty_4_tax_18_average <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "average")
 # sum(p$s_antipoverty_4_tax_18_now > 1) # 86
