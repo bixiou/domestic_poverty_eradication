@@ -36,7 +36,7 @@ package("magick") # image_write
 package("knitr") # plot_crop, representativeness_table
 package("beepr")
 package("kableExtra") # kbl
-package("spatstat") # weighted.median
+# package("spatstat") # weighted.median
 
 # install.packages("devtools")
 # devtools::install_github("thomasblanchet/gpinter")
@@ -44,6 +44,13 @@ package("spatstat") # weighted.median
 
 
 # Functions
+no.na <- function(vec, num_as_char = T, rep = "na") {
+  if (num_as_char) {
+    if (is.numeric(vec) | is.logical(vec)) return(replace_na(as.character(as.vector(vec)), rep))
+    else return(replace_na(as.vector(vec), rep))
+  } else if (is.logical(c(vec, rep)) | is.numeric(vec)) { replace_na(as.vector(vec), rep)
+  } else return(vec)
+}
 decrit <- function(variable, data = p, miss = TRUE, weights = NULL, numbers = FALSE, which = NULL, weight = T) { # TODO!: allow for boolean weights
   # if (!missing(data)) variable <- data[[variable]]
   if (is.character(variable) & length(variable)==1) variable <- data[[variable]]

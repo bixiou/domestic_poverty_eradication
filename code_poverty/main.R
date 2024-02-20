@@ -37,7 +37,7 @@ name_var_growth <- function(growth = "optimistic") {
                     growth == "trend_pos" ~ "y_pos", # max 2014-19 trend, 0
                     growth == "none" ~ "welfare", # original data (~2017, cf. p$year)
                     growth == "now" ~ "y_2022", # in 2022 (original data rescaled with observed GDP growth)
-                    growth == "bolch" ~ "bolch", # replicates Bolch data (using their data)
+                    growth == "bolch" ~ "bolch", # replicates Bolch data (using their data years)
                     growth == "strong" ~ "Y4", # 4.5% growth over 2023-30
                     growth == "average" ~ "Y3", # 3% growth over 2023-30
                     growth == "optimistic" ~ "Y", # 6% growth over 2023-30
@@ -82,24 +82,26 @@ compute_antipoverty_maximum <- function(df = p, threshold = 2.15, return = "y", 
   y_expropriated <- rep(Inf, nrow(df))
   df[[paste0(find_pop_share_var(var = name_var_growth(growth), df), 101)]] <- 0
   for (c in 1:nrow(df)) {
-    funded <- funded_old <- lower_percentile_effect <- lower_threshold_effect <- 0
-    while (funded < poverty_gap[c] & percentile_expropriated[c] > 0) {
-      y_expropriated[c] <- df[[paste0(y, "_min_", percentile_expropriated[c])]][c]
-      # funded <- funded + df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - y_expropriated[c] + (100 - percentile_expropriated[c]) * (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - y_expropriated[c])
-      funded_old <- funded
-      lower_percentile_effect <- (df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - y_expropriated[c]) * df[c, paste0(find_pop_share_var(var = name_var_growth(growth), df), percentile_expropriated[c])]
-      lower_threshold_effect <- (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - y_expropriated[c]) * sum(df[c,paste0(find_pop_share_var(var = name_var_growth(growth), df), (percentile_expropriated[c]+1):100)])
-      funded <- funded + lower_percentile_effect + (percentile_expropriated[c] < 100) * lower_threshold_effect
-      percentile_expropriated[c] <- percentile_expropriated[c] - 1 
-      # By convention, if we cannot close the poverty gap in the country, we set percentile_expropriated to 0 and y_expropriated at gdp_pc_2030
-      if (df[[paste0(y, "_min_", percentile_expropriated[c])]][c] < thresholds[c]) {
-        percentile_expropriated[c] <- 0
-        y_expropriated[c] <- df[[paste0("mean_", y)]][c] # df$gdp_pc_2030[c]/365
+    if (!is.na(poverty_gap[c])) {
+      funded <- funded_old <- lower_percentile_effect <- lower_threshold_effect <- 0
+      while (funded < poverty_gap[c] & percentile_expropriated[c] > 0) {
+        y_expropriated[c] <- df[[paste0(y, "_min_", percentile_expropriated[c])]][c]
+        # funded <- funded + df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - y_expropriated[c] + (100 - percentile_expropriated[c]) * (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - y_expropriated[c])
+        funded_old <- funded
+        lower_percentile_effect <- (df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - y_expropriated[c]) * df[c, paste0(find_pop_share_var(var = name_var_growth(growth), df), percentile_expropriated[c])]
+        lower_threshold_effect <- (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - y_expropriated[c]) * sum(df[c,paste0(find_pop_share_var(var = name_var_growth(growth), df), (percentile_expropriated[c]+1):100)])
+        funded <- funded + lower_percentile_effect + (percentile_expropriated[c] < 100) * lower_threshold_effect
+        percentile_expropriated[c] <- percentile_expropriated[c] - 1 
+        # By convention, if we cannot close the poverty gap in the country, we set percentile_expropriated to 0 and y_expropriated at gdp_pc_2030
+        if (df[[paste0(y, "_min_", percentile_expropriated[c])]][c] < thresholds[c]) {
+          percentile_expropriated[c] <- 0
+          y_expropriated[c] <- df[[paste0("mean_", y)]][c] # df$gdp_pc_2030[c]/365
+        }
       }
-    }
-    # The following implicitly assumes linear distribution of income within a percentile. This overestimates the antipoverty-cap as in reality, average is above median. A more precise estimate would be a bracketing method (dichotomy) from antipoverty_tax.
-    if (percentile_expropriated[c] == 99) y_expropriated[c] <- y_expropriated[c] + 2*(df[[paste0(y, "_avg_100")]][c] - y_expropriated[c]) * ((funded - poverty_gap[c])/(funded - funded_old))^2
-    else if (funded > poverty_gap[c]) y_expropriated[c] <- y_expropriated[c] + (df[[paste0(y, "_max_", (percentile_expropriated[c]+1))]][c] - y_expropriated[c]) * (lower_threshold_effect / (lower_percentile_effect + lower_threshold_effect)) * (funded - poverty_gap[c])/(funded - funded_old)
+      # The following implicitly assumes linear distribution of income within a percentile. This overestimates the antipoverty-cap as in reality, average is above median. A more precise estimate would be a bracketing method (dichotomy) from antipoverty_tax.
+      if (percentile_expropriated[c] == 99) y_expropriated[c] <- y_expropriated[c] + 2*(df[[paste0(y, "_avg_100")]][c] - y_expropriated[c]) * ((funded - poverty_gap[c])/(funded - funded_old))^2
+      else if (funded > poverty_gap[c]) y_expropriated[c] <- y_expropriated[c] + (df[[paste0(y, "_max_", (percentile_expropriated[c]+1))]][c] - y_expropriated[c]) * (lower_threshold_effect / (lower_percentile_effect + lower_threshold_effect)) * (funded - poverty_gap[c])/(funded - funded_old)
+    } else y_expropriated[c] <- NA
   }
   if (return == "percentile") return(percentile_expropriated)
   else if (return == "df") {
@@ -274,7 +276,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     df$growth_gdp_pc_2022 <- df$gdp_pc_2022/df$gdp_pc_year
     df$growth_gdp_pc_2022[is.na(df$growth_gdp_pc_2022)] <- 1 # Optimistic (in practice it's more .48-.58*), before: growth_rate^(2022 - df$year[is.na(df$growth_gdp_pc_2022)]) was even more optimistic. *Growth 2022/p$year according to IMF "South Sudan"-2016-0.568 "Syria"-2003-? "Venezuela"-2006-0.477 "Yemen"-2014-0.585 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD
     growths <- df$growth_gdp_pc_2022
-  } else if (growth == "none") growths <- rep(1, nrow(df))
+  } else if (growth %in% c("none", "bolch")) growths <- rep(1, nrow(df))
   for (i in 1:100) df[[paste0(y, "_avg_", i)]] <- df[[paste0("welfare_avg_", i)]] * growths
   for (i in 1:100) df[[paste0(y, "_max_", i)]] <- df[[paste0("quantile_", i)]] * growths
   for (i in 2:100) df[[paste0(y, "_min_", i)]] <- df[[paste0("quantile_", i-1)]] * growths
@@ -428,6 +430,9 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) {
   temp <- temp[!is.na(temp$country_code),!grepl("_NA|year_max|welfare_type|year$", names(temp))]
   # temp <- temp[,!names(temp) %in% c("year", "year_max")] # If we put it again, change 7 to 5 in 7:ncol...
   names(temp) <- sub("avg_welfare_", "avg_", names(temp), fixed = T)
+  names(temp) <- sub("quantile_", "max_", names(temp), fixed = T)
+  temp$min_1 <- temp$max_0 <- 0
+  for (i in 2:100) temp[[paste0("min_", i)]] <- temp[[paste0("max_", i-1)]]
   names(temp)[4:ncol(temp)] <- paste0("bolch_", names(temp)[4:ncol(temp)])
   temp$mean_bolch <- rowSums(temp[,paste0("bolch_avg_", 1:100)] * temp[,paste0("bolch_pop_share_", 1:100)], na.rm = T)
   p <- merge(p, temp, all.x = T, by = c("country_code", "reporting_level")) #, by = c("country_code", "reporting_level"))
@@ -448,7 +453,8 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) {
 
   # y makes the assumption of constant growth while Y assumes 6% growth after 2022
   # p <- df # To run compute_distribution_2030, this line is needed to avoid bug (Indeed, urban/rural have been removed otherwise).
-  p <- compute_inequality(var = "bolch", df = p, return = "df")
+  # p <- compute_inequality(var = "bolch", df = p, return = "df")
+  p <- compute_distribution_2030(growth = "bolch", df = p)
   p <- compute_distribution_2030(growth = "reg", df = p)
   p <- compute_distribution_2030(growth = "imf", df = p)
   p <- compute_distribution_2030(growth = "optimistic", df = p, growth_rate = 1.06)
@@ -947,7 +953,7 @@ cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty 
                   col.names = c("2.15", "3.65", "6.85", "18.15", "2.15", "3.65", "6.85", "18.15")), collapse="\n"), fixed = T), file = "../tables/poverty_full.tex") 
 cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty rate (\\%)} & \\multicolumn{4}{c}{Poverty gap (\\% of GDP)} \\\\ \n (Poverty line in \\$/day)", 
         paste(kbl(table_poverty[c(1, 2, 5, 7, 10, 11),], "latex", caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios. Poverty rates are expressed in \\% of world population and poverty gaps in \\% of world GDP. Poverty lines are in PPP \\$/day.", 
-                  row.names = T, position = "h", escape = F, booktabs = T, digits = c(1, 1, 1, 1, 2, 2, 2, 2), label = "poverty", linesep = rep("", nrow(table_poverty)-1), 
+                  row.names = T, position = "h", escape = F, booktabs = T, digits = c(1, 1, 1, 1, 2, 2, 2, 2), label = "poverty", linesep = rep("", nrow(table_poverty)-1), caption.short = "Global poverty (rates and gaps) in 2030 under different growth scenarios.",
                   col.names = c("2.15", "3.65", "6.85", "18.15", "2.15", "3.65", "6.85", "18.15")), collapse="\n"), fixed = T), file = "../tables/poverty.tex") 
 
 
@@ -989,6 +995,7 @@ plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50
 sort(setNames(p$antipoverty_2_tax_7_average, p$country), decreasing = T)
 wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA]) # 49%
 wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% LIC], p$pop_2030[p$country_code %in% LIC]) # 64%
+sum(p$antipoverty_2_tax_7_average > 100) # 5
 
 p$antipoverty_2_tax_18_very_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "very_optimistic")
 plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
@@ -997,22 +1004,22 @@ plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 1
 sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
 
 p$antipoverty_4_tax_4_bolch <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "bolch")
-sum(p$antipoverty_4_tax_4_bolch > 1, na.rm = T) # 85
+sum(p$antipoverty_4_tax_4_bolch > 100, na.rm = T) # 30
 p$antipoverty_4_tax_22_bolch <- compute_antipoverty_tax(df = p, exemption_threshold = 22.36, poverty_threshold = 3.44, growth = "bolch")
-sum(p$antipoverty_4_tax_22_bolch > 1, na.rm = T) # 101
+sum(p$antipoverty_4_tax_22_bolch > 100, na.rm = T) # 52
 # p$antipoverty_2_tax_13_bolch <- compute_antipoverty_tax(df = p, exemption_threshold = 13, poverty_threshold = 2, growth = "bolch")
-# sum(p$antipoverty_2_tax_13_bolch > 1, na.rm = T) # 76
+# sum(p$antipoverty_2_tax_13_bolch > 100, na.rm = T) # 34
 # p$antipoverty_4_tax_4_now <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "now")
-# sum(p$antipoverty_4_tax_4_now > 1) # 76
-# p$antipoverty_4_tax_18_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now")
+# sum(p$antipoverty_4_tax_4_now > 100) # 11
+p$antipoverty_4_tax_18_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now")
 p$antipoverty_4_tax_22_average <- compute_antipoverty_tax(df = p, exemption_threshold = 22.36, poverty_threshold = 3.44, growth = "average")
-sum(p$antipoverty_4_tax_22_average > 1) # 84
+sum(p$antipoverty_4_tax_22_average > 100) # 34
 p$antipoverty_4_tax_4_average <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "average")
-sum(p$antipoverty_4_tax_4_average > 1) # 59
+sum(p$antipoverty_4_tax_4_average > 100) # 6
 # p$s_antipoverty_4_tax_18_now <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now")
 # p$s_antipoverty_4_tax_18_average <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "average")
-# sum(p$s_antipoverty_4_tax_18_now > 1) # 86
-# sum(p$s_antipoverty_4_tax_18_average > 1) # 66
+# sum(p$s_antipoverty_4_tax_18_now > 100) # 86
+# sum(p$s_antipoverty_4_tax_18_average > 100) # 66
 
 p$antipoverty_2_tax_18_trend <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "trend")
 p$mean_growth_gdp_pc_14_19[p$country == "India"] # 5.5%
@@ -1037,6 +1044,7 @@ plot_world_map("s_antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5,
 
 sort(setNames(p$bcs, p$country), decreasing = T)
 p$antipoverty_bcs_tax_bcs <- compute_antipoverty_tax(df = p11, exemption_threshold = "bcs", poverty_threshold = "bcs", growth = "average") # In 2011PPP, 2.15/3.65/6.85 is 1.9/3.2/5.5 https://documents1.worldbank.org/curated/en/099700509122212929/pdf/IDU05b43a261041c504a5f0bb3405d0ef310b9e1.pdf
+package("spatstat")
 weighted.median(p$bcs, p$pop_2030, na.rm = T)
 sum(p$antipoverty_bcs_tax_bcs > 100, na.rm = T)
 sort(setNames(p$antipoverty_bcs_tax_bcs, p$country), decreasing = T)
@@ -1119,6 +1127,18 @@ compute_antipoverty_maximum(df = w, threshold = 4, growth = "average") # top1
 w <- tax_revenues(df = w, thresholds = 100, marginal_rates = 8, return = 'df', growth = "average", name_tax = "100__8") # 1% of world GDP, 23% transferred
 p <- tax_revenues(df = p, thresholds = 100, marginal_rates = 8, return = 'df', growth = "average", scope_tax = w, name_tax = "100__8") # 1% in international transfers
 
+# Taxes 1.2 and 15% above $100,000/year
+w <- tax_revenues(df = w, thresholds = 1e5/365, marginal_rates = .5, return = 'df', growth = "average", name_tax = "100k__05") # 
+p <- tax_revenues(df = p, thresholds = 1e5/365, marginal_rates = .5, return = 'df', growth = "average", scope_tax = w, name_tax = "100k__05") # 
+w <- tax_revenues(df = w, thresholds = 1e5/365, marginal_rates = 14, return = 'df', growth = "average", name_tax = "100k__15") # 
+p <- tax_revenues(df = p, thresholds = 1e5/365, marginal_rates = 14, return = 'df', growth = "average", scope_tax = w, name_tax = "100k__15") # 4
+
+# Taxes 1.2 and 15% above $100,000/year with HFCE adjustment
+ws <- tax_revenues(df = ws, thresholds = 1e5/365, marginal_rates = .5, return = 'df', growth = "average", name_tax = "100k__05") # 
+s <- tax_revenues(df = s, thresholds = 1e5/365, marginal_rates = .5, return = 'df', growth = "average", scope_tax = ws, name_tax = "100k__05") # 
+ws <- tax_revenues(df = ws, thresholds = 1e5/365, marginal_rates = 14, return = 'df', growth = "average", name_tax = "100k__15") # TODO! too high: 1.03
+s <- tax_revenues(df = s, thresholds = 1e5/365, marginal_rates = 14, return = 'df', growth = "average", scope_tax = ws, name_tax = "100k__15") # 
+
 # Tax for 3% GDP
 compute_poverty_gap(df = w, threshold = 5.85, unit = '%', growth = "average") # 3%
 compute_antipoverty_tax(df = w, poverty_threshold = 5.85, exemption_threshold = 100, growth = "average") # 24% 
@@ -1150,3 +1170,77 @@ compute_antipoverty_tax(df = ws, poverty_threshold = 6.85, exemption_threshold =
 # compute_antipoverty_tax(df = ws, poverty_threshold = 250*12/365, exemption_threshold = 100, growth = "average") # 15% 
 ws$Y3_avg_100 # 1033
 ws$Y3_min_100 # 311 vs. 274 = 1e5/365
+
+## Appendix tables
+selected_countries <- order(p$country)[order(p$country) %in% which(p$pop_2022 > 1e7 & no.na(p$mean_welfare, 0, num_as_char = FALSE) < 6)]
+
+# Table cap
+# % TODO! table cap by country for different scenarios (incl. 2.15$ 3%, 7%, with and without HFCE, 3% BCS; $3.44 Bolch, 3%)
+table_cap <- cbind("y_expropriated_2_average" = p$y_expropriated_2_average, "y_expropriated_2_very_optimistic" = p$y_expropriated_2_very_optimistic, 
+                                   "s_y_expropriated_2_average" = compute_antipoverty_maximum(df = s, threshold = 2.15, growth = "average"), "s_y_expropriated_2_very_optimistic" = p$s_y_expropriated_2_very_optimistic, 
+                                    "y_expropriated_bcs_average" = compute_antipoverty_maximum(df = p, threshold = "bcs", growth = "average"), 
+                                    "y_expropriated_3_average" = compute_antipoverty_maximum(df = p, threshold = 3.44, growth = "average"), "y_expropriated_3_bolch" = compute_antipoverty_maximum(df = p, threshold = 3.44, growth = "bolch"))
+row.names(table_cap) <- p$country
+(table_cap <- table_cap[selected_countries,]) # 
+cat(sub("toprule", "toprule Poverty line (\\\\$/day) & 2.15 & 2.15 & 2.15 & 2.15 & BCS & 3.44 & 3.44 \\\\\\\\ Growth scenario & 3\\\\% & 7\\\\% & 3\\\\% & 7\\\\% & 3\\\\% & 3\\\\% & BCL \\\\\\\\ National accounts adjustment & & & \\\\checkmark & \\\\checkmark & & & \\\\\\\\  \\\\midrule", 
+        gsub("Inf", "$+\\infty$", paste(kbl(table_cap, "latex", caption = "Antipoverty caps for major lower-income countries in 2030.", position = "b", escape = F, booktabs = T, digits = 1, linesep = rep("", nrow(table_cap)-1), longtable = F, label = "cap",
+              col.names = NULL), collapse="\n"), fixed = T)), file = "../tables/cap.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
+
+# Table tax
+# % TODO! table tax: $2.15 above $6.85 g 3%; $2.15 ab $18.15 g 7%; $2.15 ab $18.15 g 3%; $2.15 ab $18.15 g trend; ($2.15 ab $6.85 g 7%; $2.15 above $6.85 g 3% HFCE; $2.15 ab $18.15 g 7% HFCE)
+table_tax <- cbind("antipoverty_2_tax_7_average" = p$antipoverty_2_tax_7_average, "antipoverty_2_tax_18_very_optimistic" = p$antipoverty_2_tax_18_very_optimistic, 
+                   "antipoverty_2_tax_18_average" = p$antipoverty_2_tax_18_average, "antipoverty_2_tax_18_trend" = p$antipoverty_2_tax_18_trend, 
+                   "antipoverty_2_tax_7_very_optimistic" = compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "very_optimistic"), 
+                   "s_antipoverty_2_tax_7_average" = p$s_antipoverty_2_tax_7_average, "s_antipoverty_2_tax_18_very_optimistic" = p$s_antipoverty_2_tax_18_very_optimistic)
+row.names(table_tax) <- p$country
+(table_tax <- table_tax[selected_countries,]) 
+cat(gsub("9999.0", "$>$ 10k", sub("toprule", "toprule Taxation threshold (\\\\$/day) & 6.85 & 18.15 & 18.15 & 18.15 & 6.85 & 6.85 & 18.15 \\\\\\\\ Growth scenario & 3\\\\% & 7\\\\% & 3\\\\% & Trend & 7\\\\% & 3\\\\% & 7\\\\% \\\\\\\\ National accounts adjustment & & & & & & \\\\checkmark & \\\\checkmark \\\\\\\\  \\\\midrule", 
+        paste(kbl(pmin(table_tax, 9999), "latex", caption = "Anti-extreme-poverty taxes for major lower-income countries in 2030.", position = "b", escape = F, booktabs = T, digits = 1, linesep = rep("", nrow(table_tax)-1), longtable = F, label = "tax",
+                                            col.names = NULL), collapse="\n")), fixed = T), file = "../tables/tax.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
+
+# Table floor
+# % TODO! table floor: 10% ab $6.85 g 3%; g 3% with HFCE; g 7%; g 7% since 2016
+table_floor <- cbind("demogrant_7__10" = p$demogrant_7__10, "s_demogrant_7__10" = compute_min_funded(revenues = tax_revenues(df = s, thresholds = 6.85, marginal_rates = 10, return = 'pc', growth = "average", scope_tax = p), var = name_var_growth("average"), df = s), 
+                     "demogrant_7__10_very_optimistic" = p$demogrant_7__10_very_optimistic, "s_demogrant_7__10_very_optimistic" = p$s_demogrant_7__10_very_optimistic,
+                   "demogrant_7__10_sdg8" = p$demogrant_7__10_sdg8)
+row.names(table_floor) <- p$country
+(table_floor <- table_floor[selected_countries,])
+cat(sub("toprule", "toprule Growth scenario over 2022--2030 & 3\\\\% & 3\\\\% & 7\\\\% & 7\\\\% & \\\\makecell{7\\\\% since \\\\\\\\ 2015} \\\\\\\\ National accounts adjustment & & \\\\checkmark & & \\\\checkmark & \\\\\\\\  \\\\midrule", 
+                              paste(kbl(table_floor, "latex", caption = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day for major lower-income countries in 2030.", position = "b", escape = F, booktabs = T, digits = 1, linesep = rep("", nrow(table_floor)-1), longtable = F, label = "tax",
+                                        col.names = NULL), collapse="\n")), file = "../tables/floor.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
+
+# Table net gain
+# % TODO! net gain per country 1.2% / 15% tax ab $100/day w & wo HFCE + TODO: global revenue raised (% of global GDP) + global floor + global transfer + global Gini
+table_gain <- cbind("mean_Y3_tax_100k__05" = p$mean_Y3_tax_100k__05, "mean_Y3_tax_100k__15" = p$mean_Y3_tax_100k__15, 
+                    "s_mean_Y3_tax_100k__05" = s$mean_Y3_tax_100k__05, "s_mean_Y3_tax_100k__15" = s$mean_Y3_tax_100k__15)
+row.names(table_gain) <- p$country # TODO! pb chiffres
+table_gain <- 100*(table_gain/p$mean_Y3 - 1)
+(table_gain <- table_gain[order(p$country)[order(p$country) %in% which(p$pop_2022 > 35e6) & !duplicated(p$country)],]) 
+cat(sub("toprule", "toprule Tax rate & 0.5\\\\% & 15\\\\% & 0.5\\\\% & 15\\\\%  \\\\\\\\ National accounts adjustment &  & \\\\checkmark & & \\\\checkmark \\\\\\\\  \\\\midrule", # Taxation threshold (\\\\$/year) & 100k & 100k & 100k & 100k  \\\\\\\\ 
+        paste(kbl(table_gain, "latex", caption = "Net gain per country of a global antipoverty tax on income above \\$100,000/year, for most populous countries in 2030 after 3\\% growth.", position = "b", escape = F, booktabs = T, digits = 2, linesep = rep("", nrow(table_gain)-1), longtable = F, label = "tax",
+                  col.names = NULL), collapse="\n")), file = "../tables/gain.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
+
+# TODO:
+# digits
+# % Include mean SSA + LIC in Table + result at global level (w)
+# % $3.65 p / 'reg' growth
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
