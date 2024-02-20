@@ -1232,7 +1232,7 @@ cat(sub("toprule", "toprule Poverty line (\\\\$/day) & 2.15 & 2.15 & 2.15 & 2.15
               col.names = NULL), collapse="\n"), fixed = T)), file = "../tables/cap.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
 
 # Table tax
-# % TODO! table tax: $2.15 above $6.85 g 3%; $2.15 ab $18.15 g 7%; $2.15 ab $18.15 g 3%; $2.15 ab $18.15 g trend; ($2.15 ab $6.85 g 7%; $2.15 above $6.85 g 3% HFCE; $2.15 ab $18.15 g 7% HFCE)
+# % table tax: $2.15 above $6.85 g 3%; $2.15 ab $18.15 g 7%; $2.15 ab $18.15 g 3%; $2.15 ab $18.15 g trend; ($2.15 ab $6.85 g 7%; $2.15 above $6.85 g 3% HFCE; $2.15 ab $18.15 g 7% HFCE)
 table_tax <- cbind("antipoverty_2_tax_7_average" = p$antipoverty_2_tax_7_average, "antipoverty_2_tax_18_very_optimistic" = p$antipoverty_2_tax_18_very_optimistic, 
                    "antipoverty_2_tax_18_average" = p$antipoverty_2_tax_18_average, "antipoverty_2_tax_18_trend" = p$antipoverty_2_tax_18_trend, 
                    "antipoverty_2_tax_7_very_optimistic" = compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "very_optimistic"), 
@@ -1244,7 +1244,7 @@ cat(gsub("9999.0", "$>$ 10k", sub("toprule", "toprule Taxation threshold (\\\\$/
                   caption.short = "", col.names = NULL), collapse="\n")), fixed = T), file = "../tables/tax.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
 
 # Table floor
-# % TODO! table floor: 10% ab $6.85 g 3%; g 3% with HFCE; g 7%; g 7% since 2016
+# % table floor: 10% ab $6.85 g 3%; g 3% with HFCE; g 7%; g 7% since 2016
 table_floor <- cbind("demogrant_7__10" = p$demogrant_7__10, "s_demogrant_7__10" = compute_min_funded(revenues = tax_revenues(df = s, thresholds = 6.85, marginal_rates = 10, return = 'pc', growth = "average", scope_tax = p), var = name_var_growth("average"), df = s), 
                      "demogrant_7__10_very_optimistic" = p$demogrant_7__10_very_optimistic, "s_demogrant_7__10_very_optimistic" = p$s_demogrant_7__10_very_optimistic,
                    "demogrant_7__10_sdg8" = p$demogrant_7__10_sdg8)
@@ -1255,7 +1255,7 @@ cat(sub("toprule", "toprule Growth scenario over 2022--2030 & 3\\\\% & 3\\\\% & 
                                         caption.short = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day.", col.names = NULL), collapse="\n")), file = "../tables/floor.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
 
 # Table net gain
-# % TODO! net gain per country 1.2% / 15% tax ab $100/day w & wo HFCE + TODO: global revenue raised (% of global GDP) + global floor + global transfer + global Gini
+# % net gain per country 1.2% / 15% tax ab $100/day w & wo HFCE + TODO: global revenue raised (% of global GDP) + global floor + global transfer + global Gini
 table_gain <- cbind("mean_Y3_tax_100k__05" = p$mean_Y3_tax_100k__05, "mean_Y3_tax_100k__15" = p$mean_Y3_tax_100k__15, 
                     "s_mean_Y3_tax_100k__05" = s$mean_Y3_tax_100k__05, "s_mean_Y3_tax_100k__15" = s$mean_Y3_tax_100k__15)
 row.names(table_gain) <- p$country_short # TODO! pb chiffres
@@ -1267,7 +1267,7 @@ cat(sub("toprule", "toprule Tax rate & 0.5\\\\% & 15\\\\% & 0.5\\\\% & 15\\\\%  
 
 # TODO:
 # digits => unnecessary
-# % Include mean SSA + LIC in Table + result at global level (w)
+# % Include mean SSA + LIC in Table + result at global level (w) => almost done
 # % $3.65 p / 'reg' growth
 
 
