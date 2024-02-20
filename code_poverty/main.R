@@ -475,17 +475,17 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) {
 
 create_world_distribution <- function(df = p17, region = df$country_code) {
   w <- data.frame(country = "World", pop_2022 = sum(df$pop_2022), pop_2030 = sum(df$pop_2030))
-  w <- compute_world_distribution(name_var_growth("imf"), df = df, wdf = w)
-  w <- compute_world_distribution(name_var_growth("reg"), df = df, wdf = w)
-  w <- compute_world_distribution(name_var_growth("optimistic"), df = df, wdf = w)  
-  w <- compute_world_distribution("Y7", df = df, wdf = w)  # ~ 1.5 min
-  w <- compute_world_distribution(name_var_growth("trend"), df = df, wdf = w)
-  w <- compute_world_distribution(name_var_growth("trend_pos"), df = df, wdf = w)
-  w <- compute_world_distribution("Y4", df = df, wdf = w)
-  w <- compute_world_distribution("Y3", df = df, wdf = w)
-  w <- compute_world_distribution(name_var_growth("sdg8"), df = df, wdf = w)
-  w <- compute_world_distribution(name_var_growth("none"), df = df, wdf = w)
-  w <- compute_world_distribution(name_var_growth("now"), df = df, wdf = w)
+  w <- compute_world_distribution(name_var_growth("imf"), df = df, wdf = w, region = region)
+  w <- compute_world_distribution(name_var_growth("reg"), df = df, wdf = w, region = region)
+  w <- compute_world_distribution(name_var_growth("optimistic"), df = df, wdf = w, region = region)  
+  w <- compute_world_distribution("Y7", df = df, wdf = w, region = region)  # ~ 1.5 min
+  w <- compute_world_distribution(name_var_growth("trend"), df = df, wdf = w, region = region)
+  w <- compute_world_distribution(name_var_growth("trend_pos"), df = df, wdf = w, region = region)
+  w <- compute_world_distribution("Y4", df = df, wdf = w, region = region)
+  w <- compute_world_distribution("Y3", df = df, wdf = w, region = region)
+  w <- compute_world_distribution(name_var_growth("sdg8"), df = df, wdf = w, region = region)
+  w <- compute_world_distribution(name_var_growth("none"), df = df, wdf = w, region = region)
+  w <- compute_world_distribution(name_var_growth("now"), df = df, wdf = w, region = region)
   return(w)
 }
 
@@ -511,6 +511,8 @@ w <- create_world_distribution()
 ws <- create_world_distribution(df = s)
 ssa <- create_world_distribution(region = SSA)
 lic <- create_world_distribution(region = LIC)
+ssas <- create_world_distribution(region = SSA, df = s)
+lics <- create_world_distribution(region = LIC, df = s)
 # w11 <- create_world_distribution(df = p11) # 9 min
 print(Sys.time() - start) # 20 min
 beep()
@@ -1179,40 +1181,43 @@ selected_countries <- order(p$country)[order(p$country) %in% which(p$pop_2022 > 
 p$country_short <- p$country
 p$country_short[p$country == "Democratic Republic of the Congo"] <- "D.R. Congo"
 
-create_appendix_table <- function(fun, ncol = NULL, poverty_thresholds = NULL, exemption_thresholds = NULL, growths = "average", dfs = "p", tax_rates = NULL, taxation_thresholds = NULL, regions = c("World", "LICs", "SSA"), displayed_countries = selected_countries, return = "table") {
+
+create_appendix_table <- function(fun, ncol = NULL, poverty_thresholds = NULL, exemption_thresholds = NULL, growths = "average", dfs = list(p), tax_rates = NULL, taxation_thresholds = NULL, regions = c("World", "LICs", "SSA"), displayed_countries = selected_countries, return = "table") {
   params <- list("poverty_threshold" = poverty_thresholds, "exemption_threshold" = exemption_thresholds, "growth" = growths, "tax_rate" = tax_rates, "taxation_threshold" = taxation_thresholds, "df" = dfs)
   required_params <- names(params)[names(params) %in% formalArgs(eval(str2expression(fun)))]
   if (is.null(ncol)) ncol <- max(sapply(params, function(k) length(k)))
   for (k in names(params)) if (length(params[[k]]) == 1) params[[k]] <- rep(params[[k]], ncol)
-  table <- matrix(NA, nrow = nrow(eval(str2expression(dfs[[1]]))), ncol = 0)
-  args <- arguments <- list()
+  table <- matrix(NA, nrow = nrow(dfs[[1]]), ncol = 0)
+  args <- list()
   for (i in 1:ncol) {
     args[[i]] <- list()
     for (k in required_params) args[[i]] <- c(args[[i]], list(params[[k]][[i]]))
-    arguments[[i]] <- args[[i]]
-    names(args[[i]]) <- names(arguments[[i]]) <- required_params
-    arguments[[i]]$df <- eval(str2expression(args[[i]]$df))
-    table <- cbind(table, do.call(fun, arguments[[i]]))
+    names(args[[i]]) <- required_params
+    table <- cbind(table, do.call(fun, args[[i]]))
   }
   row.names(table) <- dfs[[1]]$country_short
   table <- table[displayed_countries,]
+  region_args <- args
   for (r in regions) {
+    top_row <- c()
     for (i in 1:ncol) {
-      arguments[[i]]$df <- case_when(args[[i]]$df == "p" & r == "World" ~ w,
-                                     args[[i]]$df == "p" & r == "LICs" ~ lic,
-                                     args[[i]]$df == "p" & r == "SSA" ~ ssa,
-                                     args[[i]]$df == "s" & r == "World" ~ ws,
-                                     args[[i]]$df == "s" & r == "LICs" ~ lics,
-                                     args[[i]]$df == "s" & r == "SSA" ~ ssas)
-      table <- cbind(do.call(fun, arguments[[i]]), table)
-      row.names(table)[1] <- r
+      region_args[[i]]$df <- case_when(identical(args[[i]]$df, p) & r == "World" ~ w,
+                                      identical(args[[i]]$df, p) & r == "LICs" ~ lic,
+                                      identical(args[[i]]$df, p) & r == "SSA" ~ ssa,
+                                      identical(args[[i]]$df, s) & r == "World" ~ ws,
+                                      identical(args[[i]]$df, s) & r == "LICs" ~ lics,
+                                      identical(args[[i]]$df, s) & r == "SSA" ~ ssas)
+      top_row <- c(top_row, do.call(fun, region_args[[i]]))
     }
+    table <- rbind(top_row, table)
+    row.names(table)[1] <- r
   }
-  if (return == 'args') return(args[])
+  for (i in 1:ncol) args[[i]]$df <- if (identical(args[[i]]$df, p)) "p" else "s"
+  if (return == 'args') return(args)
   else return(table)
 }
 
-(table_cap <- create_appendix_table(fun = "compute_antipoverty_tax", poverty_thresholds = c(rep(2.15, 4), "bcs", 3.44, 3.44), growths = c("average", "very_optimistic", "average", "very_optimistic", "average", "average", "bolch"), dfs = c("p", "p", "s", "s", "p", "p", "p")))
+# (table_cap <- create_appendix_table(fun = "compute_antipoverty_tax", poverty_thresholds = list(2.15, 2.15, 2.15, 2.15, "bcs", 3.44), exemption_thresholds = 6.85, growths = c("average", "very_optimistic", "average", "very_optimistic", "average", "average"), dfs = list(p, p, s, s, p, p)))
 
 # Table cap
 # % TODO! table cap by country for different scenarios (incl. 2.15$ 3%, 7%, with and without HFCE, 3% BCS; $3.44 Bolch, 3%)
