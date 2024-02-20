@@ -1196,7 +1196,7 @@ row.names(table_tax) <- p$country
 (table_tax <- table_tax[selected_countries,]) 
 cat(gsub("9999.0", "$>$ 10k", sub("toprule", "toprule Taxation threshold (\\\\$/day) & 6.85 & 18.15 & 18.15 & 18.15 & 6.85 & 6.85 & 18.15 \\\\\\\\ Growth scenario & 3\\\\% & 7\\\\% & 3\\\\% & Trend & 7\\\\% & 3\\\\% & 7\\\\% \\\\\\\\ National accounts adjustment & & & & & & \\\\checkmark & \\\\checkmark \\\\\\\\  \\\\midrule", 
         paste(kbl(pmin(table_tax, 9999), "latex", caption = "Anti-extreme-poverty taxes for major lower-income countries in 2030.", position = "b", escape = F, booktabs = T, digits = 1, linesep = rep("", nrow(table_tax)-1), longtable = F, label = "tax",
-                                            col.names = NULL), collapse="\n")), fixed = T), file = "../tables/tax.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
+                  caption.short = "", col.names = NULL), collapse="\n")), fixed = T), file = "../tables/tax.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
 
 # Table floor
 # % TODO! table floor: 10% ab $6.85 g 3%; g 3% with HFCE; g 7%; g 7% since 2016
@@ -1207,7 +1207,7 @@ row.names(table_floor) <- p$country
 (table_floor <- table_floor[selected_countries,])
 cat(sub("toprule", "toprule Growth scenario over 2022--2030 & 3\\\\% & 3\\\\% & 7\\\\% & 7\\\\% & \\\\makecell{7\\\\% since \\\\\\\\ 2015} \\\\\\\\ National accounts adjustment & & \\\\checkmark & & \\\\checkmark & \\\\\\\\  \\\\midrule", 
                               paste(kbl(table_floor, "latex", caption = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day for major lower-income countries in 2030.", position = "b", escape = F, booktabs = T, digits = 1, linesep = rep("", nrow(table_floor)-1), longtable = F, label = "tax",
-                                        col.names = NULL), collapse="\n")), file = "../tables/floor.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
+                                        caption.short = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day.", col.names = NULL), collapse="\n")), file = "../tables/floor.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
 
 # Table net gain
 # % TODO! net gain per country 1.2% / 15% tax ab $100/day w & wo HFCE + TODO: global revenue raised (% of global GDP) + global floor + global transfer + global Gini
@@ -1218,7 +1218,7 @@ table_gain <- 100*(table_gain/p$mean_Y3 - 1)
 (table_gain <- table_gain[order(p$country)[order(p$country) %in% which(p$pop_2022 > 35e6) & !duplicated(p$country)],]) 
 cat(sub("toprule", "toprule Tax rate & 0.5\\\\% & 15\\\\% & 0.5\\\\% & 15\\\\%  \\\\\\\\ National accounts adjustment &  & \\\\checkmark & & \\\\checkmark \\\\\\\\  \\\\midrule", # Taxation threshold (\\\\$/year) & 100k & 100k & 100k & 100k  \\\\\\\\ 
         paste(kbl(table_gain, "latex", caption = "Net gain per country of a global antipoverty tax on income above \\$100,000/year, for most populous countries in 2030 after 3\\% growth.", position = "b", escape = F, booktabs = T, digits = 2, linesep = rep("", nrow(table_gain)-1), longtable = F, label = "tax",
-                  col.names = NULL), collapse="\n")), file = "../tables/gain.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
+                  caption.short = "Net gain per country of a global antipoverty tax above \\$100,000/year", col.names = NULL), collapse="\n")), file = "../tables/gain.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
 
 # TODO:
 # digits
