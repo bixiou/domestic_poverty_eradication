@@ -321,7 +321,8 @@ Unless otherwise stated, I use the scenario of balanced growth at a rate of 3\%.
 
 \subsection{Antipoverty caps}
 
-% TODO! table cap by country for different scenarios (incl. 2.15$ 3%, 7%, with and without HFCE, 3% BCS; $3.44 Bolch, 3%)
+% TODO! check legend - table correspond
+% table cap by country for different scenarios (incl. 2.15$ 3%, 7%, with and without HFCE, 3% BCS; $3.44 Bolch, 3%)
 % table tax: $2.15 above $6.85 g 3%; $2.15 ab $18.15 g 7%; $2.15 ab $18.15 g 3%; $2.15 ab $18.15 g trend; ($2.15 ab $6.85 g 7%; $2.15 above $6.85 g 3% HFCE; $2.15 ab $18.15 g 7% HFCE)
 %  table floor: 10% ab $6.85 g 3%; g 3% with HFCE; g 7%; g 7% since 2016
 %  net gain per country 1.2% / 15% tax ab $100/day w & wo HFCE + global revenue raised (% of global GDP) + global floor + global transfer + global Gini
@@ -421,7 +422,7 @@ However, to meet the broader SDGs and ``end poverty in all its forms'', the 0.7\
 In this section, we explore the potential of globally redistributive policies to close the global poverty gap in 2030 in the baseline scenario of 3\% growth. %The policies described are idealized and should be understood as proxies for any action of international solidarity or system change that would bring about an equivalent transfer of resources. TODO? put back?
 % The wealth tax simulator of the World Inequality Lab\cite{chancel_world_2022} shows that a global 1.05\% marginal tax on wealth above \$100 million would collect 0.2\% of the global GDP, enough to close the extreme poverty gap. Alternativaly, one can collect the same amount (around \$200 billion per year) with a 2.8\% tax above \$1 billion or with a 0.47\% tax above \$5 million.
 
-If applied to the global level, the tax of the previous section would bring the global Gini from .62 down to .51 and finance an income floor at \$8.4/day, thereby closing the \$6.85/day poverty gap. By comparison, applied at the national level, it would only bring the global Gini down to .59 and reduce the poverty gap from 4.5\% to 3.7\% of global income. 
+If applied to the global level, the tax of the previous section would bring the global Gini from .62 down to .51 and finance an income floor at \$8.6/day, thereby closing the \$6.85/day poverty gap. By comparison, applied at the national level, it would only bring the global Gini down to .59 and reduce the poverty gap from 4.5\% to 3.7\% of global income. 
 
 To close the \textit{extreme} poverty gap, a 1.2\% marginal tax % TODO? rate?
 above 100\$/day (i.e. \$36,500/year) would suffice. %raise revenues equal to the 2030 . 
@@ -433,10 +434,10 @@ With contributions of up to 0.4\% of a country's income (in the U.S.), aggregate
 %However, to end poverty in all its forms, about 5\% of global consumption should be redirected to the poor, enough to raise the global income floor to \$7.15/day. This would require higher tax rates, for example 25\% above 100\$/day and 75\% above 200\$/day. 
 % These rates are expressed on top of the current tax system and apply to post-tax income. For example, the last tax schedule would leave unaffected the 96\% of the world population with a post-tax income per capita below \$3,000/month, reduce by 10\% the post-tax income at \$5,000/month, and reduce it  by 37\% at \$10,000/month. 
 
-% TODO! I can't use the HFCE-rescaled results if I attribute all extra income to the top 1%
+% TODO! I can't use the HFCE-rescaled results if I attribute all extra income to the top 1% => Add orders of magnitude for global wealth tax + in NS version, keep only the wealth tax (bc HFCE entirely attributed to >100$/d leads to net losses in HMICs and wo HFCE losses are too high in HICs) 
 In reality, the global tax rates required to eradicate poverty may well be lower than just indicated, because our calculations used the raw PIP data instead of converting them to nominal terms and rescaling them to national accounts. Once I rescale the data to national accounts (which are more accurate than surveys in high-income countries), % TODO? cite?
-a mild 0.5\% marginal tax above \$100,000/year (i.e. \$274/day) suffices to close the extreme poverty gap. Raising that rate to 15\% would collect 5\% of the world income, enough to finance a global income floor of \$250/month (or \$8.2/day) and end poverty in all its forms. 
-These rates are expressed on top of the current tax system and apply to post-tax income. For example, the last tax schedule would leave unaffected the 99\% of the world population with a post-tax income per capita below \$100,000/year and reduce by 5\% the post-tax income at \$150,000/year. % TODO? those with...?
+a mild 0.3\% marginal tax above \$100/day suffices to close the extreme poverty gap. Raising that rate to 10\% would collect 3.4\% of the world income, enough to finance a global income floor of \$7/day and end poverty in all its forms. 
+These rates are expressed on top of the current tax system and apply to post-tax income. For example, the last tax schedule would leave unaffected the 95\% of the world population with a post-tax income per capita below \$36,500/year and reduce by 5\% the post-tax income at \$73,000/year. % TODO? those with...?
 % TODO? Use ws instead of w? 
 
 In a nutshell, whereas poverty alleviation cannot be achieved rapidly without international solidarity, it can be financed by reasonable contributions from the global top 1\%.
@@ -520,5 +521,6 @@ should be addressed to Adrien Fabre~(email: adrien.fabre@cnrs.fr).\end{itemize}
 \input{../tables/tax4.tex}
 \input{../tables/tax7.tex}
 \input{../tables/floor.tex}
+\input{../tables/gain.tex}
 
 \end{document}
