@@ -323,10 +323,11 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
 # Create world income distribution in 2030 
 # (y makes the assumption of constant growth while Y assumes 6% growth after 2022)
 compute_world_distribution <- function(var = name_var_growth("optimistic"), df = p, wdf = w, region = df$country_code) {
+  df <- df[df$country_code %in% region,]
   pop_yr <- if (grepl("2022|now", var)) "pop_2022" else "pop_2030"
   wquantiles <- unique(sort(unlist(sapply(1:100, function(i) {df[[paste0(var, "_max_", i)]] }))))
   wcdf <- c() # ~ 1 min
-  for (q in wquantiles) wcdf <- c(wcdf, sum(sapply(1:100, function(j) { sum((df[[paste0(var, "_max_", j)]] <= q) * df[[paste0("pop_share_", j)]] * df[[pop_yr]] * (df$country_code %in% region), na.rm = T) })))
+  for (q in wquantiles) wcdf <- c(wcdf, sum(sapply(1:100, function(j) { sum((df[[paste0(var, "_max_", j)]] <= q) * df[[paste0("pop_share_", j)]] * df[[pop_yr]], na.rm = T) })))
   wpop <- wcdf[length(wcdf)]
   wcdf <- wcdf/wpop
   wpercentiles <- findInterval(seq(0, 1, .01), wcdf)[-1] # computes the indices for which the pop_share is lesser or equal to the percentiles.
@@ -1217,7 +1218,7 @@ create_appendix_table <- function(fun, ncol = NULL, poverty_thresholds = NULL, e
   else return(table)
 }
 
-# (table_cap <- create_appendix_table(fun = "compute_antipoverty_tax", poverty_thresholds = list(2.15, 2.15, 2.15, 2.15, "bcs", 3.44), exemption_thresholds = 6.85, growths = c("average", "very_optimistic", "average", "very_optimistic", "average", "average"), dfs = list(p, p, s, s, p, p)))
+(table_cap <- create_appendix_table(fun = "compute_antipoverty_tax", poverty_thresholds = list(2.15, 2.15, 2.15, 2.15, "bcs", 3.44), exemption_thresholds = 6.85, growths = c("average", "very_optimistic", "average", "very_optimistic", "average", "average"), dfs = list(p, p, s, s, p, p)))
 
 # Table cap
 # % TODO! table cap by country for different scenarios (incl. 2.15$ 3%, 7%, with and without HFCE, 3% BCS; $3.44 Bolch, 3%)
