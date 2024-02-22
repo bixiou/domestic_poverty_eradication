@@ -1352,12 +1352,14 @@ row.names(table_gain) <- p$country_short
 lic_gain <- ssa_gain <- table_gain[1,] 
 for (j in 1:ncol(table_gain)) lic_gain[j] <- wtd.mean(table_gain[,j] * p$mean_Y3, p$pop_2030 * p$country_code %in% LIC, na.rm = T)/lic$mean_Y3
 for (j in 1:ncol(table_gain)) ssa_gain[j] <- wtd.mean(table_gain[,j] * p$mean_Y3, p$pop_2030 * p$country_code %in% SSA, na.rm = T)/ssa$mean_Y3
-(table_gain <- table_gain[order(p$country)[order(p$country) %in% which(p$pop_2030 > 40e6) & !duplicated(p$country)],])
+(table_gain <- table_gain[order(p$country)[order(p$country) %in% which(p$pop_2030 > 40.5e6) & !duplicated(p$country)],])
 table_gain <- rbind("Revenues (\\% global income)" = revenues_gain, "International transfers" = transfer_gain, "Income floor (\\$/day)" = floor_gain/100, "Gini" = gini_gain/100,
                     "Low-Income Countries" = lic_gain, "Sub-Saharan Africa" = ssa_gain, table_gain)
-cat(sub("Low-Income", "\\\\midrule Low-Income", sub("Algeria", "\\\\midrule Algeria", sub("toprule", "toprule Tax rate & 1.2\\\\% & 1.2\\\\% & 0.3\\\\% & 0.3\\\\% & 10\\\\% & 10\\\\%  \\\\\\\\ \nHFCE rescaling &  & \\\\checkmark &  & \\\\checkmark & & \\\\checkmark \\\\\\\\ \n \\\\midrule", # Taxation threshold (\\\\$/year) & 100k & 100k & 100k & 100k  \\\\\\\\ \n # Taxation threshold & \\\\multicolumn{2}{c}{\\\\$100/day}  & \\\\multicolumn{2}{c}{\\\\$100,000/year} & \\\\multicolumn{2}{c}{\\\\$100,000/year} \\\\\\\\ \n 
-                                              paste(kbl(100 * table_gain, "latex", caption = "Net gain per country of a global antipoverty tax above \\$100/day, for most populous countries in 2030 after 3\\% growth.", position = "b", escape = F, booktabs = T, digits = 2, linesep = rep("", nrow(table_gain)-1), longtable = F, label = "gain", # National accounts  rescaling
-                                                        caption.short = "Net gain per country of global antipoverty taxes.", col.names = NULL), collapse="\n")))), file = "../tables/gain.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
+cat(sub("Low-Income", "\\\\midrule Low-Income", sub("Algeria", "\\\\midrule Algeria", 
+        sub("toprule", "toprule Tax rate & 1.2\\\\% & 1.2\\\\% & 0.3\\\\% & 0.3\\\\% & 10\\\\% & 10\\\\%  \\\\\\\\ \nHFCE rescaling &  & \\\\checkmark &  & \\\\checkmark & & \\\\checkmark \\\\\\\\ \n \\\\midrule",  
+        paste(kbl(100 * table_gain, "latex", caption = "Net gain per country of a global antipoverty tax above \\$100/day, for most populous countries in 2030 after 3\\%\ngrowth since 2022. \\small{\\textit{Note that revenues are likely underestimated without HFCE rescaling, and the cost overestimated in lower-income countries with HFCE rescaling (as the extra income is wrongly attributed to the sole top 1\\%, which often concentrates the entire taxable base).}}", 
+        digits = 2, linesep = rep("", nrow(table_gain)-1), longtable = F, label = "gain", position = "b", escape = F, booktabs = T, 
+        caption.short = "Net gain per country of global antipoverty taxes.", col.names = NULL), collapse="\n")))), file = "../tables/gain.tex")  
 
 # # Table net gain
 # # % net gain per country 1.2% / 15% tax ab $100/day w & wo HFCE + TODO: global revenue raised (% of global GDP) + global floor + global transfer + global Gini
