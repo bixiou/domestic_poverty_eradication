@@ -99,6 +99,7 @@
 \usepackage{tikz}
 \usepackage{gensymb}
 \usepackage{textcomp}
+\usepackage{placeins} % Floats appear in their section (to use with \FloatBarrier or [section])
 
 \usepackage{tabulary}
 \usepackage{tabularx}
@@ -413,13 +414,13 @@ Even in a scenario with 7\% growth from 2023 onwards, 10 countries have an incom
 
 At least two of the SDGs spell out how the elimination of extreme poverty could be funded. % https://sdgs.un.org/2030agenda
 First, the target 8.1 aims for ``at least 7 per cent gross domestic product growth per annum in the least developed countries''. As we have seen, a sustained high growth since 2016 would have permitted the least developed countries to eliminate extreme poverty through the mobilization of their domestic resources. However, high growth has never materialized in these countries. 
-Second, the target 17.2 calls for ``Developed countries to implement fully their official development assistance commitments, including the commitment by many developed countries to achieve the target of 0.7 per cent of ODA/GNI to developing countries and 0.15 to 0.20 per cent of ODA/GNI to least developed countries'' (LDCs). Foreign aid falls short of both the overall target (at 0.36\% of developed countries' GNI) and the LDCs' target (at 0.06\%). While European countries as a whole are meeting their commitments, most others are not. In particular, the U.S. only allocates 0.22\% of its GNI to foreign aid.\cite{oecd_oda_2023} The global extreme poverty gap (0.17\% of global real GDP) is a bit lower than the shortfall of foreign aid relative to the target (0.2\% of global nominal GDP), suggesting that extreme poverty could be eradicated if developed countries respected their commitment. % OECD (high-income) countries represent 59% (61%) of the world nominal GDP, so shortfall of aid is 0.34*0.59=0.2% of global GDP in nominal. https://data.worldbank.org/indicator/NY.GDP.MKTP.CD
+Second, the target 17.2 calls for ``Developed countries to implement fully their official development assistance commitments, including the commitment by many developed countries to achieve the target of 0.7 per cent of ODA/GNI to developing countries and 0.15 to 0.20 per cent of ODA/GNI to least developed countries'' (LDCs). Foreign aid falls short of both the overall target (at 0.37\% of developed countries' GNI) and the LDCs' target (at 0.06\%). While just four countries are meeting their commitments (Luxembourg, Sweden, Norway, and Germany), the U.S. only allocates 0.23\% of its GNI to foreign aid.\cite{oecd_oda_2023} The global extreme poverty gap (0.17\% of global real GDP) is a bit lower than the shortfall of foreign aid relative to the target (0.2\% of global nominal GDP), suggesting that extreme poverty could be eradicated if developed countries respected their commitment. % OECD (high-income) countries represent 59% (61%) of the world nominal GDP, so shortfall of aid is 0.34*0.59=0.2% of global GDP in nominal. https://data.worldbank.org/indicator/NY.GDP.MKTP.CD
 However, to meet the broader SDGs and ``end poverty in all its forms'', the 0.7\% target would not suffice and international solidarity should be significantly strenghtened. %global redistribution would need to be significantly increased. % TODO? system change => already in conclusion
 % shorten: take out this paragraph
 
 \subsection{The potential of global redistribution} % TODO? solidarity?
 
-In this section, we explore the potential of globally redistributive policies to close the global poverty gap in 2030 in the baseline scenario of 3\% growth. %The policies described are idealized and should be understood as proxies for any action of international solidarity or system change that would bring about an equivalent transfer of resources. TODO? put back?
+In this section, we highlight the potential of globally redistributive policies to close the global poverty gap in 2030 in the baseline scenario of 3\% growth. %The policies described are idealized and should be understood as proxies for any action of international solidarity or system change that would bring about an equivalent transfer of resources. TODO? put back?
 % The wealth tax simulator of the World Inequality Lab\cite{chancel_world_2022} shows that a global 1.05\% marginal tax on wealth above \$100 million would collect 0.2\% of the global GDP, enough to close the extreme poverty gap. Alternativaly, one can collect the same amount (around \$200 billion per year) with a 2.8\% tax above \$1 billion or with a 0.47\% tax above \$5 million.
 
 If applied to the global level, the tax of the previous section would bring the global Gini from .62 down to .51 and finance an income floor at \$8.6/day, thereby closing the \$6.85/day poverty gap. By comparison, applied at the national level, it would only bring the global Gini down to .59 and reduce the poverty gap from 4.5\% to 3.7\% of global income. 
@@ -439,6 +440,17 @@ In reality, the global tax rates required to eradicate poverty may well be lower
 a mild 0.3\% marginal tax above \$100/day suffices to close the extreme poverty gap. Raising that rate to 10\% would collect 3.4\% of the world income, enough to finance a global income floor of \$7/day and end poverty in all its forms. 
 These rates are expressed on top of the current tax system and apply to post-tax income. For example, the last tax schedule would leave unaffected the 95\% of the world population with a post-tax income per capita below \$36,500/year and reduce by 5\% the post-tax income at \$73,000/year. % TODO? those with...?
 % TODO? Use ws instead of w? 
+
+% 6.85 pg: 4.5% (less in nominal); 2.15 pg: .15%
+% https://wid.world/world-wealth-tax-simulator/
+% 4/6/7/8/9% > 1/20/200M/1/10G => 4.22% (tax = k yield)
+% 3/4/5/6/7/8% > 500k/1/20/200M/1/10G => 4.96% (tax = k yield)
+% 4/10% > 1/100M => 4.41%
+% 2.1% > 1G => 0.15%
+% top 1%: 1M
+
+% Although the idea of an internationally redistributive tax may seem far-fetched, 
+Although internationally redistributive taxes have yet to take off, the proposal of a global wealth tax is gaining momentum.\cite{piketty_brief_2022} A 2\% tax on individual net wealth above \$1 billion would raise \$214 billion a year, slightly more than the global extreme poverty gap.\cite{tax_observatory_global_2024} Moreover, a global tax on the wealthiest 1\% can raise enough revenues to close the global acute poverty gap and lift everyone above \$6.85/day. For example, the \href{https://wid.world/world-wealth-tax-simulator}{WID wealth tax simulator} shows that a tax consisting of a 4\% marginal rate above \$1 million and 10\% above \$100 million would raise 4.4\% of the global GDP. More generally, a global tax on millionaires designed to be revenue-maximing in the long-run has the potential to finance the eradication of acute poverty. 
 
 In a nutshell, whereas poverty alleviation cannot be achieved rapidly without international solidarity, it can be financed by reasonable contributions from the global top 1\%.
 % - One example of global redistribution (incl. largest recipients/contributors)
@@ -485,18 +497,8 @@ All data and code of as well as figures of the paper are available on \href{http
 \renewcommand{\url}[1]{\href{#1}{Link}} % NCCcomment
 \bibliographystyle{plainnaturl_clean} % NCCcomment
 \bibliography{poverty}
-
-\appendix % NCCcomment
-\renewcommand{\thetable}{A\arabic{table}}
-\renewcommand{\thefigure}{A\arabic{figure}}
-\setcounter{figure}{0}
-\setcounter{table}{0}
-
 % \input{app} 
 
-\clearpage
-\listoftables
-\listoffigures
 % WPcomment
 %% Here is the endmatter stuff: Supplementary Info, etc.
 %% Use \item's to separate, default label is "Acknowledgements"
@@ -510,8 +512,102 @@ All data and code of as well as figures of the paper are available on \href{http
 should be addressed to Adrien Fabre~(email: adrien.fabre@cnrs.fr).\end{itemize}
 % \end{addendum}
 
+\clearpage
+\listoftables
+\listoffigures
+
+\appendix % NCCcomment
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\thefigure}{A\arabic{figure}}
+\setcounter{figure}{0}
+\setcounter{table}{0}
+
+\clearpage
 \section{Appendix}
-% \subsection{Additional figures}
+\subsection{Additional figures}
+
+Many more figures (with varying poverty lines, taxation thresholds, growth scenarios, etc.) are available on \href{https://github.com/bixiou/domestic_poverty_eradication/tree/main/figures}{github.com/bixiou/domestic\_poverty\_eradication}. Also, any custom figure can be easily produced using this code.
+
+% Main text figures:
+% y_expropriated_2_average
+% antipoverty_2_tax_7_average
+% antipoverty_2_tax_18_very_optimistic
+% demogrant_7__10
+
+% Appendix figures:
+% s_antipoverty_2_tax_7_average
+% antipoverty_2_tax_7_reg
+% antipoverty_2_tax_18_average
+% s_antipoverty_2_tax_18_very_optimistic
+% antipoverty_4_tax_18_average
+% antipoverty_7_tax_18_average
+% antipoverty_7_tax_7_average
+% demogrant_7__10_very_optimistic
+% s_demogrant_7__10
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). Data has been rescaled to match HFCE aggregate from national account. In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:s_antipoverty_2_tax_7_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/s_antipoverty_2_tax_7_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, with growth until 2030 predicted at the country level. 
+  }\label{fig:antipoverty_2_tax_7_reg}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_2_tax_7_reg.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$18.15/day after 3\% growth.]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_2_tax_18_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_2_tax_18_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$18.15/day after 7\% growth (HFCE-scaled).]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). Data has been rescaled to match HFCE aggregate from national account. In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 7\% over 2022--2030. 
+  }\label{fig:s_antipoverty_2_tax_18_very_optimistic}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/s_antipoverty_2_tax_18_very_optimistic.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-severe-poverty tax above \$18.15/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$3.65/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_4_tax_18_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_4_tax_18_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-acute-poverty tax above \$18.15/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$6.85/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_7_tax_18_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_7_tax_18_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-acute-poverty tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$6.85/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_7_tax_7_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_7_tax_7_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Income floor of 10\% tax above \$6.85/day after 7\% growth.]{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day (in 2017 PPP \$/day). In this idealized policy, all tax revenue is transferred to the poorest and lift them at the income floor, assuming away distorsions, and after a yearly growth of 7\% over 2022--2030. 
+  }\label{fig:demogrant_7__10_very_optimistic}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/demogrant_7__10_very_optimistic.pdf}}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!htb]
+  \caption[Income floor of 10\% tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day (in 2017 PPP \$/day). Data has been rescaled to match HFCE aggregate from national account. In this idealized policy, all tax revenue is transferred to the poorest and lift them at the income floor, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:s_demogrant_7__10}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/s_demogrant_7__10.pdf}}
+\end{figure}
 
 \subsection{Additional tables}
 \input{../tables/income.tex}
