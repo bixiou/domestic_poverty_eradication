@@ -75,7 +75,6 @@
 }
 \usepackage{bm}
 \usepackage{indentfirst}
-\usepackage{tocbibind}
 \setcitestyle{aysep={}} 
 \usepackage{amsmath}
 \usepackage{tcolorbox}
@@ -112,11 +111,17 @@
 \usepackage{longtable}
 \usepackage{rotating}
 \usepackage{fancyhdr}
-\usepackage{tocloft}
-\usepackage{titletoc}
+\usepackage{tocbibind} % Adds biblio to ToC
+% \usepackage{tocloft}
+\usepackage{titletoc} % Adds title to ToC (use with tocloft?)
 \usepackage[export]{adjustbox}
 \usepackage[anythingbreaks]{breakurl} % for links
 \usepackage{multicol}
+\makeatletter
+\renewcommand\tableofcontents{% removes "Contents" from ToC
+    \@starttoc{toc}%
+}
+\makeatother
 \newsavebox\ltmcbox % For net gain table over two columns
 %\usepackage[nomarkers,figuresonly]{endfloat} % Figures at the end
 %\usepackage[section,below]{placeins} % Floats placed in the section they appear in.
@@ -171,8 +176,8 @@
 
 \title{Shortfall of Domestic Resources\\ to Eradicate Extreme Poverty by 2030} 
 
-\author{Adrien Fabre$^{1,2}$} % WPcomment
-% \author{Adrien Fabre\footnote{CNRS, CIRED. E-mail: adrien.fabre@cnrs.fr.}
+% \author{Adrien Fabre$^{1,2}$} % WPcomment
+\author{Adrien Fabre\footnote{CNRS, CIRED. E-mail: adrien.fabre@cnrs.fr.}}
 % I thank Michalis Moatsos for his help in using his data. I thank Thomas Goumont and Elise Thai for assistance. I declare that I also serve as president of Global Redistribution Advocates.} % NCCcomment 
 
 \date{\today} % NCCcomment
@@ -182,9 +187,9 @@
 \sloppy
 \maketitle
 
-\begin{center}
-{\textbf{\href{https://github.com/bixiou/domestic_poverty_eradication/raw/main/paper/poverty.pdf}{Link to most recent version}}}
-\end{center}
+% \begin{center}
+% {\textbf{\href{https://github.com/bixiou/domestic_poverty_eradication/raw/main/paper/poverty.pdf}{Link to most recent version}}}
+% \end{center}
 
 
 % WPcomment
@@ -319,6 +324,13 @@ Unless otherwise stated, I use the scenario of balanced growth at a rate of 3\%.
 
 \subsection{Antipoverty caps}
 
+\begin{figure}[!b]
+  \caption[Anti-extreme-poverty cap in 2030 after 3\% growth.]{Income cap eradicating extreme poverty (in \$/day). In this idealized policy, all income above the cap is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. %abstracting away from distorsions and implementation costs. Growth is 3\% over 2022--2030.
+  }\label{fig:antipoverty_cap}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/y_expropriated_2_average.pdf}}
+\end{figure} 
+
 % TODO! check legend - table correspond
 % table cap by country for different scenarios (incl. 2.15$ 3%, 7%, with and without HFCE, 3% BCS; $3.44 Bolch, 3%)
 % table tax: $2.15 above $6.85 g 3%; $2.15 ab $18.15 g 7%; $2.15 ab $18.15 g 3%; $2.15 ab $18.15 g trend; ($2.15 ab $6.85 g 7%; $2.15 above $6.85 g 3% HFCE; $2.15 ab $18.15 g 7% HFCE)
@@ -333,13 +345,6 @@ from national accounts for the D.R.C.
 Besides, the D.R.C. is not the poorest country. 
 In Madagascar, the average consumption would fall short of \$2.15/day in the baseline scenario, at \$2.02/day. This means that even with extreme redistribution, Madagascar does not have the domestic resources needed to eliminate extreme poverty by 2030. 
 To give one last example of the shortfall of resources in the lowest-income countries, the anti-extreme-poverty cap for Burundi in the scenario of 7\% growth would need to be as low as 8.60\$/day. 
-
-\begin{figure}[h]
-  \caption[Anti-extreme-poverty cap in 2030 after 3\% growth.]{Income cap eradicating extreme poverty (in \$/day). In this idealized policy, all income above the cap is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. %abstracting away from distorsions and implementation costs. Growth is 3\% over 2022--2030.
-  }\label{fig:antipoverty_cap}
-  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
-  {../figures/y_expropriated_2_average.pdf}}
-\end{figure} 
 
 In most of the paper, I focus on the definition of extreme poverty employed in the first SDG. However, the \$2.15 threshold has been criticized for inaccurately measuring poverty.\cite{woodward_redefining_2010,deaton_price_2010} % TODO? cite also edward_ethical_2006, pritchett_who_2006
 First, this poverty line %is too low to procure just a healthy diet, it is 
