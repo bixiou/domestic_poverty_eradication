@@ -10,7 +10,7 @@
 # There is an R package to access PIP: pipR
 # Cite Hoy & Sumner (16) who do almost the same thing (and even include reallocation of fuel subsidies and excess military spending), take 50% marginal tax > 10$/d as maximum
 # On estimates of poverty rate in 2030: Karver et al. (12): IMF proj - 1pp, Chandy et al. (13) EIU - 10%, Bicaba et al. (17) EIU - 10%, Lakner et al. (22); on future global income distrib, Hellebrandt & Mauro (15): IMF proj and one sensitivity analysis with 0.84+0.35*(past growth)
-# Cite GCIP (Lahoti et al., 16), WIID (Gradín, 21) and WID as alternative sources
+# Cite GCIP (Lahoti et al., 16), WIID (Gradín, 21) and WID (tdiinc992j) as alternative sources
 # Cite Lakner & Milanovic (16), Anand & Segal (15) on estimating global income distribution; and Pinkovskiy & Sala-i-Martin (09), Jordá & Niño-Zarazúa (19) on parametric estimates of global distribution.
 # Cite Deaton (05) and Prydz et al. (22) on survey vs. tax data
 # Other costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), Manuel et al. (18) (cost to end extreme poverty: 2.5 T$, incl. 150 G$ in countries lacking resources - vs. 200 G$ in ODA)
