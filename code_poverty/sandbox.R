@@ -27,7 +27,7 @@
 #            The revitalized Global Partnership will facilitate an intensive global engagement in support of implementation of all the goals and targets, bringing together Governments, civil society, the private sector, the United Nations system and other actors and mobilizing all available resources."
 
 # Past ideas:
-# combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly. => WID post-tax income data is only available in 38 countries (https://wid.world/summary-table/)
+# combine with tax data (WIL) to get better estimates of total GDP or use WIL data directly. => WID has only wide coverage for post-tax national income (diinc) rather than post-tax disposable income (cainc, without public spending) (https://wid.world/summary-table/)
 # Use GDP growth projections (EIU paid, OECD (or PwC) incomplete, consensuseconomics.com paid, IMF 2027), cf. Hellebrandt & Mauro (15) for different growth projections method
 # check which has lowest HFCE p.c.: Burundi, < 2$ in 2022
 
