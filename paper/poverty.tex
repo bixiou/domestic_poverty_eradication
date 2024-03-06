@@ -63,9 +63,9 @@
 \usepackage{tgpagella} % Palatino text only
 \usepackage{mathpazo}  % Palatino math & text
 \usepackage[left=1.5in,right=1.5in,top=1.5in,bottom=1.5in]{geometry}
-% \linespread{1.5}
-\usepackage[super,comma,sort]{natbib} % WPcomment
-% \usepackage[round,sort&compress]{natbib} % NCCcomment
+% \linespread{2}
+% \usepackage[super,comma,sort]{natbib} % WPcomment
+\usepackage[round,sort&compress]{natbib} % NCCcomment
 \usepackage{url} % [hyphens]
 \usepackage[hyperpageref]{backref} % back references biblio. Needs latexmk at compilation.
 \usepackage[pagebackref]{hyperref}
@@ -120,6 +120,8 @@
 \usepackage[export]{adjustbox}
 \usepackage[anythingbreaks]{breakurl} % for links
 \usepackage{multicol}
+\usepackage{lineno}
+% \linenumbers
 \makeatletter
 \renewcommand\tableofcontents{% removes "Contents" from ToC
     \@starttoc{toc}%
@@ -207,13 +209,15 @@
 In 2015, the Sustainable Development Goals set the eradication of extreme poverty by 2030 as a universally agreed objective. 
 This paper analyses the prospects for achieving this goal country by country. Without redistribution, even with a very optimistic annual growth rate of 7\% between 2022 and 2030, 3\% of humans would still be living in extreme poverty in 2030. National capacity to eradicate poverty is then measured using the concepts of \textit{antipoverty cap} or \textit{antipoverty tax} required to finance poverty eradication, and \textit{income floor} (financed by a given income tax). With credible annual growth of 3\%, even capping incomes at \$7 a day cannot eradicate extreme poverty in 5 low-income countries. In other words, neither growth alone nor growth combined with radical internal redistribution could eradicate extreme poverty by 2030. By contrast, a transfer of just 0.14\% of global income could achieve this goal.
 \end{abstract}
+% In 2015, the Sustainable Development Goals set the eradication of extreme poverty by 2030 as a universally agreed objective. This paper analyses the prospects for achieving this goal country by country. Without redistribution, even with a very optimistic annual growth rate of 7% between 2022 and 2030, 3% of humans would still be living in extreme poverty in 2030. National capacity to eradicate poverty is then measured using the concepts of antipoverty cap or antipoverty tax required to finance poverty eradication, and income floor (financed by a given income tax). With credible annual growth of 3%, even capping incomes at $7 a day cannot eradicate extreme poverty in 5 low-income countries. In other words, neither growth alone nor growth combined with radical internal redistribution could eradicate extreme poverty by 2030. By contrast, a transfer of just 0.14% of global income could achieve this goal.
 
 % \textbf{JEL codes:} D63, I32, P16.
 % \textbf{Keywords:} Domestic resource mobilization, Poverty gap, Fiscal capacity, Sustainable Development Goals, Redistribution, Extreme poverty.
 
+\clearpage
 \tableofcontents
 
-\onehalfspacing % NCCcomment
+% \onehalfspacing % NCCcomment
 
 %\clearpage
 
@@ -229,8 +233,8 @@ This has implications for the international community, as international solidari
 % “As things stand, the world is not on track to end poverty by 2030,” (UN, 22)
 % # World Bank (2022): "It became clear that the global goal of ending extreme poverty by 2030 would not be achieved."
 
-The idea to measure the domestic capacity to eradicate poverty with an antipoverty tax dates back to Ravallion (2010).\cite{ravallion_poorer_2010,ceriani_income_2014} Ravallion then found that even with a 100\% tax above the U.S. poverty line, 29 countries could not eradicate extreme poverty, and 37 countries could not eradicate ``severe poverty'' defined with a higher poverty line (which corresponds to \$3.65/day in 2017 PPP \$). %Using this higher poverty line, 
-Bolch, Ceriani \& López-Calva (2022) --- hereafter ``BCL'' --- update the computations with more recent data and find that 62 countries do not have sufficient resources to eradicate severe poverty.\cite{bolch_arithmetics_2022} % Why higher than Ravallion? 2 potential reasons: Ravallion survey 90 countries vs. 120 for BCL; poverty headcount has increased with the updated poverty line (Deaton, 2010) -- impossible to check as Ravallion doesn't specify the survey years of his data
+The idea to measure the domestic capacity to eradicate poverty with an antipoverty tax dates back to \cite{ravallion_poorer_2010} and \citealp{ceriani_income_2014}. \cite{ravallion_poorer_2010} found that even with a 100\% tax above the U.S. poverty line, 29 countries could not eradicate extreme poverty, and 37 countries could not eradicate ``severe poverty'' defined with a higher poverty line (which corresponds to \$3.65/day in 2017 PPP \$). %Using this higher poverty line, 
+\cite{bolch_arithmetics_2022} --- hereafter ``BCL'' --- update the computations with more recent data and find that 62 countries do not have sufficient resources to eradicate severe poverty. % Why higher than Ravallion? 2 potential reasons: Ravallion survey 90 countries vs. 120 for BCL; poverty headcount has increased with the updated poverty line (Deaton, 2010) -- impossible to check as Ravallion doesn't specify the survey years of his data
 % BOF specify what we mean by addding "by taxing the non-(US-)poor"
 
 The present paper employs a similar methodology to assess which countries have sufficient domestic resources to achieve the first SDG. There are three reasons why BCL cannot be used % is not designed 
@@ -240,28 +244,28 @@ Second, BCL study the data as it stands rather than imputing growth and using it
 % Ravallion, Bolch. How I improve upon Bolch. 
 % # compare Bolch with the same survey years as them: not replicated because the data has been revised. They use old data (2014) and old survey years (2009). Using most recent PIP data is surely preferable.
 
-Consistently with Ravallion (2010), Hoy \& Sumner (2016) find that 52\% of global extreme poverty can be eliminated with a 50\% antipoverty tax above \$$_\text{2011}$10/day (in 2011 PPP). They also consider the reallocation of public spending and show that this antipoverty tax together with the reallocation of fossil-fuel subsidies and military spending could eliminate 77\% of global extreme poverty. Finally, they show that countries with GDP per capita below \$$_\text{2011}$2,000 per year do not have the domestic capacity to eradicate extreme poverty (measured as an antipoverty tax below 50\%).\cite{hoy_gasoline_2016} 
+Consistently with \cite{ravallion_poorer_2010}, \cite{hoy_gasoline_2016} find that 52\% of global extreme poverty can be eliminated with a 50\% antipoverty tax above \$$_\text{2011}$10/day (in 2011 PPP). They also consider the reallocation of public spending and show that this antipoverty tax together with the reallocation of fossil-fuel subsidies and military spending could eliminate 77\% of global extreme poverty. Finally, they show that countries with GDP per capita below \$$_\text{2011}$2,000 per year do not have the domestic capacity to eradicate extreme poverty (measured as an antipoverty tax below 50\%).
 % They find that with growth alone, and if each country's growth persists at the same level, extreme poverty will only end in 2224. %This is likely to be an underestimate as it is only based on countries where there was positive growth in survey means over the last ten years. 
 
-Previous studies also show that with growth alone, and if each country's growth persists at the same level, it would take more than a century --- and a global GDP exceeding \$100,000 per year --- to end extreme poverty.\cite{woodward_incrementum_2015} % TODO? cite ravallion_how_2013 on this? or on paragraph below? It is not as good as it just extends the trends of poverty headcounts
+\cite{woodward_incrementum_2015} also shows that with growth alone, and if each country's growth persists at the same level, it would take more than a century --- and a global GDP exceeding \$100,000 per year --- to end extreme poverty. % TODO? cite ravallion_how_2013 on this? or on paragraph below? It is not as good as it just extends the trends of poverty headcounts
 % Ortiz et al. (2018) estimate the cost relative to GDP of a basic income at the national poverty line. % shorten
-In low-income countries, financing a basic income at the poverty line is out of reach as the national poverty line is on average equal to 79\% of the GDP and 8 countries have a GDP below this line (which is often itself below \$2.15/day).\cite{ortiz_universal_2018}
+\cite{ortiz_universal_2018} find that financing a basic income at the poverty line is out of reach in low-income countries as the national poverty line is on average equal to 79\% of the GDP and 8 countries have a GDP below this line (which is often itself below \$2.15/day).
 % Difference with Hoy & Sumner (16) (who do almost the same thing (and even include reallocation of fuel subsidies and excess military spending), take 50% marginal tax > 10$/d as maximum);
 % Ortiz et al (18) ( computing the costs of an UBI at the national poverty line (Figure 2, 3)). 
 
-The paper also relates to estimates of future poverty rates based on growth alone. Using GDP projections from the IMF, the 2030 extreme poverty rate has been projected at 2.8\% (and at 4.1\% if growth is 1\% lower than projected, the error historically observed with IMF projections).\cite{karver_mdgs_2012} Other studies are more pessimistic, at 3--7\%,\cite{chandy_final_2013,bicaba_can_2017}, 4.7\%\cite{manuel_financing_2018} or even 7.4\% for post-COVID estimates.\cite{lakner_how_2022} 
+The paper also relates to estimates of future poverty rates based on growth alone. Using GDP projections from the IMF, \cite{karver_mdgs_2012} project the 2030 extreme poverty rate at 2.8\% (and at 4.1\% if growth is 1\% lower than projected, the error historically observed with IMF projections). Other studies are more pessimistic, at 3--7\% \citep{chandy_final_2013,bicaba_can_2017}, 4.7\% \citep{manuel_financing_2018} or even 7.4\% for post-COVID estimates \citep{lakner_how_2022}. 
 % Lit on future poverty rate: Karver et al. (12): IMF proj - 1pp, Chandy et al. (13) EIU - 10%, Bicaba et al. (17) EIU - 10%, Lakner et al. (22): Reducing each country’s Gini index by 1% per year has a larger impact on global poverty than increasing each country’s annual growth 1 percentage point above forecasts; on future global income distrib, Hellebrandt & Mauro (15): IMF proj and one sensitivity analysis with 0.84+0.35*(past growth)
 
-The paper is linked to the literature that estimates the global income distribution.\cite{pinkovskiy_parametric_2009,anand_chapter_2015,lahoti_global_2016,lakner_global_2016,gradin_trends_2021,jorda_global_2019,alvaredo_methods_2021} 
+The paper is linked to the literature that estimates the global income distribution \citep{pinkovskiy_parametric_2009,anand_chapter_2015,lahoti_global_2016,lakner_global_2016,gradin_trends_2021,jorda_global_2019,alvaredo_methods_2021}. 
 % I prefer PIP to alternatives because the GCIP database has been discontinued;\cite{lahoti_global_2016} WIID adjusts its data to GDP (while HFCE is more relevant to us);\cite{gradin_trends_2021} WID has only wide coverage for post-tax national income (diinc) rather than post-tax disposable income (cainc, without public spending).\cite{alvaredo_methods_2021} % TODO? include?
 % Lit on global income distr: Cite GCIP (Lahoti et al., 16), WIID (Gradín, 21) and WID as alternative sources
 % # Cite Lakner & Milanovic (16): on HFCE adjustment, Anand & Segal (15) on estimating global income distribution: "Between-country inequality is the larger component of global inequality, comprising 64–81% of overall inequality"; and Pinkovskiy & Sala-i-Martin (09), Jordá & Niño-Zarazúa (19) on parametric estimates of global distribution. => TODO? cite in some sentences for the HFCE adjustment?
-It also connects with the costing and progress assessment of SDGs and in particular poverty eradication.\cite{schmidt-traub_investment_2015,rozenberg_beyond_2019,sdsn_sdg_2019,manuel_financing_2020,vorisek_understanding_2020,unctad_estimating_2021,un_sustainable_2022} In 24 countries, a growth rate of 7\% would not suffice to eradicate extreme poverty by 2030.\cite{unctad_estimating_2021} While the global cost of achieving the SDGs may be as high as \$4 trillion per year,\cite{unctad_world_2023} % also oecd_bottlenecks_2023
+It also connects with the costing and progress assessment of SDGs and in particular poverty eradication \citep{schmidt-traub_investment_2015,rozenberg_beyond_2019,sdsn_sdg_2019,manuel_financing_2020,vorisek_understanding_2020,unctad_estimating_2021,un_sustainable_2022}. In 24 countries, a growth rate of 7\% would not suffice to eradicate extreme poverty by 2030 \citep{unctad_estimating_2021}. While the global cost of achieving the SDGs may be as high as \$4 trillion per year \citep{unctad_world_2023}, % also oecd_bottlenecks_2023
 % TODO understand what is behind this notion of "financing gap": it seems that UNCTAD has a higher value than SDSN or Kharas
-the financing gap in low- and lower-middle-income countries is estimated at \$400\cite{sdsn_sdg_2019} % LIC+LMIC
-to \$700 billion\cite{kharas_building_2019} % LIC+LMIC Table 4
-per year. With the current trend, the SDGs will not be achieved and only limited progress towards them will have been made, with more than 60 countries failing to eradicate extreme poverty by 2030.\cite{moyer_are_2020} %between 2015 and 2030. 
-Low-income countries do not have the resources to afford basic healthcare, education, and social protection; only an increase and a redirection of Official Development Assistance (ODA) can finance these programs.\cite{manuel_financing_2018} 
+the financing gap in low- and lower-middle-income countries is estimated at \$400 billion \citep{sdsn_sdg_2019} % LIC+LMIC
+to \$700 billion \citep{kharas_building_2019} % LIC+LMIC Table 4
+per year. With the current trend, the SDGs will not be achieved and only limited progress towards them will have been made, with more than 60 countries failing to eradicate extreme poverty by 2030 \citep{moyer_are_2020}. %between 2015 and 2030. 
+\cite{manuel_financing_2018} find that low-income countries do not have the resources to afford basic healthcare, education, and social protection; only an increase and a redirection of Official Development Assistance (ODA) can finance these programs. 
 % Lit on costing of extreme poverty eradication: UNCTAD (21, p. 15: growth needed), Vorisek & Yu (20, lite review), SDSN (19, excellent: talk about ODA, wealth & carbon taxes, estimate domestic resources, e.g. Table 4), Moyer & Hedden (20), Manuel et al. (18) (cost to end extreme poverty: 2.5 T$, incl. 150 G$ in countries lacking resources - vs. 200 G$ in ODA)
 % karver_mdgs_2012 chandy_final_2013 bicaba_can_2017 lakner_how_2022 lakner_global_2016 lakner_global_2013 lahoti_global_2016 gradin_trends_2021 anand_chapter_2015 pinkovskiy_parametric_2009 jorda_global_2019 unctad_estimating_2021 vorisek_understanding_2020 sdsn_sdg_2019 moyer_are_2020 manuel_financing_2018
 
@@ -273,17 +277,17 @@ Low-income countries do not have the resources to afford basic healthcare, educa
 % I can adjust to HFCE as robustness check https://data.worldbank.org/indicator/NE.CON.PRVT.PP.KD with the assumption that the extra money is held by the rich (>13$/day), 
 The percentiles of each country's post-tax income (or consumption) are estimated by the Poverty and Inequality Platform (PIP) of the World Bank (ex-PovcalNet). PIP aggregates the most recent household surveys (60\% of countries were surveyed between 2018 and 2021). This data is based on purchasing power parity (PPP) and given in constant 2017 \$. % TODO! condense in one sentence this paragraph and the following sentence; put Data/ to appendix
 
-In low-income countries (those of greatest interest to us), PIP provides data on per capita \textit{consumption} (rather than income). Thereby, the data does not capture services procured by the government. Another potential concern with household surveys is that the aggregate (national) consumption they imply is generally lower than the one estimated in national accounts.\cite{deaton_measuring_2005,prydz_disparities_2022} This discrepancy comes from measurement errors on both sides: on the one hand, household surveys suffer from underreporting of top incomes and large expenditures; on the other hand, national accounts do not properly account for informal work %and auto-consumption, % TODO? cite? Deaton (2001) argues that in India approximately half of the gap between national accounts consumption and household surveys is due to imputed rents
-and tend to inflate agricultural output.\cite{angrist_why_2021} 
-Furthermore, authoritarian countries have been shown to produce inflated GDP statistics, except for countries below the GDP threshold of eligibility for preferential loans by the World Bank.\cite{martinez_how_2022} % international development association
+In low-income countries (those of greatest interest to us), PIP provides data on per capita \textit{consumption} (rather than income). Thereby, the data does not capture services procured by the government. Another potential concern with household surveys is that the aggregate (national) consumption they imply is generally lower than the one estimated in national accounts \citep{deaton_measuring_2005,prydz_disparities_2022}. This discrepancy comes from measurement errors on both sides: on the one hand, household surveys suffer from underreporting of top incomes and large expenditures; on the other hand, national accounts do not properly account for informal work %and auto-consumption, % TODO? cite? Deaton (2001) argues that in India approximately half of the gap between national accounts consumption and household surveys is due to imputed rents
+and tend to inflate agricultural output \citep{angrist_why_2021}. 
+Furthermore, authoritarian countries have been shown to produce inflated GDP statistics, except for countries below the GDP threshold of eligibility for preferential loans by the World Bank \citep{martinez_how_2022}. % international development association
 While Household Final Consumption Expenditures (HFCE) from national accounts is 44\% greater than the aggregate consumption from household surveys, the ``discrepancy ratio'' is largest for middle-income countries and is only 12\% for low-income countries. 
 Because household surveys are best suited to estimate consumption by the poorest, I use unadjusted PIP data as a baseline. 
 
-As a robustness check, I also re-derive the main results after adjusting aggregate consumption by the discrepancy ratio (computed using World Bank data). In line with the literature,\cite{lakner_global_2013,anand_chapter_2015} I impute the extra consumption to the top percentile. I do not perform the rescaling on the 15\% of countries (like Burundi or the D.R.C.) with HFCE lower than its aggregate consumption from PIP, and I assume a discrepancy ratio of +12\% for the 20\% of countries lacking data on HFCE. 
+As a robustness check, I also re-derive the main results after adjusting aggregate consumption by the discrepancy ratio (computed using World Bank data). In line with \cite{lakner_global_2013} and \cite{anand_chapter_2015}, I impute the extra consumption to the top percentile. I do not perform the rescaling on the 15\% of countries (like Burundi or the D.R.C.) with HFCE lower than its aggregate consumption from PIP, and I assume a discrepancy ratio of +12\% for the 20\% of countries lacking data on HFCE. 
 
-As is common in this literature,\cite{karver_mdgs_2012,hellebrandt_future_2015,bicaba_can_2017} my baseline assumes ``balanced growth'', meaning that each percentile grows at the same rate between the country's survey year and 2030. 
+As is common in this literature \citep{karver_mdgs_2012,hellebrandt_future_2015,bicaba_can_2017}, my baseline assumes ``balanced growth'', meaning that each percentile grows at the same rate between the country's survey year and 2030. 
 I rescale incomes by the observed growth of GDP p.c. (in PPP) up to 2022 (using World Bank data) and by different methods for the 2022--2030 period. 
-These methods include: extending the 2014--2019 growth trend (which excludes COVID years); extending the trend for growing countries and assuming no growth when GDP p.c. has contracted between 2014 and 2019; assuming a constant growth (of either 0\%, 3\%, 4.5\%, 6\%, or 7\%); using IMF forecasts\cite{imf_world_2023} (extended up to 2030 by replicating the 2026--2028 forecasted growth in 2028--2030); projecting future growth using an autoregressive quadratic model that predicts the 2011--2019 growth based on the 1991-2011 growth (then applied to 2022--2030 using the 2002--2022 growth). Besides, I deviate from this two-step procedure to assess the original SDG goal, by assuming a constant growth of 7\% starting in 2015.
+These methods include: extending the 2014--2019 growth trend (which excludes COVID years); extending the trend for growing countries and assuming no growth when GDP p.c. has contracted between 2014 and 2019; assuming a constant growth (of either 0\%, 3\%, 4.5\%, 6\%, or 7\%); using IMF forecasts (\cite{imf_world_2023} extended up to 2030 by replicating the 2026--2028 forecasted growth in 2028--2030); projecting future growth using an autoregressive quadratic model that predicts the 2011--2019 growth based on the 1991-2011 growth (then applied to 2022--2030 using the 2002--2022 growth). Besides, I deviate from this two-step procedure to assess the original SDG goal, by assuming a constant growth of 7\% starting in 2015.
 
 \section{Results}
 \subsection{The effect of balanced growth}
@@ -349,10 +353,10 @@ Besides, the D.R.C. is not the poorest country.
 In Madagascar, the average consumption would fall short of \$2.15/day in the baseline scenario, at \$2.02/day. This means that even with extreme redistribution, Madagascar does not have the domestic resources needed to eliminate extreme poverty by 2030. 
 To give one last example of the shortfall of resources in the lowest-income countries, the anti-extreme-poverty cap for Burundi in the scenario of 7\% growth would need to be as low as 8.60\$/day. 
 
-In most of the paper, I focus on the definition of extreme poverty employed in the first SDG. However, the \$2.15 threshold has been criticized for inaccurately measuring poverty.\cite{woodward_redefining_2010,deaton_price_2010} % TODO? cite also edward_ethical_2006, pritchett_who_2006
+In most of the paper, I focus on the definition of extreme poverty employed in the first SDG. However, the \$2.15 threshold has been criticized for inaccurately measuring poverty \citep{woodward_redefining_2010,deaton_price_2010}. % TODO? cite also edward_ethical_2006, pritchett_who_2006
 First, this poverty line %is too low to procure just a healthy diet, it is 
 is barely sufficient to satisfy one's caloric requirements and is too low to procure a healthy diet or non-food necessities. 
-Second, the PPP adjustments applied to PIP data before computing the poverty rates are based on prices of an average consumption basket rather than on prices of subsistence goods.\cite{sullivan_capitalist_2023} Therefore, the cost of a subsistence diet varies across countries. For instance, it is \$1.44 in Malawi vs. \$4.10 in Kenya (in 2011 PPP \$).\cite{moatsos_global_2016} Buidling on earlier work by Robert Allen that addresses these issues,\cite{allen_absolute_2017} Michail Moatsos computes a country-specific poverty line. This basic consumption (or \textit{BCS}) poverty line corresponds to the local price of the cheapest diet that meets caloric and protein requirements, completed with a ration of fat, sugar, and basic non-food requirements.\cite{moatsos_global_2016,moatsos_global_2021,sullivan_capitalist_2023} This alternative measure indicates that poverty % destitution? % On definitions of poverty, cite: Woodward & Abdallah (10) - no data but based on infant mortality rate, Pritchett (06) - 15$ based on HIC poverty lines, Edward (06) - 7$ based on kink in relation between GDP and life expectancy
+Second, the PPP adjustments applied to PIP data before computing the poverty rates are based on prices of an average consumption basket rather than on prices of subsistence goods \citep{sullivan_capitalist_2023}. Therefore, the cost of a subsistence diet varies across countries. For instance, \cite{moatsos_global_2016} computes that it is \$1.44 in Malawi vs. \$4.10 in Kenya (in 2011 PPP \$). Buidling on earlier work by \cite{allen_absolute_2017} that addresses these issues, \cite{moatsos_global_2016} computes a country-specific poverty line. This basic consumption (or \textit{BCS}) poverty line corresponds to the local price of the cheapest diet that meets caloric and protein requirements, completed with a ration of fat, sugar, and basic non-food requirements (see also \citealp{moatsos_global_2021}). This alternative measure indicates that poverty % destitution? % On definitions of poverty, cite: Woodward & Abdallah (10) - no data but based on infant mortality rate, Pritchett (06) - 15$ based on HIC poverty lines, Edward (06) - 7$ based on kink in relation between GDP and life expectancy
 is more prevalent than the official poverty line suggests. Despite missing data in many countries (including India and the D.R.C.), 14 countries have an average consumption level below this basic consumption poverty line in 2030 in the 3\% growth scenario. These countries (which include e.g. Nigeria) do not have sufficient domestic resources to lift their population above the BCS poverty line, equal to \$4.35/day in median, even after extreme internal redistribution. 
 % - Even worse when considering Moatsos' BCS line
 
@@ -374,7 +378,7 @@ countries will not be able to eradicate severe poverty with a cap at \$22.36/day
 \end{figure}
 
 Figure \ref{fig:antipoverty_tax_7} presents the (additional) tax rate above \$6.85/day required to generate enough revenues to close the domestic extreme poverty gap, in the baseline scenario of 
-3\% growth. The threshold of \$6.85/day is defined by the World Bank and corresponds to an ``acute'' poverty line which can be understood as the consumption level that can sustain a minimally decent life.\cite{hickel_is_2019,kikstra_decent_2021} In contrast, the extreme poverty line of \$2.15/day corresponds to the consumption per capita below which one is undernourished.\cite{allen_absolute_2017} 
+3\% growth. The threshold of \$6.85/day is defined by the World Bank and corresponds to an ``acute'' poverty line which can be understood as the consumption level that can sustain a minimally decent life \citep{hickel_is_2019,kikstra_decent_2021}. In contrast, the extreme poverty line of \$2.15/day corresponds to the consumption per capita below which one is undernourished \citep{allen_absolute_2017}. 
 
 Consistently with the previous findings, taxing income at a 100\% rate above \$6.85/day would not generate enough revenues to eliminate extreme poverty in the five poorest countries. In Nigeria, closing the extreme poverty gap would require taxing the ``non-acutely-poor'' at a marginal rate of 20\%. 
 On average over Sub-Saharan Africa, the anti-extreme-poverty tax would be 49\%, and 70\% in low-income countries (defined by the World Bank as countries with a GNI per capita below \$1,135 per year). Yet, imposing such a large tax burden on any income above just \$6.85/day seems unrealistic. 
@@ -414,12 +418,12 @@ Figure \ref{fig:demogrant_7__10} presents the income floor that can funded in 20
 %Although there are about as many countries that cannot close the extreme poverty gap with this tax (23) as there are low-income countries (27), only 13 countries fall into both of these groups. 
 For example, while Ethiopia (a low-income country) can finance an income floor of \$3.08/day, Nigeria (classified as a lower-middle-income country) can only finance a floor of \$1.83/day. 
 
-Even in a scenario with 7\% growth from 2023 onwards, 10 countries have an income floor below \$2.15 in 2030. Note that the picture does not significantly change when adjusting top incomes so that aggregate consumption matches national accounts:\cite{deaton_measuring_2005,prydz_disparities_2022} 
+Even in a scenario with 7\% growth from 2023 onwards, 10 countries have an income floor below \$2.15 in 2030. Note that the picture does not significantly change when adjusting top incomes so that aggregate consumption matches national accounts: % \citep{deaton_measuring_2005,prydz_disparities_2022}: 
 8 countries are still unable to close the extreme poverty gap despite very optimistic growth in this robustness check. In contrast, if the 7\% growth had started in 2016 (as the SDGs were set up), the 10\% tax would have been sufficient to eliminate extreme poverty in all countries except in Madagascar, where a tax of 23\% would have been required.
 
 At least two of the SDGs spell out how the elimination of extreme poverty could be funded. % https://sdgs.un.org/2030agenda
 First, the target 8.1 aims for ``at least 7 per cent gross domestic product growth per annum in the least developed countries''. As we have seen, a sustained high growth since 2016 would have permitted the least developed countries to eliminate extreme poverty through the mobilization of their domestic resources. However, high growth has never materialized in these countries. 
-Second, the target 17.2 calls for ``Developed countries to implement fully their official development assistance commitments, including the commitment by many developed countries to achieve the target of 0.7 per cent of ODA/GNI to developing countries and 0.15 to 0.20 per cent of ODA/GNI to least developed countries'' (LDCs). Foreign aid falls short of both the overall target (at 0.37\% of developed countries' GNI) and the LDCs' target (at 0.06\%). While just four countries are meeting their commitments (Luxembourg, Sweden, Norway, and Germany), the U.S. only allocates 0.23\% of its GNI to foreign aid.\cite{oecd_oda_2023} The global extreme poverty gap (0.17\% of global real GDP) is a bit lower than the shortfall of foreign aid relative to the target (0.2\% of global nominal GDP), suggesting that extreme poverty could be eradicated if developed countries respected their commitment. % OECD (high-income) countries represent 59% (61%) of the world nominal GDP, so shortfall of aid is 0.34*0.59=0.2% of global GDP in nominal. https://data.worldbank.org/indicator/NY.GDP.MKTP.CD
+Second, the target 17.2 calls for ``Developed countries to implement fully their official development assistance commitments, including the commitment by many developed countries to achieve the target of 0.7 per cent of ODA/GNI to developing countries and 0.15 to 0.20 per cent of ODA/GNI to least developed countries'' (LDCs). Foreign aid falls short of both the overall target (at 0.37\% of developed countries' GNI) and the LDCs' target (at 0.06\%). While just four countries are meeting their commitments (Luxembourg, Sweden, Norway, and Germany), the U.S. only allocates 0.23\% of its GNI to foreign aid \citep{oecd_oda_2023}. The global extreme poverty gap (0.17\% of global real GDP) is a bit lower than the shortfall of foreign aid relative to the target (0.2\% of global nominal GDP), suggesting that extreme poverty could be eradicated if developed countries respected their commitment. % OECD (high-income) countries represent 59% (61%) of the world nominal GDP, so shortfall of aid is 0.34*0.59=0.2% of global GDP in nominal. https://data.worldbank.org/indicator/NY.GDP.MKTP.CD
 However, to meet the broader SDGs and ``end poverty in all its forms'', the 0.7\% target would not suffice and international solidarity should be significantly strenghtened. %global redistribution would need to be significantly increased. % TODO? system change => already in conclusion
 % shorten: take out this paragraph
 
@@ -455,7 +459,7 @@ These rates are expressed on top of the current tax system and apply to post-tax
 % top 1%: 1M
 
 % Although the idea of an internationally redistributive tax may seem far-fetched, 
-Although internationally redistributive taxes have yet to take off, the proposal of a global wealth tax is gaining momentum.\cite{piketty_brief_2022} A 2\% tax on individual net wealth above \$1 billion would raise \$214 billion a year, slightly more than the global extreme poverty gap.\cite{tax_observatory_global_2024} Moreover, a global tax on the wealthiest 1\% can raise enough revenues to close the global acute poverty gap and lift everyone above \$6.85/day. For example, the \href{https://wid.world/world-wealth-tax-simulator}{WID wealth tax simulator} shows that a tax consisting of a 4\% marginal rate above \$1 million and 10\% above \$100 million would raise 4.4\% of the global GDP. More generally, a global tax on millionaires designed to be revenue-maximing in the long-run has the potential to finance the eradication of acute poverty. 
+Although internationally redistributive taxes have yet to take off, the proposal of a global wealth tax is gaining momentum \citep{piketty_brief_2022}. A 2\% tax on individual net wealth above \$1 billion would raise \$214 billion a year, slightly more than the global extreme poverty gap \citep{tax_observatory_global_2024}. Moreover, a global tax on the wealthiest 1\% can raise enough revenues to close the global acute poverty gap and lift everyone above \$6.85/day. For example, the \href{https://wid.world/world-wealth-tax-simulator}{WID wealth tax simulator} shows that a tax consisting of a 4\% marginal rate above \$1 million and 10\% above \$100 million would raise 4.4\% of the global GDP. More generally, a global tax on millionaires designed to be revenue-maximing in the long-run has the potential to finance the eradication of acute poverty. 
 
 In a nutshell, whereas poverty alleviation cannot be achieved rapidly without international solidarity, it can be financed by reasonable contributions from the global top 1\%.
 % - One example of global redistribution (incl. largest recipients/contributors)
@@ -463,7 +467,7 @@ In a nutshell, whereas poverty alleviation cannot be achieved rapidly without in
 
 \section{Discussion} 
 
-To paraphrase the UN, ``as things stand, the world is not on track to end poverty by 2030.''\cite{un_sustainable_2022} I have shown that the only prospect for low-income countries to eliminate extreme poverty on their own is the combination of strong growth, ambitious policies of social programs and internal redistribution, and time. 
+To paraphrase the \cite{un_sustainable_2022}, ``as things stand, the world is not on track to end poverty by 2030.'' I have shown that the only prospect for low-income countries to eliminate extreme poverty on their own is the combination of strong growth, ambitious policies of social programs and internal redistribution, and time. 
 With record growth and profound government committment, China has officially eradicated extreme poverty in 2021. The D.R.C. is poorer now than China in 1990, % https://data.worldbank.org/indicator/SI.POV.DDAY?locations=CD-CN-AE, https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD?locations=ET-CN-CD
 so even if it reproduces the Chinese miracle, it will not be able to eradicate extreme poverty on its own before 2055. 
 In contrast, international solidarity could end poverty more quickly and at a much lower welfare cost. In this paper, I have illustrated the magnitude of the required transfer of resources with idealized international taxes, but in reality this could take other forms such as a systemic change in the rules or structures of the world economy. 
@@ -471,8 +475,9 @@ To be fair, this paper only presents the orders of magnitude of global inequalit
 In practice, structural factors that sustain poverty (like wars or corruption) %, corruption, or deficient administrative capacity). 
 can also hamper the effectiveness of international action. %research can help design % uncovering?
 
-While concrete policy proposals have the potential % If... are the way
-to mobilize international solidarity,\cite{fabre_international_2023} research can help design effective policies to distribute resources to the poorest.
+% TODO! put back
+% While concrete policy proposals have the potential % If... are the way
+% to mobilize international solidarity \citep{fabre_international_2023}, research can help design effective policies to distribute resources to the poorest.
 % “As things stand, the world is not on track to end poverty by 2030,” (UN, 22)
 % # World Bank (2022): "It became clear that the global goal of ending extreme poverty by 2030 would not be achieved."
 % Paper shows that extreme poverty will not be eradicated in 2030 unless international transfers. 
@@ -511,13 +516,14 @@ All data and code of as well as figures of the paper are available on \href{http
 % \begin{addendum} % 177 words
 \begin{itemize}
  \item[Acknowledgments] I am grateful to Michalis Moatsos for his help in using his data. I thank Lidia Ceriani for providing her data. I thank Thomas Goumont and Elise Thai for research assistance. 
- \item[Competing Interests] I declare that I also serve as president of Global Redistribution Advocates.
+%  \item[Competing Interests] I declare that I also serve as president of Global Redistribution Advocates.
 \item[JEL codes] D63, I32, P16.
 \item[Keywords]  Poverty gap, Sustainable Development Goals, Domestic resource mobilization, Redistribution, Fiscal capacity, Extreme poverty.
- \item[Correspondence] Correspondence and requests for materials
-should be addressed to Adrien Fabre~(email: adrien.fabre@cnrs.fr).\end{itemize}
+%  \item[Correspondence] Correspondence and requests for materials should be addressed to Adrien Fabre~(email: adrien.fabre@cnrs.fr).
+\end{itemize}
 % \end{addendum}
 
+% \onehalfspacing
 \clearpage
 \listoftables
 \listoffigures

@@ -1,0 +1,201 @@
+% TODO! appendix with WID cainc data
+% TODO cite Sullivan et al 2023
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% NATURE CLIMATE CHANGE FORMAT %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Comment "% WPcomment" lines, uncomment "% NCCcomment" lines as well as the lines below, replace all citet/citep by cite
+
+% \documentclass{nature}
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{eurosym}
+% % The following allows keeping figures within the text (otherwise nature.cls would ignore them)
+% \usepackage{graphicx}
+% \makeatletter
+% \let\saved@includegraphics\includegraphics
+% \AtBeginDocument{\let\includegraphics\saved@includegraphics}
+% \renewenvironment*{figure}{\@float{figure}}{\end@float}
+% \makeatother
+
+% Nature guidelines (not NCC!)
+% Sections can only be used in Articles.  Contributions should be organized in the sequence: title, text, methods, references, Supplementary Information line (if any), acknowledgements, interest declaration, corresponding author line, tables, figure legends.
+
+% No subsubsection nor paragraph
+
+% Spelling must be British English (Oxford English Dictionary)
+
+%Each figure legend should begin with a brief title for the whole figure and continue with a short description of each panel and the symbols used. For contributions with methods sections, legends should not contain any details of methods, or exceed 100 words (fewer than 500 words in total for the whole paper). In contributions without methods sections, legends should be fewer than 300 words (800 words or fewer in total for the whole paper).
+
+% Articles are restricted to 50 references,
+
+% In addition, a cover letter needs to be written with the
+% following:
+% \begin{enumerate}
+%  \item A 100 word or less summary indicating on scientific grounds
+% why the paper should be considered for a wide-ranging journal like
+% \textsl{Nature} instead of a more narrowly focussed journal.
+%  \item A 100 word or less summary aimed at a non-scientific audience,
+% written at the level of a national newspaper.  It may be used for
+% \textsl{Nature}'s press release or other general publicity.
+%  \item The cover letter should state clearly what is included as the
+% submission, including number of figures, supporting manuscripts
+% and any Supplementary Information (specifying number of items and
+% format).
+%  \item The cover letter should also state the number of
+% words of text in the paper; the number of figures and parts of
+% figures (for example, 4 figures, comprising 16 separate panels in
+% total); a rough estimate of the desired final size of figures in
+% terms of number of pages; and a full current postal address,
+% telephone and fax numbers, and current e-mail address.
+% \end{enumerate}
+
+% See \textsl{Nature}'s website
+% (\texttt{http://www.nature.com/nature/submit/gta/index.html}) for
+% complete submission guidelines.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% WORKING PAPER FORMAT %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Comment "% NCCcomment" lines, uncomment "% WPcomment" lines as well as the lines below
+\documentclass[12pt,english]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tgpagella} % Palatino text only
+\usepackage{mathpazo}  % Palatino math & text
+\usepackage[left=1.5in,right=1.5in,top=1.5in,bottom=1.5in]{geometry}
+\linespread{2}
+% \usepackage[super,comma,sort]{natbib} % WPcomment
+\usepackage[round,sort&compress]{natbib} % NCCcomment
+\usepackage{url} % [hyphens]
+\usepackage[hyperpageref]{backref} % back references biblio. Needs latexmk at compilation.
+\usepackage[pagebackref]{hyperref}
+% \usepackage{multibib} % incompatible with backref
+\hypersetup{
+  colorlinks=true, % breaklinks=true,
+  urlcolor=purple,    % color of external links
+  linkcolor=blue,  % color of toc, list of figs etc.
+  citecolor=violet,   % color of links to bibliography
+}
+\usepackage{bm}
+\usepackage{indentfirst}
+\setcitestyle{aysep={}} 
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{eurosym}
+\usepackage{amsfonts}
+\usepackage{enumerate}
+\usepackage{babel}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{supertabular}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{dsfont}
+\usepackage{fancyvrb}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{comment}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{gensymb}
+\usepackage{textcomp}
+\usepackage{placeins} % Floats appear in their section (to use with \FloatBarrier or [section])
+
+\usepackage{tabulary}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{fullpage}
+\usepackage{morefloats}
+\usepackage{makecell}
+\usepackage{lscape}
+\usepackage{pdflscape}
+\usepackage{longtable}
+\usepackage{rotating}
+\usepackage{fancyhdr}
+\usepackage{tocbibind} % Adds biblio to ToC
+% \usepackage{tocloft}
+\usepackage{titletoc} % Adds title to ToC (use with tocloft?)
+\usepackage[export]{adjustbox}
+\usepackage[anythingbreaks]{breakurl} % for links
+\usepackage{multicol}
+\usepackage{lineno}
+\linenumbers
+\makeatletter
+\renewcommand\tableofcontents{% removes "Contents" from ToC
+    \@starttoc{toc}%
+}
+\makeatother
+\newsavebox\ltmcbox % For net gain table over two columns
+%\usepackage[nomarkers,figuresonly]{endfloat} % Figures at the end
+%\usepackage[section,below]{placeins} % Floats placed in the section they appear in.
+\renewcommand{\floatpagefraction}{.99}
+\newenvironment{stretchpars}{\par\setlength{\parfillskip}{0pt}}{\par} % to justify a line
+
+% % Getting landscape page and page number/footer on bottom of page (instead of to the left)
+% \fancypagestyle{mylandscape}{
+% \fancyhf{} %Clears the header/footer
+% \fancyfoot{% Footer
+% \makebox[\textwidth][r]{% Right
+%   \rlap{\hspace{1.5cm}% Push out of margin by \footskip
+%     \smash{% Remove vertical height
+%       \raisebox{13.6cm}{% Raise vertically
+%         \rotatebox{90}{\thepage}}}}}}% Rotate counter-clockwise
+% \renewcommand{\headrulewidth}{0pt}% No header rule
+% \renewcommand{\footrulewidth}{0pt}% No footer rule
+% }
+
+% \fancypagestyle{page_left}{%
+% 	\renewcommand{\headrulewidth}{0pt}
+%   \fancyhf{}
+%   \fancyfoot[OC]{%
+%       \begin{tikzpicture}[remember picture,overlay]
+%           \node[xshift=1cm] (number) at (current page.west) {\thepage};
+%       \end{tikzpicture}
+%   }%
+% }
+% \renewcommand{\thesubfigure}{\Alph{subfigure}}
+
+% \newcites{App}{Appendix References}
+
+% \captionsetup[table]{skip=-10pt}
+% \begin{document}
+
+% \maketitle
+
+% \clearpage
+% % \startcontents
+% % \printcontents{ }{1}{\section{\contentsname}}
+% % \clearpage
+% \section{Introduction\label{sec:intro}}
+
+% % \clearpage
+% \renewcommand{\bibsection}{\section{\refname}}
+% \bibliographystyle{naturemag}
+% \bibliography{global_tax_attitudes}
+% % \stopcontents
+
+% \end{document}
+
+
+\title{Shortfall of Domestic Resources\\ to Eradicate Extreme Poverty by 2030} 
+
+% \author{Adrien Fabre$^{1,2}$} % WPcomment
+\author{Adrien Fabre\footnote{CNRS, CIRED. E-mail: adrien.fabre@cnrs.fr.}}
+% I thank Michalis Moatsos for his help in using his data. I thank Thomas Goumont and Elise Thai for assistance. I declare that I also serve as president of Global Redistribution Advocates.} % NCCcomment 
+
+\date{\today} % NCCcomment
+
+\begin{document}
+
+\sloppy
+\maketitle
+
+\begin{abstract}
+  % 144/150 words
+  In 2015, the Sustainable Development Goals set the eradication of extreme poverty by 2030 as a universally agreed objective. 
+  This paper analyses the prospects for achieving this goal country by country. Without redistribution, even with a very optimistic annual growth rate of 7\% between 2022 and 2030, 3\% of humans would still be living in extreme poverty in 2030. National capacity to eradicate poverty is then measured using the concepts of \textit{antipoverty cap} or \textit{antipoverty tax} required to finance poverty eradication, and \textit{income floor} (financed by a given income tax). With credible annual growth of 3\%, even capping incomes at \$7 a day cannot eradicate extreme poverty in 5 low-income countries. In other words, neither growth alone nor growth combined with radical internal redistribution could eradicate extreme poverty by 2030. By contrast, a transfer of just 0.14\% of global income could achieve this goal.
+\end{abstract}
+
+\end{document}
