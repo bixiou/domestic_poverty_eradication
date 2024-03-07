@@ -1372,3 +1372,13 @@ cat(sub("Low-Income", "\\\\midrule Low-Income", sub("Algeria", "\\\\midrule Alge
 #         paste(kbl(table_gain, "latex", caption = "Net gain per country of a global antipoverty tax, for most populous countries in 2030 after 3\\% growth.", position = "b", escape = F, booktabs = T, digits = 2, linesep = rep("", nrow(table_gain)-1), longtable = F, label = "tax", # National accounts  rescaling
 #                   caption.short = "Net gain per country of a global antipoverty tax.", col.names = NULL), collapse="\n"))), file = "../tables/gain.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
 
+
+
+##### 1% of richest billion doubles poorest billion #####
+
+# Check: 1% from top 1G => x? on bottom 1G.
+mean(as.numeric(w[,paste0("y_2022_avg_", 1:12)])) # $1.9/day: average conso of poorest billion (=> 1.3% of PPP conso of richest billion) - same with HFCE-adjustment
+mean(as.numeric(ws[,paste0("y_2022_avg_", 89:100)])) # $143/day (HFCE-adjusted)
+mean(as.numeric(w[,paste0("y_2022_avg_", 89:100)])) # $92/day
+sum(w[,paste0("y_2022_pop_share_", 1:13)]) 
+mean(as.numeric(w[,paste0("y_2022_avg_", 1:16)])) # $2.13
