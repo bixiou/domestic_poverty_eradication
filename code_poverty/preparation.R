@@ -509,14 +509,14 @@ create_appendix_table <- function(fun, ncol = NULL, poverty_thresholds = NULL, e
 pop <- read.csv("../data/future population by age 2022.csv") # https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2022_PopulationByAge5GroupSex_Medium.zip
 pop <- pop[, c("Location", "ISO2_code", "ISO3_code", "Time", "AgeGrpStart", "PopTotal")]
 pop$PopTotal <- 1e3 * pop$PopTotal
-pop <- pop[pop$Time %in% c(sort(unique(p$year)), 2030),]
+pop <- pop[pop$Time %in% c(sort(unique(p$year)), 2030),] # TODO! p not defined yet. Simply remove?
 pop_iso3 <- aggregate(PopTotal ~ Time + ISO3_code, data = pop, FUN = sum)
 pop_iso3 <- pop_iso3 %>% pivot_wider(names_from = Time, values_from = PopTotal)
 names(pop_iso3) <- c("country_code", paste0("pop_", names(pop_iso3)[-1]))
 rm(pop)
 
 pop_rural_urban <- read.csv2("../data/pop_rural_urban.csv") # Last updated 07/05/2023 https://databank.worldbank.org/source/population-estimates-and-projections/preview/on#
-LIC <- c("AFG", "BFA", "BDI", "TCD", "COD", "ERI", "ETH", "GMB", "GIN", "GNB", "PRK", "LBR", "MDG", "MWI", "MLI", "MOZ", "NER", "RWA", "SOM", "SRE", "SDN", "SSD", "SYR", "TGO", "UGA", "YEM", "ZMB") # 2023 official classification. LIC: 650M people
+LIC <- c("AFG", "BFA", "BDI", "TCD", "COD", "ERI", "ETH", "GMB", "GIN", "GNB", "PRK", "LBR", "MDG", "MWI", "MLI", "MOZ", "NER", "RWA", "SOM", "SRE", "SDN", "SSD", "SYR", "TGO", "UGA", "YEM", "ZMB") # 2023 official classification. LIC: 650M people TODO! remove ZMB, no longer in the list
 SSA <- c("SDN", "AGO", "GIN", "GMB", "GNB", "GNQ", "BDI", "BEN", "BFA", "SEN", "BWA", "CAF", "SLE", "SOM", "SSD", "CIV", "CMR", "COD", "COG", "COM", "LBR", "LSO", "RWA", "SWZ", "TCD", "TGO", "MLI", "MDG", "DJI", "ERI", "ESH", "ETH", "MWI", "MUS", "MRT", "MOZ", "TZA", "UGA", "ZMB", "ZWE", "NGA", "NER", "NAM", "GHA", "GAB", "ZAF")
 # setdiff(p$country_code[p$country_code %in% LIC & !is.na(p$welfare_avg_1)], SSA) # SYR, YEM
 # setdiff(SSA, LIC) # many
