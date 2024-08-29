@@ -1,0 +1,485 @@
+% \documentclass[aspectratio=169,xcolor=dvipsnames, 11pt,mathserif]{beamer} 
+% Put this line above \input{preamble_slides.tex} otherwise it may cause bug
+
+%\documentclass[xcolor=dvipsnames,mathserif]{beamer} % this option has curvier math
+%\documentclass[xcolor=dvipsnames,11pt]{beamer}
+% Note: the color structure needs to be added here in the title. Now it recognizes all beamer % colors.
+
+%%%%%%%%  PRESENTATION LAYOUT:
+\usepackage{appendixnumberbeamer} % this package does not count the appendix pages. /!\ Inconstant behavior, sometimes bug.
+\mode<presentation>
+{
+  \usetheme{Boadilla}
+  \usecolortheme{lily} % lily is nice or orchid but not for definition
+  \setbeamercovered{invisible}
+  \setbeamertemplate{footline}{\raggedleft\insertframenumber~/~\inserttotalframenumber\hspace*{3pt}\vskip3pt} %this command shows frame number, not page number at bottom (means if using overlays, % frame number does not change)
+%\setbeamertemplate{footline}[page number]  % this puts only page number on bottom
+ \setbeamertemplate{navigation symbols}{t}  % this erases navigation symbols.
+ \setbeamersize{text margin left=0.1cm, text margin right=0.1cm} % left=0.2cm
+ \setbeamertemplate{frametitle}[default][center]
+ \setbeamercolor{frametitle}{fg=black}
+ \setbeamerfont{frametitle}{size=\large, series=\bfseries} % Modifies frame title font.
+ \setbeamercolor{button}{fg=blue, bg=white}
+ \setbeamertemplate{itemize item}[circle]
+ \setbeamercolor{itemize item}{fg=black}
+ \setbeamercolor{itemize/enumerate body}{fg=black}
+ \setbeamerfont{framesubtitle}{series=\mdseries}
+}
+
+\renewcommand{\familydefault}{\rmdefault} %Options here are \ttdefault \ssdefault or \rmdefault.
+
+% This defines actual color palette; 
+\definecolor{blue}{RGB}{0,114,178}
+\definecolor{orangered}{RGB}{213,94,0}
+\definecolor{yellow}{RGB}{240,228,66}
+\definecolor{green}{RGB}{0,158,115}
+\definecolor{orange}{RGB}{230,159,0}
+
+\hypersetup{
+  colorlinks = false,
+  linkbordercolor = {white},
+  linkcolor = {blue}
+}
+
+%%% Color customization: where these colors are used. 
+\colorlet{cwords}{blue} %this defines a color, stored under the name cwords that will be used and recognized in document.
+\colorlet{cwordsc}{red} %color for contrast with some other word.
+\colorlet{cwords2}{green} %2nd color for contrast with some other word.
+\colorlet{cmath}{blue} %color for math in text.
+%\everymath{\color{blue}} % This in conjunction with the everysel package sets color of math
+% \everydisplay{\color{blue}} % BUGS with "align" environment
+
+
+%%%%%%%%  PACKAGES USED:
+\usepackage{amsmath}
+\usepackage{setspace} % Only needed for spacing
+\usepackage{changepage} % Only needed for local margin setting
+\usepackage{mathpazo}% font, is overwritten by times
+%\usepackage[hypertexnames=false]{hyperref} %This makes hyperref ``dumber'', and, hence, more robust! (otherwise sometimes the appendix links don't work).
+\usepackage{hyperref}
+\usepackage{multimedia}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{caption}
+%\usepackage{subfig}
+\usepackage{subfloat}
+\usepackage[en-US]{datetime2}
+\usepackage{tabulary}
+\usepackage{tabularx}
+\usepackage{makecell} % multiline cells in tables
+\usepackage{array,booktabs} % Needed for esttab tables according to the "inequality survey."
+\newcommand{\sym}[1]{{#1}} % for symbols in Table
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{times} % This is a different font.
+\usepackage[overlay,absolute]{textpos}
+%%%\usepackage{animate} % Animate graphs BUG
+\setlength{\TPHorizModule}{1cm}
+\setlength{\TPVertModule}{1cm}
+\captionsetup[figure]{labelformat=empty} % removes caption prefix figure
+\setlength{\itemsep}{\fill} % this is supposed to stretch items across full frame.
+%\setlength{\parskip}{0.8\baselineskip} % This affects spacing between normal lines (not itemized).
+\usepackage{colortbl} % For cell colors
+\usepackage[final]{pdfpages}
+\usepackage{caption}
+\usepackage{subcaption}
+%\captionsetup{justification   = raggedright,
+%              singlelinecheck = false}
+%\usepackage{adjustbox} % to use resizebox for tables size.
+\usepackage[export]{adjustbox} % to use resizebox for tables size.
+\usepackage{eurosym}
+\usepackage{gensymb}
+\usepackage{dsfont}
+\usepackage{multicol}
+%\usepackage{enumitem}
+%\setlist[itemize]{leftmargin=*} % remove margin from itemize
+
+%% TIKZ
+\usepackage{tikz}
+% \usetikzlibrary{er, positioning,decorations.pathmorphing,calc}
+% \usepackage{tikzscale}
+% %% TIKZIT
+% \usetikzlibrary{backgrounds}
+% \usetikzlibrary{arrows}
+% \usetikzlibrary{shapes,shapes.geometric,shapes.misc}
+% % this style is applied by default to any tikzpicture included via \tikzfig
+% \tikzstyle{tikzfig}=[baseline=-0.25em,scale=0.5]
+% % these are dummy properties used by TikZiT, but ignored by LaTex
+% \pgfkeys{/tikz/tikzit fill/.initial=0}
+% \pgfkeys{/tikz/tikzit draw/.initial=0}
+% \pgfkeys{/tikz/tikzit shape/.initial=0}
+% \pgfkeys{/tikz/tikzit category/.initial=0}
+% % standard layers used in .tikz files
+% \pgfdeclarelayer{edgelayer}
+% \pgfdeclarelayer{nodelayer}
+% \pgfsetlayers{background,edgelayer,nodelayer,main}
+% % style for blank nodes
+% \tikzstyle{none}=[inner sep=0mm]
+% % include a .tikz file
+% \newcommand{\tikzfig}[1]{%
+% {\tikzstyle{every picture}=[tikzfig]
+% \IfFileExists{#1.tikz}
+%   {\input{#1.tikz}}
+%   {%
+%     \IfFileExists{../figures/#1.tikz}
+%       {\input{../figures/#1.tikz}}
+%       {\tikz[baseline=-0.5em]{\node[draw=red,font=\color{red},fill=red!10!white] {\textit{#1}};}}%
+%   }}%
+% }
+% % the same as \tikzfig, but in a {center} environment
+% \newcommand{\ctikzfig}[1]{%
+% \begin{center}\rm
+%   \tikzfig{#1}
+% \end{center}}
+% % fix strange self-loops, which are PGF/TikZ default
+% \tikzstyle{every loop}=[]
+% \newcommand*\halfcirc{%
+% %  \begin{tikzpicture}
+% %  \draw[fill] (2,1)-- (90:1ex) arc (90:270:1ex) -- cycle ;
+% %  \draw (2,1) circle (1ex);
+% %  \end{tikzpicture}
+% }
+  
+% \input{../latex/default.tikzstyles}
+
+
+% \tikzset{every entity/.style={draw=black, fill=white}}
+% \tikzset{comment/.style={draw=white, fill=white}}
+% \tikzset{
+% 	invisible/.style={opacity=0},
+% 	visible on/.style={alt=#1{}{invisible}},
+% 	alt/.code args={<#1>#2#3}{%
+% 		\alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+% 	},
+% }
+
+% Commands from template
+\newcommand{\alrt}[1]{{\color{alert} #1}}
+\newcommand{\alrtl}[1]{{\color{alert}\large #1}}
+\newcommand{\alrtL}[1]{{\color{alert}\Large #1}}
+\newcommand{\struc}[1]{{\color{structure} #1}}
+\newcommand{\strucL}[1]{{\color{structure}\Large #1}}
+\newcommand{\strucl}[1]{{\color{structure}\large #1}}
+\newcommand{\dred}[1]{{\color{darkred} #1}}
+\newcommand{\dredl}[1]{{\color{darkred}\large #1}}
+\newcommand{\dredL}[1]{{\color{darkred}\Large #1}}
+\newcommand{\altc}[1]{{\color{darkgreen}\textbf{#1}}}
+\newcommand{\altcl}[1]{{\color{darkgreen}\textbf{\large #1}}}
+\newcommand{\altcL}[1]{{\color{darkgreen}\textbf{\Large #1}}}
+\newcommand{\hush}{\hushit}
+\newcommand{\hushalrt}[1]{\hushit{{\color{alert} #1}}}
+\newcommand{\hushalrtl}[1]{\hushit{{\large\color{alert} #1}}}
+\newcommand{\hushalrtL}[1]{\hushit{{\Large\color{alert} #1}}}
+\newcommand{\hushstruc}[1]{\hushit{{\color{structure} #1}}}
+\newcommand{\hushstrucl}[1]{\hushit{{\large\color{structure} #1}}}
+\newcommand{\hushstrucL}[1]{\hushit{{\Large\color{structure} #1}}}
+
+
+\setbeamertemplate{caption}[numbered]
+
+%%%%%%% SIGN NOBEL PRIZE %%%%%%%%
+\usepackage{wasysym}
+\newcommand{\nobel}{$\taurus$} % other possibilities:\logof\odot\varocircle\taurus\kreuz
+\newcommand{\Nobel}[1]{$\taurus_{#1}$}
+\newcommand{\Leontief}[1]{$\logof_{#1}$}
+\newcommand{\leontief}{$\logof_$}
+
+%%%%%%%%%SECTION TITLES DISPLAYED ON FULL PAGE %%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}{\huge \color{orangered} \insertsectionhead} \par
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\AtBeginSubsection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}{\huge \color{blue} \insertsubsectionhead} \par
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+%
+% Custom font for a frame.
+%
+\usepackage{environ}
+\newcommand{\customframefont}[1]{
+\setbeamertemplate{itemize/enumerate body begin}{#1}
+\setbeamertemplate{itemize/enumerate subbody begin}{#1}
+}
+
+\NewEnviron{framefont}[1]{
+\customframefont{#1} % for itemize/enumerate
+{#1 % For the text outside itemize/enumerate
+\BODY
+}
+\customframefont{\normalsize}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% OTHER PIECES OF TEMPLATE FILE
+%%%%%% DELETE ONCE CLEAR THAT NOTHING IS MISSING
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%\documentclass[aspectratio=169]{beamer} % wide
+%\usepackage{amsmath,amsthm,fancyhdr,setspace,graphicx,booktabs,pdflscape}
+%\usepackage{geometry}
+%\usepackage{etex}
+%\usepackage{xcolor,colortbl}
+%\usepackage{beamerprosper}
+%\usepackage{url}
+%\usepackage{enumerate}
+%\usepackage{graphicx}
+%\usepackage{hyperref}
+%\usepackage{multicol}
+%\usepackage{caption}
+%\usepackage{beamerprosper}
+%\usepackage{pgfpages, pdfpages}
+%\usepackage{tikz-cd}
+%
+%\usepackage{tabularx}
+%\usepackage{anyfontsize}
+%\usepackage{multicol,tabto}
+%
+%\usepackage{float}
+%\usepackage{soul}
+%\usepackage{grffile}
+%\usepackage{changepage}
+%\usepackage{sansmathaccent}
+%\pdfmapfile{+sansmathaccent.map}
+%
+%
+%\usetikzlibrary{er,positioning,calc,decorations.pathreplacing}
+%
+%\mode<presentation>
+%\usefonttheme{structuresmallcapsserif}
+%\setbeamertemplate{footline}[frame number]{}
+%\setbeamertemplate{navigation symbols}{}
+%
+%%change font
+%\usefonttheme{default}
+%\setbeamertemplate{footline}[frame number]{}
+%\setbeamertemplate{navigation symbols}{}
+%
+%\newcommand{\fig}[3]{\begin{frame}\frametitle{#2}\centerline{\includegraphics[width=#3in]{#1}}\end{frame}}
+%
+%\newcommand{\blackslide}[1]{\beamersetaveragebackground{black}\begin{frame}\frametitle{}\end{frame}\beamersetaveragebackground{white}}
+%
+%% pause commands
+%\newcommand{\m}[2]{\begin{frame}\frametitle{#1}{ #2}\end{frame}}
+%\newcommand{\mm}[3]{\begin{frame}\frametitle{#1}\uncover<1->{ #2}\uncover<2->{ #3 }\end{frame}}
+%\newcommand{\mmm}[4]{\begin{frame}\frametitle{#1}\uncover<1->{ #2}\uncover<2->{ #3 }\uncover<3->{ #4 }\end{frame}}
+%\newcommand{\mmmm}[5]{\begin{frame}\frametitle{#1}\uncover<1->{ #2}\uncover<2->{ #3 }\uncover<3->{ #4 }\uncover<4->{ #5 }\end{frame}}
+%
+%\setlength{\footskip}{24pt}
+%
+%\newcommand{\ex}{\mathbf{E}}
+%\newcommand{\cov}{\mathbb{C}}
+%\newcommand{\var}{\mathbb{V}}
+%\newcommand{\tu}{\overline{\theta}}
+%\newcommand{\vu}{\overline{v}}
+%\newcommand{\tl}{\underline{\theta}}
+%\newcommand{\ab}{\bar{a}}
+%\newcommand{\lb}{\bar{L}}
+%\newcommand{\hb}{\bar{H}}
+%
+%% New colors.
+%\definecolor{darkred}{rgb}{0.6,0,0}
+%\definecolor{darkblue}{rgb}{.15,.25,.55}
+%\definecolor{darkgreen}{rgb}{0,.35,.05}
+%\definecolor{ltgreen}{rgb}{0,.05,.8}
+%\definecolor{bred}{rgb}{1,0,.05}
+%\definecolor{navy}{rgb}{.1,.1,.5}
+%
+%% from beamer lecture 
+%
+%\newtheorem{proposition}{Proposition}
+%%\newtheorem{theorem}{Theorem}
+%
+%\newenvironment{changemargin}[2]{%
+%    \begin{list}{}{ %
+%%        \setlength{\topmargin}{#3}%
+%            \setlength{\topsep}{0pt}%
+%            \setlength{\leftmargin}{#1}%
+%            \setlength{\rightmargin}{#2}%
+%            \setlength{\listparindent}{\parindent}%
+%            \setlength{\itemindent}{\parindent}%
+%            \setlength{\parsep}{\parskip}%
+%        }%
+%\item[]}{\end{list}}
+%
+%%Allows us to force a column width in array environment
+%\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+%\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+%\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+
+%%SHORTCUTS
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Bullets
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% These six lines allows to define "myItemize" environment where nested lists appear at once in overlays
+%\let\oldItemize\itemize
+%\let\endoldItemize\enditemize
+%\newcommand{\myItemize}[1][<1->]{\oldItemize[#1]}
+%\def\endmyItemize{\endoldItemize}
+%\let\itemize\myItemize
+%\let\enditemize\endmyItemize
+
+\newcommand{\p}{\item}
+\newcommand{\ip}{\item[]} % Invisible items.
+\newcommand{\bb}{\begin{itemize}\itemsep15pt}
+\newcommand{\bbs}{\medskip \begin{itemize}[<1->]\itemsep10pt}
+\newcommand{\bbsp}{\medskip \begin{itemize}[<+->]\itemsep10pt}% items appear progressively
+\newcommand{\bbvs}{
+	\settowidth{\leftmargini}{\usebeamertemplate{itemize item}} % Remove identation of itemize 
+	\medskip \begin{itemize}[<1->]\itemsep3pt  
+	\setlength{\leftmargini}{0.4cm} % to adjust left margin of items
+ 	\setlength{\leftmarginii}{0.3cm} % same for nested items \setlength{\leftmarginiii}{0cm}
+} %  \setlength\itemsep{3pt}
+\newcommand{\bbvsp}{ % items appear progressively
+	\settowidth{\leftmargini}{\usebeamertemplate{itemize item}}
+	\medskip \begin{itemize}[<+->]\itemsep3pt % replace myItemize by itemize to have nested items also appear one by one
+	\setlength{\leftmargini}{0.4cm} 
+ 	\setlength{\leftmarginii}{0.3cm}
+}
+\newcommand{\bbvsn}{ % no margin
+	\settowidth{\leftmargini}{\usebeamertemplate{itemize item}} %  
+	\medskip \begin{itemize}[<1->]\itemsep3pt  
+	\setlength{\leftmargini}{0.4cm}
+ 	\setlength{\leftmarginii}{-0cm} 
+} %  \setlength\itemsep{3pt}
+\newcommand{\bbvsnp}{ % items appear progressively
+	\settowidth{\leftmargini}{\usebeamertemplate{itemize item}}
+	\medskip \begin{itemize}[<+->]\itemsep3pt
+	\setlength{\leftmargini}{0.4cm} 
+ 	\setlength{\leftmarginii}{-0cm}
+}
+\newcommand{\ee}{\end{itemize} 
+\smallskip}
+\newcommand{\ees}{\end{itemize} }
+
+\newcommand{\ben}{\begin{enumerate}}
+\newcommand{\een}{\end{enumerate}}
+
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\orangered}[1]{\textcolor{orangered}{#1}}
+\newcommand{\orange}[1]{\textcolor{orange}{#1}}
+\newcommand{\yellow}[1]{\textcolor{yellow}{#1}}
+\newcommand{\magenta}[1]{\textcolor{magenta}{#1}}
+\newcommand{\rose}[1]{\textcolor{magenta}{#1}}
+
+\newcommand{\can}{\citeasnoun}
+\newcommand{\ican}{\iciteasnoun}
+
+\newcommand{\non}{\nonumber}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Derivatives and partials. 
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Duplicate: two ways to get partials
+\newcommand{\pa}[2]{\frac{\partial #1}{\partial #2}} % Stef
+\newcommand{\pder}[2]{\frac{\partial #1}{\partial #2}} % Doug
+
+\newcommand{\dneu}{\mbox{d}}
+\newcommand{\di}[2]{\frac{\dneu #1}{\dneu #2}}
+%% Duplicate: two ways to get derivatives.
+\newcommand{\dd}[2]{\frac{d #1}{d #2}} % Stef version
+\newcommand{\der}[2]{\frac{d#1}{d#2}} % Doug version
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Brackets and fractions
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newcommand{\fr}[2]{\frac{#1}{#2}}
+\newcommand{\pfr}[2]{\left(\frac{#1}{#2}\right)}
+\newcommand{\bfr}[2]{\left[\frac{#1}{#2}\right]}
+\newcommand{\cfr}[2]{\left\{\frac{#1}{#2}\right\}}
+
+\newcommand{\pr}[1]{\left(#1\right)}
+\newcommand{\br}[1]{\left[#1\right]}
+\newcommand{\cb}[1]{\left\{#1\right\}}
+\newcommand{\qand}{\quad\text{and}\quad}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ARROWS
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\Ra}{\Rightarrow}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\Ras}{\ \Rightarrow\ }
+\newcommand{\ras}{\ \rightarrow\ }
+\newcommand{\Raq}{\quad\Rightarrow\quad}
+\newcommand{\raq}{\quad\rightarrow\quad}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MATH
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\E}[1]{\mathbb{E}\br{#1}}
+\newcommand{\eps}{\varepsilon}
+
+\newcommand{\be}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+
+\newcommand{\bean}{\begin{eqnarray*}}
+\newcommand{\eean}{\end{eqnarray*}}
+
+\newcommand{\ba}{\begin{array}}
+\newcommand{\ea}{\end{array}}
+
+
+\newcommand{\lb}{\linebreak}
+\newcommand{\strich}[2]{\left. #1 \right|_{#2}}
+% use \left. before
+
+
+%\newcommand{\bean}{\begin{multline*}}
+%\newcommand{\eean}{\end{multline*}}
+
+\newcommand{\nl}{\newline}
+\newcommand{\np}{\newpage}
+
+\newcommand{\rf}[1]{(\ref{#1})}
+
+\newcommand{\1}{\mathds{1}}
+
+\newcommand{\ds}{\displaystyle}
+\newcommand{\fn}{\footnote}
+
+\newcommand{\var}{\mbox{Var}}
+\newcommand{\cov}{\mbox{Cov}}
+
+\newcommand{\il}{\int\limits}
+
+\newcommand{\li}{\left}
+\newcommand{\re}{\right}
+
+\newcommand{\s}{\right|_}
+
+\newcommand{\ambigo}{\ba{c}>\\[-3mm]<\ea}
+\newcommand{\ambigu}{\ba{c}<\\[-3mm]>\ea}
+
+\newcommand{\ul}{\underline}
+\newcommand{\ol}{\overline}
+
+\newcommand{\e}{\mbox{\euro{} }}

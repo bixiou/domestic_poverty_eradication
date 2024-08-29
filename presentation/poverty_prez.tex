@@ -1,0 +1,295 @@
+\documentclass[aspectratio=169,xcolor=dvipsnames, 11pt,mathserif]{beamer} 
+\input{preamble_slides.tex}
+\usepackage{multicol}
+\usepackage{fourier}
+              
+\begin{document}
+
+\begin{frame}
+\thispagestyle{empty}
+\begin{center}
+\begin{LARGE}
+\textcolor{blue}{Shortfall of Domestic Resources\\ to Eradicate Extreme Poverty by 2030}
+\end{LARGE}
+
+\vspace{1cm}
+\textbf{Adrien Fabre} (CNRS, CIRED)
+
+%\vspace{-0.3cm}
+%OECD/CAE \\
+\medskip
+\DTMlangsetup{showdayofmonth=false}
+\textit{August 2024} 
+%\textit{\today} 
+
+\end{center}
+
+\bigskip
+
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{Poverty eradication}
+    \begin{figure}
+    \only<12>{\caption{GDP per capita in PPP, relative to world average (2023).}}
+    \only<-12>{\includegraphics<+>[height=.9\paperheight]{../figures/10_distribution-of-population-poverty-thresholds}%
+    \includegraphics<+>[height=.9\paperheight]{../figures/10_share-of-population-in-extreme-poverty2}%
+    \includegraphics<+>[height=.9\paperheight]{../figures/10_Extreme-Poverty-projection-by-the-World-Bank-to-2030}%
+    % \includegraphics<+>[height=.9\paperheight]{../figures/10_poverty_uptick}%
+    \includegraphics<+>[height=.9\paperheight]{../figures/10_size-poverty-gap-countries}%
+    \includegraphics<+>[height=.9\paperheight]{../figures/10_global_distribution_1988}%
+    \includegraphics<+>[height=.9\paperheight]{../figures/10_global_distribution_1993}%
+    \includegraphics<+>[height=.9\paperheight]{../figures/10_global_distribution_1998}%
+    \includegraphics<+>[height=.9\paperheight]{../figures/10_global_distribution_2003}%
+    \includegraphics<+>[height=.9\paperheight]{../figures/10_global_distribution_2008}%
+    \includegraphics<+>[height=.9\paperheight]{../figures/10_global_distribution_2011}%
+    \includegraphics<+>[height=.8\paperheight]{../figures/10_global_distribution_2020}%
+    \includegraphics<+>[height=.8\paperheight]{../figures/10_GDP_pc_PPP_few}}
+    \end{figure}
+    \bbsp
+    \ip \rose{Extreme poverty := \$2.15 a day} (in 2017 PPP \$) $\approx$ threshold of undernourishment. % 1.90_2011, 1.25_2005, 1_1993
+    \ip \textit{Severe} poverty := \$3.65/day. \quad \textit{Acute} poverty := \$6.85/day.
+    \ip SDG 1 (2015): Eradicate extreme poverty by 2030. % (EEP 30).
+    \ip \blue{Can we eradicate extreme poverty by 2030?}
+    \ip $\Rightarrow$ Let's use idealized redistributive policies to assess each country's capacity to end poverty.
+    \ee
+\end{frame}
+
+\section{Methodology}
+
+\begin{frame}{Idealized redistributive policies} % Indicators of poverty reduction capacity
+    \bbsp
+    \ip Tax policies that would \blue{raise enough revenues} to eradicate poverty.
+    \ip \textbf{\blue{Antipoverty cap}}: Taxation threshold required, assuming a 100\% tax above the threshold.
+    \ip \textbf{\blue{Antipoverty tax}}: Tax rate required, given the taxation threshold.
+    \ip Realistic tax: fix a credible taxation threshold and tax rate.
+    \ip $\Rightarrow$ \textbf{\blue{Fundable income floor}} that can be funded with such tax.
+    \ip \warning These policies are idealized (assume administrative capacity at no cost, no distorsion) $\Rightarrow$ upper bound of what they could achieve.
+    \ee
+\end{frame}
+
+\begin{frame}{Literature}
+    \bbvsp
+    % \ip Antipoverty tax are used to measure domestic capacity to eradicate poverty since Ravallion (2010) and Ceriani \& Verme (2014).
+    \ip Ravallion (2010): a 100\% tax above the U.S. poverty line insufficient to eradicate extreme poverty in 29 countries.
+    \ip \rose{Bolch, Ceriani \& López-Calva (2022)} (BCL): \blue{a 100\% above the U.S. poverty line insufficient to eradicate \textit{severe} poverty in 62 countries}.
+    \ip $\Rightarrow$ 3 contributions w.r.t. BCL: updated data; growth projection; use pf official (\textit{extreme}) poverty line.
+    \ip Hoy \& Summer (2016): countries with GDP p.c. < \$2,000 can't eradicate extreme poverty (with 50\% tax above \$10/day).
+    \ip Woodward (2015): with growth alone, it would take >100 years to end extreme poverty. 
+    \ip \blue{In 24 countries, 7\% growth would not suffice to end extreme poverty by 2030} (UNCTAD, 2023).
+    \ip Extreme poverty in 2030 projected at from 2.8\% (Karver et al., 2012), 3--7\% (Bicaba et al., 2017; Chandy et al., 2013), 4.7\% (Manuel et al., 2018) to 7.4\% (Lakner et al., 2022).
+    \ip More than 60 countries expected to fail SDG 1 (Moyer \& Hedden, 2020).
+    \ee
+\end{frame}
+
+\begin{frame}{Primer of the results}
+    \bbsp
+    \ip 
+    \ee
+\end{frame}
+
+\begin{frame}{Data}
+    \bbsp
+    \ip I use the \blue{Poverty and Inequality Platform} (PIP) of the World Bank. 
+    \ip PIP aggregates most recent household surveys (60\% countries surveyed over 2018--21).
+    \ip Data in PPP 2017 \$.
+    \ip Provides percentiles of consumption (or of post-tax income in HICs).
+    \ip Pb: Doesn't capture services procured by government.
+    \ip Pb: Aggregate consumption below HFCE from national accounts (Deaton, 05; Prudz et al., 22). \\ Underreporting of top incomes and large expenditures in HH surveys; agricultural output inflated in national accounts (Angrist et al., 2021), authoritarian countries inflate GDP (Martínez, 2022).
+    \ip HFCE is 44\% greater than aggregate consumption overall, discrepancy only 12\% in LICs.
+    \ip As robustness check, I impute extra consumption in HFCE to top percentile (as Lakner \& Milanovic, 2015; Anand \& Segal, 2015).
+    \ee
+\end{frame}
+
+\begin{frame}{Growth scenarios}
+    \bbsp
+    \ip Consistent with the literature, I assume \blue{balanced growth}: each percentile grows at same rate between the survey year and 2030. 
+    \ip I rescale incomes by observed growth of GDP p.c. (PPP) up to 2022. For 2022--30, different scenarios: % using World Bank data
+    \bbsp
+    \ip \textbf{\blue{Constant growth}} at either \textbf{\blue{0\%}}, \textbf{\rose{3\%}} \rose{(baseline)}, \textbf{\blue{4.5\%}}, \textbf{\blue{6\%}}, or \textbf{\blue{7\%}}.% maximum rate observed for a country over 2010--19
+    \ip \textbf{\blue{Trend (2014--2019)}}.
+    \ip \textbf{\blue{Max\{Trend, 0\}}}.
+    \ip \textbf{\blue{IMF forecast} for 2026--28 extended to 2028--30}.
+    \ip \textbf{\blue{Autoregressive projection}}: predicts 2011--19 growth based on growth and squared growth on 1991--2011; applied to 2022-30 using 2002--22 growth.
+    \ip \textbf{\blue{7\% growth since 2016}} as per SDG 8.1.
+    \ee \ee
+\end{frame}
+
+\begin{frame}{The effects of balanced growth}
+    \input{../tables/poverty.tex}
+    \pause
+    Among the 8 countries < \$3/day; 2014--19 growth on average negative, highest growing rate at 2.4\%.
+    $\Rightarrow$ My benchmark of 3\% growth over 2022--30 is optimistic.
+\end{frame}
+
+\begin{frame}{Antipoverty caps}
+    \begin{figure}
+        \caption{Income cap eradicating extreme poverty (in \$/day), after growth of 3\% over 2022--2030. 
+        }
+        \includegraphics[height=.85\textheight]{../figures/y_expropriated_2_average.pdf}
+      \end{figure} 
+\end{frame}
+
+\begin{frame}{Antipoverty caps}    % TODO: 3.3
+    \bbsp 
+    \ip In 5 countries, capping incomes at \$7/day wouldn't suffice to end extreme poverty in 2030 despite 3\% growth.
+    \ip In Madagascar, average consumption would be \$2.02/day in baseline.
+    \ip In a very optimistic scenario of 7\% growth, the anti-extreme-poverty cap would be \$14/day in the D.R.C and \$8.60 in Burundi.
+    \ee 
+\end{frame}
+
+\begin{frame}{Antipoverty taxes}    
+    \bbsp 
+    \ip 
+    \ee 
+    \begin{figure}
+      \caption{Linear tax rate above \blue{\$6.85/day} eradicating extreme poverty (in \%), after a growth of \blue{3\%} over 2022--2030. 
+      }
+      \includegraphics[height=.85\textheight]{../figures/antipoverty_2_tax_7_average.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Antipoverty taxes}    
+    \begin{figure}
+      \caption{Linear tax rate above \blue{\$18.15/day} eradicating extreme poverty (in \%), after a growth of \blue{7\%} over 2022--2030. 
+      }
+      \includegraphics[height=.85\textheight]{../figures/antipoverty_2_tax_18_very_optimistic.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Antipoverty taxes}   
+    \bbsp 
+    \ip Ending extreme poverty would require a tax above \$6.85/day of:
+    \bbvsp \ip 20\% in Nigeria 
+     \ip 49\% in Sub-Saharan Africa
+     \ip 70\% in low-income countries
+     \ee
+    \ip Similar rates with a tax above \$18.15/day (U.S. poverty line) after 7\% growth:
+    \ip In India, the anti-extreme-poverty tax above \$18.15/day is:
+    \bbvsp \ip 10\% after 7\% growth
+      \ip 36\% after 5.5\% growth (India's 2014--19 trend)
+      \ip 156\% after 3\% growth
+    \ee
+    \ee 
+\end{frame}
+
+\begin{frame}{Fundable income floor}    
+    \begin{figure}
+      \caption{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day, after growth of 3\% over 2022--2030. 
+      }
+      \includegraphics[height=.85\textheight]{../figures/demogrant_7__10.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Are growth and domestic mobilization enough?}   
+    \bbsp 
+    \ip 23 countries unable to end extreme poverty with the credible tax.
+    \ip Only 13 out of the 27 LICs are among them. % e.g. Ethiopia (LMIC): \$3.1/day vs. Nigeria (LIC): \$1.8/day
+    \ip Even after 7\% growth, 10 countries can't fund a \$2.15 income floor (or 8 with HFCE-adjustment).
+    \ip If 7\% growth started in 2016, the 10\% would have ended extreme poverty in all countries but Madagascar (where a rate of 23\% would have been needed).
+    \ip As high growth (SDG 8.1) did not materialize, another option would be increased foreign aid (ODA).
+    \ip SDG 17.2: Developed countries implementing their ODA commitment (0.7\% of ODA/GNI, incl. 0.15\% to LDCs).
+    \ip Extreme poverty gap (0.17\% of global real GDP) $\lesssim$ ODA shortfall (0.2\% of global nominal GDP).
+    \ee 
+\end{frame}
+
+\begin{frame}{The potential of global redistribution}
+    \bbsp \ip If applied in each conutry, the \textit{credible tax} would bring global Gini from .62 to .59, reducing \textit{acute} poverty gap from 4.5\% to 3.7\% of global GDP.
+    \ip If applied at the global level, it would bring global Gini to .51, funding a \$8.6/day income floor.
+    \ip To end extreme poverty, a 1.2\% tax above \$100/day (the top 5\%) would suffice. \\ Would involve 3.4\% of global GDP transferred from rich to poor, but just 0.14\% of global GDP in international transfers.
+    \ip This is an upper bound: once we use HFCE-rescaling, a 0.3\% tax suffices, \\ and a 10\% tax above \$100/day could fund an income floor of \$7/day and end ``poverty in all its forms''.
+    \ip A wealth tax at 4\% above \$1 million and 10\% above \$100 million would raise even more while targeting the top 1\%.
+    \ee
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Wrapping up}
+    \bbsp \ip The World is not on track to end poverty by 2030.
+    \ip The lowest income countries don't have the resources to end poverty on their own. % With record growth and profound government committment, China has officially eradicated extreme poverty in 2021. The D.R.C. is poorer now than China in 1990, so even if it reproduces the Chinese miracle, it will not be able to eradicate extreme poverty on its own before 2055.
+    \ip International solidarity might be able to end poverty more quickly and at a lower welfare cost.
+    \ip I illustrated the required extent of change using idealized redistributive policies, but it could take other forms (systemic change in rules or structures of the world economy) and would be hampered with structural factors (like wars or corruption).
+    \ip \quad
+    \ip \begin{center} \textbf{Thank you for your attention!} \\ \quad \\  Read paper on SSRN: 4725417, and for more: @adrien\_fabre. \end{center}
+    \ee
+\end{frame}
+
+
+
+\appendix
+
+\begin{frame}{Antipoverty taxes}    
+    \begin{figure}
+      \caption{Linear tax rate above \blue{\$18.15/day} eradicating extreme poverty (in \%), after a growth of \blue{7\%} over 2022--2030, \blue{HFCE-scaled}. 
+      }
+      \includegraphics[height=.85\textheight]{../figures/s_antipoverty_2_tax_7_average.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Antipoverty taxes}    
+    \begin{figure}
+      \caption{Linear tax rate above \blue{\$18.15/day} eradicating extreme poverty (in \%), with growth until 2030 \blue{predicted} at the country level. 
+      }
+      \includegraphics[height=.8\textheight]{../figures/antipoverty_2_tax_7_reg.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Antipoverty taxes}    
+    \begin{figure}
+      \caption{Linear tax rate above \blue{\$18.15/day} eradicating extreme poverty (in \%), after a growth of \blue{3\%} over 2022--2030. 
+      }
+      \includegraphics[height=.8\textheight]{../figures/antipoverty_2_tax_18_average.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Antipoverty taxes}    
+    \begin{figure}
+      \caption{Linear tax rate above \blue{\$18.15/day} eradicating extreme poverty (in \%), after a growth of \blue{7\%} over 2022--2030, \blue{HFCE-scaled}. 
+      }
+      \includegraphics[height=.8\textheight]{../figures/s_antipoverty_2_tax_18_very_optimistic.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Antipoverty taxes}    
+    \begin{figure}
+      \caption{Linear tax rate above \blue{\$18.15/day} eradicating \blue{acute} poverty (in \%), after a growth of \blue{3\%} over 2022--2030. 
+      }
+      \includegraphics[height=.8\textheight]{../figures/antipoverty_7_tax_18_average.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Antipoverty taxes}    
+    \begin{figure}
+      \caption{Linear tax rate above \blue{\$18.15/day} eradicating \blue{severe} poverty (in \%), after a growth of \blue{3\%} over 2022--2030. 
+      }
+      \includegraphics[height=.8\textheight]{../figures/antipoverty_4_tax_18_average.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Antipoverty taxes}    
+    \begin{figure}
+      \caption{Linear tax rate above \blue{\$6.85/day} eradicating \blue{acute} poverty (in \%), after a growth of \blue{3\%} over 2022--2030. 
+      }
+      \includegraphics[height=.8\textheight]{../figures/antipoverty_7_tax_7_average.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Fundable income floor}    
+    \begin{figure}
+      \caption{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day, after growth of \blue{7\%} over 2022--2030. 
+      }
+      \includegraphics[height=.8\textheight]{../figures/demogrant_7__10_very_optimistic.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Fundable income floor}    
+    \begin{figure}
+      \caption{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day, after growth of \blue{3\%} over 2022--2030, \blue{HFCE-scaled}. 
+      }
+      \includegraphics[height=.8\textheight]{../figures/s_demogrant_7__10.pdf}
+    \end{figure}
+\end{frame}
+
+
+\end{document}
