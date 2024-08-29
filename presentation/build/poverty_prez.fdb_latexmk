@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1724889823 "c:/Users/fabre/Documents/www/domestic_poverty_eradication/presentation/poverty_prez.tex" "build/poverty_prez.pdf" "poverty_prez" 1724889831
+["pdflatex"] 1724942374 "c:/Users/fabre/Documents/www/domestic_poverty_eradication/presentation/poverty_prez.tex" "build/poverty_prez.pdf" "poverty_prez" 1724942382
   "../figures/10_Extreme-Poverty-projection-by-the-World-Bank-to-2030.png" 1638574110 253946 a28ccb33a27492e70868ae0173af91f4 ""
   "../figures/10_GDP_pc_PPP_few.pdf" 1683734060 48651 79d1cac036b43e05053040cce293257c ""
   "../figures/10_distribution-of-population-poverty-thresholds.png" 1724878010 127140 8683a35fe99707a64112b1b577368dc4 ""
@@ -26,10 +26,10 @@
   "../figures/s_demogrant_7__10.pdf" 1707092434 958406 0036548fa82245c80a9ef2cf461eab73 ""
   "../figures/y_expropriated_2_average.pdf" 1708609926 949923 919b2dd148a3c5dcdfcf8f5c98c4a367 ""
   "../tables/poverty.tex" 1708628881 1153 3bd08faf24043fc22000fed64ba237ca ""
-  "build/poverty_prez.aux" 1724889831 6402 abf3595fe0e08cc067d9abab6f71a07b "pdflatex"
-  "build/poverty_prez.nav" 1724889831 3728 46633eea512ad8620f86e41f402204e2 "pdflatex"
-  "build/poverty_prez.out" 1724889831 375 9cd132a7babbf510a519dc06af0942b2 "pdflatex"
-  "c:/Users/fabre/Documents/www/domestic_poverty_eradication/presentation/poverty_prez.tex" 1724889822 15064 c78f4c4daa161a292b3ee45936dd776a ""
+  "build/poverty_prez.aux" 1724942382 6560 9ef7838db39e477a7797151a43e4166c "pdflatex"
+  "build/poverty_prez.nav" 1724942382 3849 f19f6c42fd2e93e57728014b0e169bca "pdflatex"
+  "build/poverty_prez.out" 1724942382 375 9cd132a7babbf510a519dc06af0942b2 "pdflatex"
+  "c:/Users/fabre/Documents/www/domestic_poverty_eradication/presentation/poverty_prez.tex" 1724942370 16761 db2eca939c246fd7f09e5431d2a8072c ""
   "c:/texlive/2022/texmf-dist/fonts/enc/dvips/base/8r.enc" 1663542048 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "c:/texlive/2022/texmf-dist/fonts/map/fontname/texfonts.map" 1663542332 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2022/texmf-dist/fonts/tfm/adobe/palatino/pplr8t.tfm" 1663543501 3820 ee5b9d58608ae328e43c6e2bfd4ff851 ""
@@ -317,7 +317,7 @@
   "c:/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1663544966 4635069 7677ee69604aae14ed48b153c111a7f7 ""
   "c:/texlive/2022/texmf-var/web2c/pdftex/pdflatex.fmt" 1663545077 3059215 8f99df6ed72caaaf55d8f9d041927bea ""
   "c:/texlive/2022/texmf.cnf" 1663544940 713 e69b156964470283e0530f5060668171 ""
-  "poverty_prez.tex" 1724889822 15064 c78f4c4daa161a292b3ee45936dd776a ""
+  "poverty_prez.tex" 1724942370 16761 db2eca939c246fd7f09e5431d2a8072c ""
   "preamble_slides.tex" 1706523005 16861 7fa09833ae46b33d5a22b4fc8655f9af ""
   (generated)
   "build/poverty_prez.aux"

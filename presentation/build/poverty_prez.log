@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.9.19)  29 AUG 2024 02:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.9.19)  29 AUG 2024 16:39
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1475,119 +1475,99 @@ File: ufuts.fd 2021/11/24 Fontinst v1.933 font definitions for U/futs.
 
 ] [31
 
-]
-Overfull \vbox (17.2074pt too high) detected at line 103
- []
+] [32
 
-[32
+] [33
 
-]
-Overfull \vbox (17.2074pt too high) detected at line 103
- []
+] [34
 
-[33
+] [35
 
-]
-Overfull \vbox (17.2074pt too high) detected at line 103
- []
+] [36
 
-[34
+] [37
 
 ]
-Overfull \vbox (17.2074pt too high) detected at line 103
- []
-
-[35
-
-]
-Overfull \vbox (17.2074pt too high) detected at line 103
- []
-
-[36
-
-]
-Overfull \vbox (17.2074pt too high) detected at line 103
- []
-
-[37
-
-]
-Overfull \vbox (17.2074pt too high) detected at line 103
+Overfull \vbox (3.60739pt too high) detected at line 110
  []
 
 [38
 
 ]
-Overfull \vbox (17.2074pt too high) detected at line 103
+Overfull \vbox (3.60739pt too high) detected at line 110
  []
 
 [39
 
-] [40
+]
+Overfull \vbox (3.60739pt too high) detected at line 110
+ []
 
-] [41
+[40
 
-] [42
+]
+Overfull \vbox (3.60739pt too high) detected at line 110
+ []
 
-] [43
+[41
 
-] [44
+]
+Overfull \vbox (3.60739pt too high) detected at line 110
+ []
 
-] [45
+[42
+
+]
+Overfull \vbox (3.60739pt too high) detected at line 110
+ []
+
+[43
+
+]
+Overfull \vbox (3.60739pt too high) detected at line 110
+ []
+
+[44
+
+]
+Overfull \vbox (3.60739pt too high) detected at line 110
+ []
+
+[45
 
 ] [46
 
 ] [47
 
-] (../tables/poverty.tex) [48
+] [48
 
-] (../tables/poverty.tex) [49
+] [49
 
-]
-<../figures/y_expropriated_2_average.pdf, id=325, 932.48375pt x 450.68375pt>
-File: ../figures/y_expropriated_2_average.pdf Graphic file (type pdf)
-<use ../figures/y_expropriated_2_average.pdf>
-Package pdftex.def Info: ../figures/y_expropriated_2_average.pdf  used on input line 132.
-(pdftex.def)             Requested size: 430.9824pt x 208.30063pt.
+] [50
 
-Overfull \vbox (17.82779pt too high) detected at line 132
- []
-
-[50
-
- <../figures/y_expropriated_2_average.pdf>] [51
+] [51
 
 ] [52
 
 ] [53
 
+] (../tables/poverty.tex) [54
+
+] (../tables/poverty.tex) [55
+
 ]
-<../figures/antipoverty_2_tax_7_average.pdf, id=351, 932.48375pt x 450.68375pt>
-File: ../figures/antipoverty_2_tax_7_average.pdf Graphic file (type pdf)
-<use ../figures/antipoverty_2_tax_7_average.pdf>
-Package pdftex.def Info: ../figures/antipoverty_2_tax_7_average.pdf  used on input line 151.
+<../figures/y_expropriated_2_average.pdf, id=356, 932.48375pt x 450.68375pt>
+File: ../figures/y_expropriated_2_average.pdf Graphic file (type pdf)
+<use ../figures/y_expropriated_2_average.pdf>
+Package pdftex.def Info: ../figures/y_expropriated_2_average.pdf  used on input line 139.
 (pdftex.def)             Requested size: 430.9824pt x 208.30063pt.
 
-Overfull \vbox (38.4278pt too high) detected at line 151
+Overfull \vbox (17.82779pt too high) detected at line 139
  []
 
-[54
+[56
 
- <../figures/antipoverty_2_tax_7_average.pdf>]
-<../figures/antipoverty_2_tax_18_very_optimistic.pdf, id=362, 932.48375pt x 450.68375pt>
-File: ../figures/antipoverty_2_tax_18_very_optimistic.pdf Graphic file (type pdf)
-<use ../figures/antipoverty_2_tax_18_very_optimistic.pdf>
-Package pdftex.def Info: ../figures/antipoverty_2_tax_18_very_optimistic.pdf  used on input line 159.
-(pdftex.def)             Requested size: 430.9824pt x 208.30063pt.
-
-Overfull \vbox (17.82779pt too high) detected at line 159
- []
-
-[55
-
- <../figures/antipoverty_2_tax_18_very_optimistic.pdf>] [56
-
-] [57
+ <../figures/y_expropriated_2_average.pdf>] [57
 
 ] [58
 
@@ -1603,23 +1583,33 @@ Overfull \vbox (17.82779pt too high) detected at line 159
 
 ] [64
 
-]
-<../figures/demogrant_7__10.pdf, id=420, 976.64874pt x 471.7625pt>
-File: ../figures/demogrant_7__10.pdf Graphic file (type pdf)
-<use ../figures/demogrant_7__10.pdf>
-Package pdftex.def Info: ../figures/demogrant_7__10.pdf  used on input line 183.
-(pdftex.def)             Requested size: 431.23192pt x 208.30063pt.
+] [65
 
-Overfull \vbox (29.82779pt too high) detected at line 183
+]
+<../figures/antipoverty_2_tax_7_average.pdf, id=413, 932.48375pt x 450.68375pt>
+File: ../figures/antipoverty_2_tax_7_average.pdf Graphic file (type pdf)
+<use ../figures/antipoverty_2_tax_7_average.pdf>
+Package pdftex.def Info: ../figures/antipoverty_2_tax_7_average.pdf  used on input line 169.
+(pdftex.def)             Requested size: 430.9824pt x 208.30063pt.
+
+Overfull \vbox (17.82779pt too high) detected at line 169
  []
 
-[65
+[66
 
- <../figures/demogrant_7__10.pdf>] [66
+ <../figures/antipoverty_2_tax_7_average.pdf>]
+<../figures/antipoverty_2_tax_18_very_optimistic.pdf, id=424, 932.48375pt x 450.68375pt>
+File: ../figures/antipoverty_2_tax_18_very_optimistic.pdf Graphic file (type pdf)
+<use ../figures/antipoverty_2_tax_18_very_optimistic.pdf>
+Package pdftex.def Info: ../figures/antipoverty_2_tax_18_very_optimistic.pdf  used on input line 177.
+(pdftex.def)             Requested size: 430.9824pt x 208.30063pt.
 
-] [67
+Overfull \vbox (17.82779pt too high) detected at line 177
+ []
 
-] [68
+[67
+
+ <../figures/antipoverty_2_tax_18_very_optimistic.pdf>] [68
 
 ] [69
 
@@ -1637,9 +1627,19 @@ Overfull \vbox (29.82779pt too high) detected at line 183
 
 ] [76
 
-] [77
+]
+<../figures/demogrant_7__10.pdf, id=483, 976.64874pt x 471.7625pt>
+File: ../figures/demogrant_7__10.pdf Graphic file (type pdf)
+<use ../figures/demogrant_7__10.pdf>
+Package pdftex.def Info: ../figures/demogrant_7__10.pdf  used on input line 201.
+(pdftex.def)             Requested size: 431.23192pt x 208.30063pt.
 
-] [78
+Overfull \vbox (29.82779pt too high) detected at line 201
+ []
+
+[77
+
+ <../figures/demogrant_7__10.pdf>] [78
 
 ] [79
 
@@ -1653,113 +1653,137 @@ Overfull \vbox (29.82779pt too high) detected at line 183
 
 ] [84
 
+] [85
+
+] [86
+
+] [87
+
+] [88
+
+] [89
+
+] [90
+
+] [91
+
+] [92
+
+] [93
+
+] [94
+
+] [95
+
+] [96
+
 ]
-<../figures/s_antipoverty_2_tax_7_average.pdf, id=532, 932.48375pt x 450.68375pt>
+<../figures/s_antipoverty_2_tax_7_average.pdf, id=595, 932.48375pt x 450.68375pt>
 File: ../figures/s_antipoverty_2_tax_7_average.pdf Graphic file (type pdf)
 <use ../figures/s_antipoverty_2_tax_7_average.pdf>
-Package pdftex.def Info: ../figures/s_antipoverty_2_tax_7_average.pdf  used on input line 228.
+Package pdftex.def Info: ../figures/s_antipoverty_2_tax_7_average.pdf  used on input line 246.
 (pdftex.def)             Requested size: 430.9824pt x 208.30063pt.
 
-Overfull \vbox (29.82779pt too high) detected at line 228
+Overfull \vbox (29.82779pt too high) detected at line 246
  []
 
-[85
+[97
 
  <../figures/s_antipoverty_2_tax_7_average.pdf>]
-<../figures/antipoverty_2_tax_7_reg.pdf, id=544, 976.64874pt x 471.7625pt>
+<../figures/antipoverty_2_tax_7_reg.pdf, id=607, 976.64874pt x 471.7625pt>
 File: ../figures/antipoverty_2_tax_7_reg.pdf Graphic file (type pdf)
 <use ../figures/antipoverty_2_tax_7_reg.pdf>
-Package pdftex.def Info: ../figures/antipoverty_2_tax_7_reg.pdf  used on input line 236.
+Package pdftex.def Info: ../figures/antipoverty_2_tax_7_reg.pdf  used on input line 254.
 (pdftex.def)             Requested size: 405.86797pt x 196.047pt.
 
-Overfull \vbox (17.57416pt too high) detected at line 236
+Overfull \vbox (17.57416pt too high) detected at line 254
  []
 
-[86
+[98
 
  <../figures/antipoverty_2_tax_7_reg.pdf>]
-<../figures/antipoverty_2_tax_18_average.pdf, id=555, 932.48375pt x 450.68375pt>
+<../figures/antipoverty_2_tax_18_average.pdf, id=618, 932.48375pt x 450.68375pt>
 File: ../figures/antipoverty_2_tax_18_average.pdf Graphic file (type pdf)
 <use ../figures/antipoverty_2_tax_18_average.pdf>
-Package pdftex.def Info: ../figures/antipoverty_2_tax_18_average.pdf  used on input line 244.
+Package pdftex.def Info: ../figures/antipoverty_2_tax_18_average.pdf  used on input line 262.
 (pdftex.def)             Requested size: 405.62715pt x 196.047pt.
 
-Overfull \vbox (5.57416pt too high) detected at line 244
+Overfull \vbox (5.57416pt too high) detected at line 262
  []
 
-[87
+[99
 
  <../figures/antipoverty_2_tax_18_average.pdf>]
-<../figures/s_antipoverty_2_tax_18_very_optimistic.pdf, id=567, 932.48375pt x 450.68375pt>
+<../figures/s_antipoverty_2_tax_18_very_optimistic.pdf, id=629, 932.48375pt x 450.68375pt>
 File: ../figures/s_antipoverty_2_tax_18_very_optimistic.pdf Graphic file (type pdf)
 <use ../figures/s_antipoverty_2_tax_18_very_optimistic.pdf>
-Package pdftex.def Info: ../figures/s_antipoverty_2_tax_18_very_optimistic.pdf  used on input line 252.
+Package pdftex.def Info: ../figures/s_antipoverty_2_tax_18_very_optimistic.pdf  used on input line 270.
 (pdftex.def)             Requested size: 405.62715pt x 196.047pt.
 
-Overfull \vbox (17.57416pt too high) detected at line 252
+Overfull \vbox (17.57416pt too high) detected at line 270
  []
 
-[88
+[100
 
  <../figures/s_antipoverty_2_tax_18_very_optimistic.pdf>]
-<../figures/antipoverty_7_tax_18_average.pdf, id=578, 976.64874pt x 471.7625pt>
+<../figures/antipoverty_7_tax_18_average.pdf, id=640, 976.64874pt x 471.7625pt>
 File: ../figures/antipoverty_7_tax_18_average.pdf Graphic file (type pdf)
 <use ../figures/antipoverty_7_tax_18_average.pdf>
-Package pdftex.def Info: ../figures/antipoverty_7_tax_18_average.pdf  used on input line 260.
+Package pdftex.def Info: ../figures/antipoverty_7_tax_18_average.pdf  used on input line 278.
 (pdftex.def)             Requested size: 405.86797pt x 196.047pt.
 
-Overfull \vbox (5.57416pt too high) detected at line 260
+Overfull \vbox (5.57416pt too high) detected at line 278
  []
 
-[89
+[101
 
  <../figures/antipoverty_7_tax_18_average.pdf>]
-<../figures/antipoverty_4_tax_18_average.pdf, id=589, 976.64874pt x 471.7625pt>
+<../figures/antipoverty_4_tax_18_average.pdf, id=651, 976.64874pt x 471.7625pt>
 File: ../figures/antipoverty_4_tax_18_average.pdf Graphic file (type pdf)
 <use ../figures/antipoverty_4_tax_18_average.pdf>
-Package pdftex.def Info: ../figures/antipoverty_4_tax_18_average.pdf  used on input line 268.
+Package pdftex.def Info: ../figures/antipoverty_4_tax_18_average.pdf  used on input line 286.
 (pdftex.def)             Requested size: 405.86797pt x 196.047pt.
 
-Overfull \vbox (5.57416pt too high) detected at line 268
+Overfull \vbox (5.57416pt too high) detected at line 286
  []
 
-[90
+[102
 
  <../figures/antipoverty_4_tax_18_average.pdf>]
-<../figures/antipoverty_7_tax_7_average.pdf, id=600, 976.64874pt x 471.7625pt>
+<../figures/antipoverty_7_tax_7_average.pdf, id=662, 976.64874pt x 471.7625pt>
 File: ../figures/antipoverty_7_tax_7_average.pdf Graphic file (type pdf)
 <use ../figures/antipoverty_7_tax_7_average.pdf>
-Package pdftex.def Info: ../figures/antipoverty_7_tax_7_average.pdf  used on input line 276.
+Package pdftex.def Info: ../figures/antipoverty_7_tax_7_average.pdf  used on input line 294.
 (pdftex.def)             Requested size: 405.86797pt x 196.047pt.
 
-Overfull \vbox (5.57416pt too high) detected at line 276
+Overfull \vbox (5.57416pt too high) detected at line 294
  []
 
-[91
+[103
 
  <../figures/antipoverty_7_tax_7_average.pdf>]
-<../figures/demogrant_7__10_very_optimistic.pdf, id=612, 976.64874pt x 471.7625pt>
+<../figures/demogrant_7__10_very_optimistic.pdf, id=674, 976.64874pt x 471.7625pt>
 File: ../figures/demogrant_7__10_very_optimistic.pdf Graphic file (type pdf)
 <use ../figures/demogrant_7__10_very_optimistic.pdf>
-Package pdftex.def Info: ../figures/demogrant_7__10_very_optimistic.pdf  used on input line 284.
+Package pdftex.def Info: ../figures/demogrant_7__10_very_optimistic.pdf  used on input line 302.
 (pdftex.def)             Requested size: 405.86797pt x 196.047pt.
 
-Overfull \vbox (17.57416pt too high) detected at line 284
+Overfull \vbox (17.57416pt too high) detected at line 302
  []
 
-[92
+[104
 
  <../figures/demogrant_7__10_very_optimistic.pdf>]
-<../figures/s_demogrant_7__10.pdf, id=623, 1005.7575pt x 520.94624pt>
+<../figures/s_demogrant_7__10.pdf, id=685, 1005.7575pt x 520.94624pt>
 File: ../figures/s_demogrant_7__10.pdf Graphic file (type pdf)
 <use ../figures/s_demogrant_7__10.pdf>
-Package pdftex.def Info: ../figures/s_demogrant_7__10.pdf  used on input line 292.
+Package pdftex.def Info: ../figures/s_demogrant_7__10.pdf  used on input line 310.
 (pdftex.def)             Requested size: 378.49329pt x 196.047pt.
 
-Overfull \vbox (17.57416pt too high) detected at line 292
+Overfull \vbox (17.57416pt too high) detected at line 310
  []
 
-[93
+[105
 
  <../figures/s_demogrant_7__10.pdf>]
 \tf@nav=\write6
@@ -1776,18 +1800,18 @@ Package rerunfilecheck Info: File `poverty_prez.out' has not changed.
 (rerunfilecheck)             Checksum: 9CD132A7BABBF510A519DC06AF0942B2;375.
  ) 
 Here is how much of TeX's memory you used:
- 34536 strings out of 475075
- 689889 string characters out of 5783001
- 983208 words of memory out of 5000000
- 54949 multiletter control sequences out of 15000+600000
- 551423 words of font info for 100 fonts, out of 8000000 for 9000
+ 34571 strings out of 475075
+ 690354 string characters out of 5783001
+ 984211 words of memory out of 5000000
+ 54956 multiletter control sequences out of 15000+600000
+ 556411 words of font info for 105 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 99i,11n,104p,627b,655s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,11n,104p,627b,643s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {c:/texlive/2022/texmf-dist/fonts/enc/dvips/base/8r.enc}<c:/texlive/2022/texmf-dist/fonts/type1/public/fourier/fourier-ms.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/fourier/fourier-orns.pfb><c:/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><c:/texlive/2022/texmf-dist/fonts/type1/adobe/utopia/putb8a.pfb><c:/texlive/2022/texmf-dist/fonts/type1/adobe/utopia/putr8a.pfb><c:/texlive/2022/texmf-dist/fonts/type1/adobe/utopia/putri8a.pfb>
-Output written on build/poverty_prez.pdf (93 pages, 16391140 bytes).
+Output written on build/poverty_prez.pdf (105 pages, 16411773 bytes).
 PDF statistics:
- 707 PDF objects out of 1000 (max. 8388607)
- 541 compressed objects within 6 object streams
- 192 named destinations out of 1000 (max. 500000)
+ 773 PDF objects out of 1000 (max. 8388607)
+ 595 compressed objects within 6 object streams
+ 216 named destinations out of 1000 (max. 500000)
  204 words of extra memory for PDF output out of 10000 (max. 10000000)
 

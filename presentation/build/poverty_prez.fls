@@ -2056,6 +2056,13 @@ INPUT c:/texlive/2022/texmf-dist/tex/latex/fourier/ufuts.fd
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/fourier/futrorn.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/vf/public/fourier/futrorn.vf
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/fourier/fourier-orns.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/fourier/futri8t.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/vf/public/fourier/futri8t.vf
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/fourier/futri8r.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/fourier/fourier-alt-ita.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/vf/public/fourier/futr8t.vf
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/fourier/futr8r.tfm
+INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/fourier/fourier-alt.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/fourier/futb8t.tfm
 INPUT c:/texlive/2022/texmf-dist/fonts/vf/public/fourier/futb8t.vf
 INPUT c:/texlive/2022/texmf-dist/fonts/tfm/public/fourier/futb8r.tfm
