@@ -1,0 +1,817 @@
+
+
+
+
+
+
+
+
+
+\documentclass[12pt,english]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tgpagella} %
+\usepackage{mathpazo}  %
+\usepackage[left=1.5in,right=1.5in,top=1.5in,bottom=1.5in]{geometry}
+\usepackage[round,sort&compress]{natbib} %
+\usepackage{url} %
+\usepackage[hyperpageref]{backref} %
+\usepackage[pagebackref]{hyperref}
+\hypersetup{
+  colorlinks=true, %
+  urlcolor=purple,    %
+  linkcolor=blue,  %
+  citecolor=violet,   %
+}
+\usepackage{bm}
+\usepackage{indentfirst}
+\setcitestyle{aysep={}} 
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{eurosym}
+\usepackage{amsfonts}
+\usepackage{enumerate}
+\usepackage{babel}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{supertabular}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{dsfont}
+\usepackage{fancyvrb}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{comment}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{gensymb}
+\usepackage{textcomp}
+\usepackage{placeins} %
+
+\usepackage{tabulary}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{fullpage}
+\usepackage{morefloats}
+\usepackage{makecell}
+\usepackage{lscape}
+\usepackage{pdflscape}
+\usepackage{longtable}
+\usepackage{rotating}
+\usepackage{fancyhdr}
+\usepackage{tocbibind} %
+\usepackage{titletoc} %
+\usepackage[export]{adjustbox}
+\usepackage[anythingbreaks]{breakurl} %
+\usepackage{multicol}
+\usepackage{lineno}
+\linenumbers
+
+\makeatletter
+\renewcommand\tableofcontents{%
+    \@starttoc{toc}%
+}
+\makeatother
+\newsavebox\ltmcbox %
+\renewcommand{\floatpagefraction}{.99}
+\newenvironment{stretchpars}{\par\setlength{\parfillskip}{0pt}}{\par} %
+
+\onehalfspacing
+
+
+
+
+
+
+
+
+\title{Shortfall of Domestic Resources\\ to Eradicate Extreme Poverty by 2030} 
+
+% \author{Adrien Fabre\footnote{CNRS, CIRED. E-mail: adrien.fabre@cnrs.fr.}}
+
+\date{\today} %
+
+\begin{document}
+
+\sloppy
+\maketitle
+
+
+
+
+\begin{abstract}
+In 2015, the Sustainable Development Goals set the eradication of extreme poverty by 2030 as a universally agreed objective. This paper analyses the prospects for achieving this goal country by country. Without a reduction in inequality, even with a very optimistic annual growth rate of 7\% between 2022 and 2030, 3\% of humans would still be living in extreme poverty in 2030. National capacity to eradicate poverty is then measured using the concepts of \textit{antipoverty cap} or \textit{antipoverty tax} required to finance poverty eradication, and \textit{income floor} (financed by a given income tax). With credible annual growth of 3\%, even capping incomes at \$7 a day cannot eradicate extreme poverty in 5 low-income countries. In other words, neither growth alone nor growth combined with radical domestic redistribution could eradicate extreme poverty by 2030. By contrast, a transfer of just 0.14\% of global income could achieve this goal.
+\end{abstract}
+
+
+\clearpage
+\tableofcontents
+
+
+
+\section{Introduction}%
+
+The very first Sustainable Development Goal (SDG) %
+reads: ``By 2030, eradicate extreme poverty for all people everywhere, currently measured as people living on less than \$2.15 a day''. As we have passed the halfway point since the adoption of the SDGs in 2015, it is time to assess progress towards this universally accepted goal. 
+
+In this paper, I assess whether growth and domestic redistribution are sufficient to eradicate extreme poverty by 2030. I first study the extent of poverty in different growth scenarios. Then, I calculate the magnitude of domestic redistribution required in each country to eradicate poverty in 2030. I mobilize different indicators. I estimate the parameter of two tax policies that would raise enough revenues to eradicate poverty. In the ``antipoverty cap'', I fix the rate (at 100\%) and find the required taxation threshold. In the ``antipoverty tax'', I fix the threshold and find the rate needed. As a last indicator, I fix both the threshold and the rate and compute the income floor that the tax could finance. In the lowest income countries, extreme poverty is estimated to persist even after strong growth and radical redistribution. %
+This has implications for the international community, as international solidarity appears necessary to achieve the first SDG. I complete the analysis by exemplifying international transfers that would eradicate poverty by 2030.
+
+\paragraph{Literature} 
+
+The idea to measure the domestic capacity to eradicate poverty with an antipoverty tax dates back to \cite{ravallion_poorer_2010} and \citealp{ceriani_income_2014}. \cite{ravallion_poorer_2010} found that even with a 100\% tax above the U.S. poverty line, 29 countries could not eradicate extreme poverty, and 37 countries could not eradicate ``severe poverty'' defined with a higher poverty line (which corresponds to \$3.65/day in 2017 PPP \$). %
+\cite{bolch_arithmetics_2022} --- hereafter ``BCL'' --- update the computations with more recent data and find that 62 countries do not have sufficient resources to eradicate severe poverty. %
+
+The present paper employs a similar methodology to assess which countries have sufficient domestic resources to achieve the first SDG. There are three reasons why BCL cannot be used %
+for that purpose. 
+First, the most recent data was not available to BCL (their most recent survey year is 2012 with most years in 2009--2010, compared to 2018--2021 in the present paper). %
+Second, BCL study the data as it stands rather than imputing growth and using it to infer the income distributions in 2030. Third, they focus on a poverty line higher than the one officially used in the first SDG.
+
+Consistently with \cite{ravallion_poorer_2010}, \cite{hoy_gasoline_2016} find that 52\% of global extreme poverty can be eliminated with a 50\% antipoverty tax above \$$_\text{2011}$10/day (in 2011 PPP). They also consider the reallocation of public spending and show that this antipoverty tax together with the reallocation of fossil-fuel subsidies and military spending could eliminate 77\% of global extreme poverty. Finally, they show that countries with GDP per capita below \$$_\text{2011}$2,000 per year do not have the domestic capacity to eradicate extreme poverty (measured as an antipoverty tax below 50\%).
+
+\cite{woodward_incrementum_2015} also shows that with growth alone, and if each country's growth persists at the same level, it would take more than a century --- and a global GDP exceeding \$100,000 per year --- to end extreme poverty. %
+\cite{ortiz_universal_2018} find that financing a basic income at the poverty line is out of reach in low-income countries as the national poverty line is on average equal to 79\% of the GDP and 8 countries have a GDP below this line (which is often itself below \$2.15/day).
+
+The paper also relates to estimates of future poverty rates based on growth alone. Using GDP projections from the IMF, \cite{karver_mdgs_2012} project the 2030 extreme poverty rate at 2.8\% (and at 4.1\% if growth is 1\% lower than projected, the error historically observed with IMF projections). Other studies are more pessimistic, at 3--7\% \citep{chandy_final_2013,bicaba_can_2017}, 4.7\% \citep{manuel_financing_2018} or even 7.4\% for post-COVID estimates \citep{lakner_how_2022}. 
+
+The paper is linked to the literature that estimates the global income distribution \citep{pinkovskiy_parametric_2009,anand_chapter_2015,lahoti_global_2016,lakner_global_2016,gradin_trends_2021,jorda_global_2019,alvaredo_methods_2021,milanovic_three_2024}. 
+It also connects with the costing and progress assessment of SDGs and in particular poverty eradication \citep{schmidt-traub_investment_2015,rozenberg_beyond_2019,sdsn_sdg_2019,manuel_financing_2020,vorisek_understanding_2020,unctad_estimating_2021,un_sustainable_2022}. In 24 countries, a growth rate of 7\% would not suffice to eradicate extreme poverty by 2030 \citep{unctad_estimating_2021}. While the global cost of achieving the SDGs may be as high as \$4 trillion per year \citep{unctad_world_2023}, %
+the financing gap in low- and lower-middle-income countries is estimated at \$400 billion \citep{sdsn_sdg_2019} %
+to \$700 billion \citep{kharas_building_2019} %
+per year. With the current trend, the SDGs will not be achieved and only limited progress towards them will have been made, with more than 60 countries failing to eradicate extreme poverty by 2030 \citep{moyer_are_2020}. %
+\cite{manuel_financing_2018} find that low-income countries do not have the resources to afford basic healthcare, education, and social protection; only an increase and a redirection of Official Development Assistance (ODA) can finance these programs. 
+
+\section{Data}\label{subsec:data}
+The percentiles of each country's post-tax income (or consumption) are estimated by the Poverty and Inequality Platform (PIP) of the World Bank (ex-PovcalNet). PIP aggregates the most recent household surveys (60\% of countries were surveyed between 2018 and 2021). This data is based on purchasing power parity (PPP) and given in constant 2017 \$. %
+
+In low-income countries (those of greatest interest to us), PIP provides data on per capita \textit{consumption} (rather than income). Thereby, the data does not capture services procured by the government. Another potential concern with household surveys is that the aggregate (national) consumption they imply is generally lower than the one estimated in national accounts \citep{deaton_measuring_2005,prydz_disparities_2022,hlasny_impact_2022}. This discrepancy comes from measurement errors on both sides: on the one hand, household surveys suffer from underreporting of top incomes and large expenditures; on the other hand, national accounts do not properly account for informal work %
+and tend to inflate agricultural output \citep{angrist_why_2021}. 
+Furthermore, authoritarian countries have been shown to produce inflated GDP statistics, except for countries below the GDP threshold of eligibility for preferential loans by the World Bank \citep{martinez_how_2022}. %
+While Household Final Consumption Expenditures (HFCE) from national accounts is 44\% greater than the aggregate consumption from household surveys, the ``discrepancy ratio'' is largest for middle-income countries and is only 12\% for low-income countries. 
+Because household surveys are best suited to estimate consumption by the poorest, I use unadjusted PIP data as a baseline. 
+
+As a robustness check, I also re-derive the main results after adjusting aggregate consumption by the discrepancy ratio (computed using World Bank data). In line with \cite{lakner_global_2013} and \cite{anand_chapter_2015}, I impute the extra consumption to the top percentile. I do not perform the rescaling on the 15\% of countries (like Burundi or the D.R.C.) with HFCE lower than its aggregate consumption from PIP, and I assume a discrepancy ratio of +12\% for the 20\% of countries lacking data on HFCE. 
+
+As is common in this literature \citep{karver_mdgs_2012,hellebrandt_future_2015,bicaba_can_2017}, my baseline assumes ``balanced growth'', meaning that each percentile grows at the same rate between the country's survey year and 2030. 
+I rescale incomes by the observed growth of GDP p.c. (in PPP) up to 2022 (using World Bank data) and by different methods for the 2022--2030 period. 
+These methods include: extending the 2014--2019 growth trend (which excludes COVID years); extending the trend for growing countries and assuming no growth when GDP p.c. has contracted between 2014 and 2019; assuming a constant growth (of either 0\%, 3\%, 4.5\%, 6\%, or 7\%); using IMF forecasts (\cite{imf_world_2023} extended up to 2030 by replicating the 2026--2028 forecasted growth in 2028--2030); projecting future growth using an autoregressive quadratic model that predicts the 2011--2019 growth based on the 1991-2011 growth (then applied to 2022--2030 using the 2002--2022 growth). Besides, I deviate from this two-step procedure to assess the original SDG goal, by assuming a constant growth of 7\% starting in 2015.
+
+\section{Results}
+\subsection{The effect of balanced growth}
+
+To estimate global poverty rates, the World Bank scales up the percentiles measured in household surveys by the country's GDP growth between the survey year and the year of interest.\footnote{The World Bank also adjusts growth rates when data captures consumption rather than income, cf. \href{https://datanalytics.worldbank.org/PIP-Methodology/lineupestimates.html\#extrapolations}{datanalytics.worldbank.org/PIP-Methodology/lineupestimates.html}.} I project global poverty rates and poverty gaps in 2030 using the same assumption of balanced growth (i.e., constant inequality), for a range of growth scenarios (Table \ref{tab:poverty}). 
+
+\input{../tables/poverty.tex}
+
+My estimates of 2022 global poverty rates closely align with the 2019 estimates from the World Bank: 9\% of the world population live with less than 2.15\$/day, 24\% below 3.65\$/day, and 47\% below 6.85\$/day. 
+The poverty gap is the cost that separates people below the poverty line from that line. For example, if 10\% of the population earns 1.65\$/day and 90\% of the population earns more than 2.15\$/day, the extreme poverty gap is $0.1 \cdot (2.15 - 1.65) = 0.05\$/\text{day}$. %
+I estimate the extreme poverty gap at 0.25\% of the world GDP. This is a first approximation of what it would cost to lift everyone out of extreme poverty, defined with the \$2.15/day poverty line. 
+
+Assuming that each country will continue to grow at the same rate as in the recent past, %
+I estimate that 6\% of the world population will live in extreme poverty in 2030. I find very similar estimates using a simple yet realistic model to predict a country's growth (an autoregressive projection based on its growth over the last 20 years). 
+If each country grows by 3\% each year, extreme poverty would decline slightly more than in the realistic projections, at 5\%. 
+Although steady growth reduces poverty, growth alone cannot achieve the first SDG: If the world grows by 7\% each year (the maximum rate observed for a given country over 2010--2019), %
+the extreme poverty rate would still be 3\% in 2030. Even if the world had experienced a 7\% growth rate starting in 2015 (when the SDGs were adopted), extreme poverty would not have been completely eliminated, at 1\% of the world population in 2030. 
+As we cannot rely on growth alone to eliminate poverty, let us add domestic redistribution to the equation.
+
+\subsection{Idealized redistributive policies}
+
+Studying the arithmetics of inequality at the country level, I use the poverty gap to approximate the revenues required to eliminate poverty. 
+More specifically, I consider taxes on top incomes to finance a transfer to the poorest that would lift them at the poverty line. I consider two types of redistributive policies to close the poverty gap: (i) an ``antipoverty cap'' that would establish a ceiling on top incomes (and tax income at a 100\% rate above that threshold); (ii) an ``antipoverty tax'' that would raise a linear tax above a certain threshold. 
+
+These policies are idealized. The estimate of revenue they generate should be seen as an upper bound of what could be achieved if they were implemented in practice. 
+First, I ignore any costs associated with raising a tax or transferring money, as if the lowest-income countries already had sufficient administrative resources. Second, any tax (and a fortiori a 100\% tax) reduces economic activity (real or declared). In this exercise, I abstract from tax distorsions and assume that the policies would not affect the taxable base.%
+
+If it were possible to expropriate top income individuals 
+without reducing their economic activity, capping top incomes to finance an income floor would eliminate poverty at the lowest welfare cost. 
+However, to protect private property and diminish the deterring effect on economic activity, governments would rather tax at a lower rate (than 100\%) and on a broader base (starting at a threshold deemed reasonable). 
+Therefore, both the antipoverty cap and the antipoverty tax can be thought as rough but revealing approximations of the capacity to mobilize domestic resources.
+
+In low-income countries, we measure household consumption rather than income, meaning that we do not capture investment nor government spending. In other words, our idealized policies would leave productive investment and public services unaffected, an appropriate treatment given that these channels already contribute to growth and poverty reduction.%
+
+Unless otherwise stated, I use the scenario of balanced growth at a rate of 3\%. I choose this rate as a baseline as it is an upper bound of growth rates recently experienced in the lowest-income countries. Indeed, among the 8 countries with an average consumption below 3\$/day, growth was on average negative over 2014--2019 (or 2014--2022), and the highest growing country (Central African Republic) grew at a rate of 2.4\% per year. %
+
+\subsection{Antipoverty caps}
+
+\begin{figure}[!b]
+  \caption[Anti-extreme-poverty cap in 2030 after 3\% growth.]{Income cap eradicating extreme poverty (in \$/day). In this idealized policy, all income above the cap is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. %
+  }\label{fig:antipoverty_cap}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/y_expropriated_2_average.pdf}}
+\end{figure} 
+
+I estimate the income cap that each country should impose to fill the extreme poverty gap with the exproriated income (Figure \ref{fig:antipoverty_cap}). 
+In some low-income countries, even capping incomes at \$7/day would not suffice to raise revenues equal to the extreme poverty gap, despite a steady growth of 3\% per year between 2022 and 2030. 
+In a very optimistic scenario of 7\% growth, the anti-extreme-poverty cap would be \$14/day in the D.R.C. Also, note that there is no indication that the resources of this country are underestimated, as the aggregate consumption from household surveys is greater than HFCE %
+from national accounts for the D.R.C. 
+Besides, the D.R.C. is not the poorest country. 
+In Madagascar, the average consumption would fall short of \$2.15/day in the baseline scenario, at \$2.02/day. This means that even with extreme redistribution, Madagascar does not have the domestic resources needed to eliminate extreme poverty by 2030. 
+To give one last example of the shortfall of resources in the lowest-income countries, the anti-extreme-poverty cap for Burundi in the scenario of 7\% growth would need to be as low as 8.60\$/day. 
+
+In most of the paper, I focus on the definition of extreme poverty employed in the first SDG. However, the \$2.15 threshold has been criticized for inaccurately measuring poverty \citep{woodward_redefining_2010,deaton_price_2010,deaton_purchasing_2011}. %
+First, this poverty line %
+is barely sufficient to satisfy one's caloric requirements and is too low to procure a healthy diet or non-food necessities. 
+Second, the PPP adjustments applied to PIP data before computing the poverty rates are based on prices of an average consumption basket rather than on prices of subsistence goods \citep{sullivan_capitalist_2023}. Therefore, the cost of a subsistence diet varies across countries. For instance, \cite{moatsos_global_2016} computes that it is \$1.44 in Malawi vs. \$4.10 in Kenya (in 2011 PPP \$). Buidling on earlier work by \cite{allen_absolute_2017} that addresses these issues, \cite{moatsos_global_2016} computes a country-specific poverty line. This basic consumption (or \textit{BCS}) poverty line corresponds to the local price of the cheapest diet that meets caloric and protein requirements, completed with a ration of fat, sugar, and basic non-food requirements (see also \citealp{moatsos_global_2021}). This alternative measure indicates that poverty %
+is more prevalent than the official poverty line suggests. Despite missing data in many countries (including India and the D.R.C.), 14 countries have an average consumption level below this basic consumption poverty line in 2030 in the 3\% growth scenario. These countries (which include e.g. Nigeria) do not have sufficient resources to lift their population above the BCS poverty line, equal to \$4.35/day in median, even after extreme domestic redistribution. 
+
+BCL found that 62 countries could not eradicate severe poverty (defined as \$$_\text{2005}$2/day) with an antipoverty cap at \$$_\text{2005}$13/day, while 27 could not even do so with a cap at \$$_\text{2005}$2/day. 
+Their findings cannot be exactly reproduced with the revised PIP data, as the switch from 2005 to 2017 PPPs has altered not only the level but also the distribution of incomes (for the same reason, the results of BCL and Ravallion cannot be compared). 
+When I replicate the computations of BCL (with their survey years but after scaling the original thresholds into 2017 PPPs by a factor $2.15/1.25 = 1.72$), I find that 52 (resp. 30) 
+countries could not eradicate severe poverty with a cap at \$22.36/day (resp. \$3.44/day). 
+In other words, the revision of PIP data resulted in an apparent enrichment. 
+Looking ahead, in our baseline scenario with 3\% growth, we find that in 2030, 34 (resp. 6) 
+countries will not be able to eradicate severe poverty with a cap at \$22.36/day (resp. \$3.44/day).
+
+\subsection{Antipoverty taxes}
+
+\begin{figure}[b!]
+  \caption[Anti-extreme-poverty tax above \$6.85/day in 2030 after 3\% growth.]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_tax_7}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_2_tax_7_average.pdf}}
+\end{figure}
+
+Figure \ref{fig:antipoverty_tax_7} presents the (additional) tax rate above \$6.85/day required to generate enough revenues to close the domestic extreme poverty gap, in the baseline scenario of 
+3\% growth. The threshold of \$6.85/day is defined by the World Bank as the median national poverty line of upper middle-income countries. It corresponds to an ``acute'' poverty line which can be understood as the consumption level that can sustain a minimally decent life \citep{hickel_is_2019,kikstra_decent_2021}. In contrast, the extreme poverty line of \$2.15/day corresponds to the consumption per capita below which one is undernourished \citep{allen_absolute_2017}. 
+
+Consistently with the previous findings, taxing income at a 100\% rate above \$6.85/day would not generate enough revenues to eliminate extreme poverty in the five poorest countries. In Nigeria, closing the extreme poverty gap would require taxing the ``non-acutely-poor'' at a marginal rate of 20\%. 
+On average over Sub-Saharan Africa, the anti-extreme-poverty tax would be 49\%, and 70\% in low-income countries (defined by the World Bank as countries with a GNI per capita below \$1,135 per year). Yet, imposing such a large tax burden on any income above just \$6.85/day seems unrealistic. 
+
+\begin{figure}[b!]
+  \caption[Anti-extreme-poverty tax above \$18.15/day in 2030 after 3\% growth.]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 7\% over 2022--2030.
+  }\label{fig:antipoverty_tax_18}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_2_tax_18_very_optimistic.pdf}}
+\end{figure}
+
+Figure \ref{fig:antipoverty_tax_18} presents the anti-extreme-poverty tax on incomes above \$18.15/day, in a very optimistic scenario of 7\% growth. The threshold of \$18.15/day per person corresponds to the U.S. federal poverty line for a family of four and represents a more realistic threshold above which taxes could be increased in the Global South. The anti-extreme-poverty tax rates on the ``non-poor'' %
+in this 7\% growth scenario are comparable to the rates on the non-acutely-poor in the baseline scenario. In India, the required tax rate would be 10\% %
+in the scenario with 7\% growth until 2030, 36\% with 5.5\% growth (the country's 2014--2019 trend), and unachievable (at 156\%) with 3\% growth. %
+With sustained growth, the contribution required of the Indian non-poor seems large but possible. %
+Therefore, India seems able to eliminate extreme poverty by 2030 with its domestic resources. The same thing cannot be said of Sub-Saharan Africa. %
+
+
+\subsection{The credible potential of domestic redistribution}
+
+A final way of approaching the issue is to set a tax schedule, compute how much revenues it would generate in each country, and estimate the income floor that these revenues could finance (by topping up the incomes of the poorest to the income floor). As I have already explored extreme redistributive policies, I analyse here a more reasonable tax schedule. Namely, I consider a 10\% marginal tax rate on income above \$6.85/day. Although the tax base may be too wide (affecting people on the verge of acute poverty) %
+and the tax rate too low for top incomes, 
+this simple tax schedule seems to correctly reflect the fiscal capacity of governments. Note that the value of the income floor depends on the whole income distribution: the top of the distribution determines the revenues that can be generated; and the bottom dictates the cost of raising low incomes up to a given floor. 
+
+Figure \ref{fig:demogrant_7__10} presents the income floor that can funded in 2030 with our simple tax in a 3\% growth scenario. While the number of countries unable to eradicate extreme poverty through this tax totals 23, a figure akin to the count of low-income countries at 27, a mere 13 countries fall into both categories.
+For example, while Ethiopia (a low-income country) can finance an income floor of \$3.08/day, Nigeria (classified as a lower-middle-income country) can only finance a floor of \$1.83/day. 
+
+\begin{figure}[t!]
+  \caption[Income floor of 10\% tax above \$6.85/day in 2030 after 3\% growth.]{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day (in 2017 PPP \$/day). In this idealized policy, all tax revenue is transferred to the poorest and lift them at the income floor, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:demogrant_7__10}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/demogrant_7__10.pdf}}
+\end{figure}
+
+Even in a scenario with 7\% growth from 2023 onwards, 10 countries have an income floor below \$2.15 in 2030. Note that the picture does not significantly change when adjusting top incomes so that aggregate consumption matches national accounts: %
+8 countries are still unable to close the extreme poverty gap despite very optimistic growth in this robustness check. In contrast, if the 7\% growth had started in 2016 (as the SDGs were set up), the 10\% tax would have been sufficient to eliminate extreme poverty in all countries except in Madagascar, where a tax of 23\% would have been required.
+
+At least two of the SDGs spell out how the elimination of extreme poverty could be funded. %
+First, the target 8.1 aims for ``at least 7 per cent gross domestic product growth per annum in the least developed countries''. As we have seen, a sustained high growth since 2016 would have permitted the least developed countries to eliminate extreme poverty through the mobilization of their domestic resources. However, high growth has never materialized in these countries. 
+Second, the target 17.2 calls for ``Developed countries to implement fully their official development assistance commitments, including the commitment by many developed countries to achieve the target of 0.7 per cent of ODA/GNI to developing countries and 0.15 to 0.20 per cent of ODA/GNI to least developed countries'' (LDCs). Foreign aid falls short of both the overall target (at 0.37\% of developed countries' GNI) and the LDCs' target (at 0.06\%). While just four countries are meeting their commitments (Luxembourg, Sweden, Norway, and Germany), the U.S. only allocates 0.23\% of its GNI to foreign aid \citep{oecd_oda_2023}. The global extreme poverty gap (0.17\% of global real GDP) is a bit lower than the shortfall of foreign aid relative to the target (0.2\% of global nominal GDP), suggesting that extreme poverty could be significantly reduced if developed countries respected their commitment. %
+However, to meet the broader SDGs and ``end poverty in all its forms'', the 0.7\% target would not suffice and international solidarity should be significantly strenghtened. %
+
+\subsection{The potential of global redistribution} %
+
+In this section, we highlight the potential of globally redistributive policies to close the global poverty gap in 2030 in the baseline scenario of 3\% growth. %
+
+If applied to the global level, the tax of the previous section would bring the global Gini from .62 down to .51 and finance an income floor at \$8.6/day, thereby closing the \$6.85/day poverty gap. By comparison, applied at the national level, it would only bring the global Gini down to .59 and reduce the poverty gap from 4.5\% to 3.7\% of global income. 
+
+To close the \textit{extreme} poverty gap, a 1.2\% marginal tax %
+above 100\$/day (i.e. \$36,500/year) would suffice. %
+Such a tax would result in 3.4\% of global income being transferred from the rich to the extreme poor, but would only involve 0.14\% of global income being transferred from one country to another. 
+With contributions of up to 0.4\% of a country's income (in the U.S.), aggregate consumption would increase by more than 10\% in 9 countries. 
+
+In reality, the global tax rates required to eradicate poverty may well be lower than just indicated, because our calculations used the raw PIP data instead of converting them to nominal terms and rescaling them to national accounts. Once I rescale the data to national accounts, (which are more accurate in high-income countries), 
+a mild 0.3\% marginal tax above \$100/day suffices to close the extreme poverty gap. Raising that rate to 10\% would collect 3.4\% of the world income, enough to finance a global income floor of \$7/day and end absolute poverty ``in all its forms'' (extreme and acute). 
+These rates are expressed on top of the current tax system and apply to post-tax income. For example, the last tax schedule would leave unaffected the 95\% of the world's population whose per capita after-tax income is less than \$36,500/year, and would reduce the after-tax income of those at \$73,000/year by 5\%. 
+
+
+Although internationally redistributive taxes have yet to take off, the proposal of a global wealth tax is gaining momentum \citep{piketty_brief_2022}. A 2\% tax on individual net wealth above \$1 billion would raise \$214 billion a year, slightly more than the global extreme poverty gap \citep{alstadsaeter_global_2024}. Moreover, a global tax on the wealthiest 1\% can raise enough revenues to close the global acute poverty gap and lift everyone above \$6.85/day. For example, the \href{https://wid.world/world-wealth-tax-simulator}{WID wealth tax simulator} shows that a tax consisting of a 4\% marginal rate above \$1 million and 10\% above \$100 million would raise 4.4\% of the global GDP. More generally, a global tax on millionaires designed to be revenue-maximing in the long-run has the potential to finance the eradication of acute poverty. 
+
+In a nutshell, whereas poverty alleviation cannot be achieved rapidly without international solidarity, it can be financed by reasonable contributions from the global top 1\%.
+
+\section{Discussion} 
+
+To paraphrase the \cite{un_sustainable_2022}, ``as things stand, the world is not on track to end poverty by 2030.'' I have shown that the only prospect for low-income countries to eliminate extreme poverty on their own is the combination of strong growth, ambitious policies of social programs and domestic redistribution, and time. 
+With record growth and profound government committment, China has officially eradicated extreme poverty in 2021. The D.R.C. is poorer now than China in 1990, %
+so even if it reproduces the Chinese miracle, it will not be able to eradicate extreme poverty on its own before 2055. 
+In contrast, international solidarity might be able to end poverty more quickly and at a much lower welfare cost. In this paper, I have illustrated the magnitude of the required transfer of resources with idealized international taxes, but in reality this could take other forms such as a systemic change in the rules or structures of the world economy. 
+To be fair, this paper only presents the orders of magnitude of global inequality. %
+In practice, structural factors that sustain poverty (like wars or corruption) %
+can also hamper the effectiveness of international action. %
+
+
+  \begin{small} %
+
+
+
+
+
+\section*{\normalsize Data and code availability}
+
+All data and code of as well as figures of the paper are available on \href{https://github.com/bixiou/domestic_poverty_eradication}{github.com/bixiou/domestic\_poverty\_eradication}. 
+
+\end{small}  %
+
+\renewcommand{\url}[1]{\href{#1}{Link}} %
+\bibliographystyle{plainnat} %plainnaturl_clean
+\bibliography{poverty}
+
+\begin{itemize}
+\item[JEL codes] D63, I32, P16.
+\item[Keywords]  Poverty gap, Sustainable Development Goals, Domestic resource mobilization, Redistribution, Fiscal capacity, Extreme poverty.
+\end{itemize}
+
+\clearpage
+\listoftables
+\listoffigures
+
+\appendix %
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\thefigure}{A\arabic{figure}}
+\setcounter{figure}{0}
+\setcounter{table}{0}
+
+\clearpage
+\section{Appendix}
+\subsection{Additional figures}
+
+Many more figures (with varying poverty lines, taxation thresholds, growth scenarios, etc.) are available on \href{https://github.com/bixiou/domestic_poverty_eradication/tree/main/figures}{github.com/bixiou/domestic\_poverty\_eradication}. Also, any custom figure can be easily produced using this code.
+
+
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). Data has been rescaled to match HFCE aggregate from national account. In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:s_antipoverty_2_tax_7_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/s_antipoverty_2_tax_7_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, with growth until 2030 predicted at the country level. 
+  }\label{fig:antipoverty_2_tax_7_reg}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_2_tax_7_reg.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$18.15/day after 3\% growth.]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_2_tax_18_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_2_tax_18_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$18.15/day after 7\% growth (HFCE-scaled).]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). Data has been rescaled to match HFCE aggregate from national account. In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 7\% over 2022--2030. 
+  }\label{fig:s_antipoverty_2_tax_18_very_optimistic}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/s_antipoverty_2_tax_18_very_optimistic.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-severe-poverty tax above \$18.15/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$3.65/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_4_tax_18_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_4_tax_18_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-acute-poverty tax above \$18.15/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$6.85/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_7_tax_18_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_7_tax_18_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-acute-poverty tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$6.85/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_7_tax_7_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_7_tax_7_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Income floor of 10\% tax above \$6.85/day after 7\% growth.]{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day (in 2017 PPP \$/day). In this idealized policy, all tax revenue is transferred to the poorest and lift them at the income floor, assuming away distorsions, and after a yearly growth of 7\% over 2022--2030. 
+  }\label{fig:demogrant_7__10_very_optimistic}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/demogrant_7__10_very_optimistic.pdf}}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!htb]
+  \caption[Income floor of 10\% tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day (in 2017 PPP \$/day). Data has been rescaled to match HFCE aggregate from national account. In this idealized policy, all tax revenue is transferred to the poorest and lift them at the income floor, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:s_demogrant_7__10}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/s_demogrant_7__10.pdf}}
+\end{figure}
+
+\subsection{Additional tables}
+\begin{table}[b]
+
+  \caption[Mean income in different scenarios, survey years and HFCE rescaling factor.]{\label{tab:tax}Mean income in major lower-income countries in various years and growth scenarios, survey years and factor used to rescale incomes to national accounts (in countries with HFCE to survey ratio above 1).}
+  \makebox[\textwidth][c]{
+  \begin{tabular}[t]{lccccccccc}
+  \toprule  & Year & \multicolumn{6}{c}{Mean consumption/income (in \$/day)} & BCL & HFCE to  \\ 
+   Indicator & of & year of & 2022 & \multicolumn{4}{c}{2030 estimate} & survey & survey \\ 
+   & Survey & survey & est. & 3\% & 7\% & Projection & Trend & year & ratio \\ 
+  \midrule
+  World & 2018 & 17.2 & 18.6 & 23.6 & 32.3 & 22.9 & 23.3 & 2009 & 1.42\\
+  Low-Income Countries & 2015 & 3.6 & 3.8 & 5.3 & 8.5 & 4.4 & 4.6 & 2008 & 1.11\\
+  Sub-Saharan Africa & 2016 & 4.2 & 4.3 & 5.5 & 7.4 & 5.1 & 4.8 & 2009 & 1.34\\
+  \midrule Angola & 2018 & 5.5 & 4.7 & 6.0 & 8.1 & 5.2 & 3.3 & 2009 & 1.71\\
+  Bangladesh & 2016 & 4.5 & 6.1 & 7.7 & 10.5 & 8.0 & 9.6 & 2010 & 1.90\\
+  Benin & 2018 & 4.7 & 5.3 & 6.7 & 9.0 & 6.0 & 6.1 & 2003 & 1.25\\
+  Burkina Faso & 2018 & 5.0 & 5.2 & 6.6 & 9.0 & 6.2 & 6.5 & 2009 & 0.75\\
+  Burundi & 2013 & 2.3 & 2.0 & 2.5 & 3.4 & 2.1 & 1.6 & 2006 & 0.75\\
+  Cameroon & 2014 & 5.8 & 6.1 & 7.7 & 10.5 & 6.8 & 6.7 & 2007 & 1.18\\
+  Chad & 2018 & 3.8 & 3.4 & 4.4 & 5.9 & 3.9 & 2.6 & 2003 & 0.92\\
+  D.R. Congo & 2012 & 2.0 & 2.6 & 3.2 & 4.4 & 3.0 & 2.8 & 2005 & 0.91\\
+  Ethiopia & 2015 & 3.7 & 5.1 & 6.4 & 8.7 & 7.0 & 8.1 & 2011 & 0.91\\
+  Ghana & 2016 & 5.1 & 6.0 & 7.6 & 10.3 & 7.3 & 7.6 & 2006 & 1.96\\
+  Guinea & 2018 & 4.4 & 4.8 & 6.1 & 8.3 & 5.6 & 6.9 & 2007 & 1.12\\
+  Haiti & 2012 & 3.9 & 3.6 & 4.5 & 6.2 & 3.9 & 3.5 & 2001 & 1.73\\
+  India & 2019 & 5.3 & 5.6 & 7.1 & 9.7 & 7.3 & 8.6 & 2010 & 2.19\\
+  Ivory Coast & 2018 & 5.7 & 6.4 & 8.1 & 10.9 & 7.4 & 8.6 & 2008 & 1.67\\
+  Kenya & 2015 & 4.2 & 5.0 & 6.3 & 8.6 & 5.8 & 6.1 & 2005 & 1.99\\
+  Madagascar & 2012 & 1.6 & 1.6 & 2.0 & 2.7 & 1.8 & 1.7 & 2010 & 2.04\\
+  Malawi & 2019 & 2.1 & 2.0 & 2.5 & 3.4 & 2.3 & 2.2 & 2010 & NA\\
+  Mali & 2018 & 5.0 & 4.9 & 6.2 & 8.3 & 5.4 & 5.7 & 2010 & 0.94\\
+  Mozambique & 2014 & 2.9 & 2.9 & 3.7 & 5.0 & 3.4 & 3.1 & 2008 & NA\\
+  Nepal & 2010 & 5.2 & 7.7 & 9.8 & 13.3 & 9.4 & 11.0 & 2010 & 1.30\\
+  Niger & 2018 & 2.9 & 3.0 & 3.9 & 5.2 & 3.5 & 3.5 & 2008 & 0.86\\
+  Nigeria & 2018 & 3.7 & 3.6 & 4.5 & 6.1 & 4.1 & 3.2 & 2011 & NA\\
+  Pakistan & 2018 & 5.0 & 5.3 & 6.7 & 9.1 & 6.2 & 6.8 & 2008 & 2.35\\
+  Papua New Guinea & 2009 & 3.5 & 4.3 & 5.4 & 7.3 & 4.8 & 4.8 & 1996 & NA\\
+  Rwanda & 2016 & 3.1 & 3.8 & 4.8 & 6.6 & 4.9 & 5.5 & 2011 & 1.45\\
+  Senegal & 2018 & 6.0 & 6.3 & 8.0 & 10.8 & 7.2 & 8.2 & 2011 & 1.11\\
+  South Sudan & 2016 & 2.2 & 2.2 & 3.3 & 5.5 & NA & 2.2 & NA & NA\\
+  Sudan & 2014 & 4.6 & 3.4 & 4.3 & 5.9 & 3.6 & 2.7 & 2009 & 1.94\\
+  Tanzania & 2018 & 3.3 & 3.4 & 4.4 & 5.9 & 4.1 & 4.3 & 2007 & 1.43\\
+  Uganda & 2019 & 3.5 & 3.6 & 4.5 & 6.1 & 4.2 & 4.1 & 2009 & 1.33\\
+  Uzbekistan & 2003 & 1.6 & 4.0 & 5.1 & 6.9 & 5.2 & 5.5 & NA & NA\\
+  Yemen & 2014 & 4.5 & 4.5 & 7.2 & 13.3 & NA & 4.5 & 2005 & NA\\
+  Zambia & 2015 & 3.0 & 3.0 & 3.7 & 5.1 & 3.4 & 2.9 & 2010 & NA\\
+  Zimbabwe & 2019 & 4.5 & 4.4 & 5.5 & 7.5 & 4.7 & 4.0 & NA & 1.10\\
+  \bottomrule
+  \end{tabular}}
+  \end{table}
+
+  \begin{table}[b]
+
+    \caption[Expected poverty and growth in 2030 in lower-income countries.]{\label{tab:tax}Expected poverty and growth in major lower-income countries: trend and projected growth rate, poverty rates and gaps at \$2.15 and \$6.85/day in 2030 after 3\%
+    growth since 2022.}
+    \makebox[\textwidth][c]{
+    \begin{tabular}[t]{lcccccccc}
+    \toprule \makecell{\\Indicator} & \makecell{Growth\\Trend} & \makecell{Growth\\Autoregressive} & \multicolumn{3}{c}{\makecell{Poverty rate\\(in \%)}} & \multicolumn{3}{c}{\makecell{Poverty gap\\(in \% of mean income)}}  \\ 
+    & 2014--2019 & Projection & \$2.15 & \$3.65 & \$6.85 & \$2.15 & \$3.65 & \$6.85 \\ 
+    \midrule
+    World & 3.4 & 2.9 & 5 & 15 & 38 & 0.1 & 0.8 & 4.4\\
+    Low-Income Countries & 1.9 & 2.3 & 27 & 52 & 80 & 3.9 & 15.5 & 56.7\\
+    Sub-Saharan Africa & 1.0 & 2.0 & 24 & 50 & 79 & 3.2 & 13.6 & 52.9\\
+    \midrule Angola & -4.2 & 1.3 & 28 & 49 & 75 & 3.7 & 13.6 & 47.9\\
+    Bangladesh & 5.8 & 3.4 & 1 & 13 & 58 & 0.0 & 1.1 & 16.0\\
+    Benin & 1.8 & 1.7 & 7 & 29 & 69 & 0.4 & 4.3 & 29.3\\
+    Burkina Faso & 2.7 & 2.1 & 15 & 45 & 73 & 1.1 & 8.1 & 37.9\\
+    Burundi & -2.6 & 0.9 & 60 & 84 & 96 & 19.0 & 63.9 & 181.6\\
+    Cameroon & 1.2 & 1.5 & 15 & 35 & 62 & 1.2 & 6.1 & 26.7\\
+    Chad & -3.4 & 1.7 & 23 & 57 & 86 & 2.8 & 16.9 & 71.5\\
+    D.R. Congo & 1.2 & 2.1 & 45 & 73 & 91 & 11.2 & 39.5 & 122.7\\
+    Ethiopia & 6.0 & 4.0 & 7 & 26 & 71 & 0.5 & 4.1 & 28.9\\
+    Ghana & 2.9 & 2.5 & 13 & 30 & 61 & 1.3 & 5.5 & 24.9\\
+    Guinea & 4.6 & 1.9 & 4 & 25 & 69 & 0.3 & 3.6 & 29.3\\
+    Haiti & -0.3 & 1.1 & 37 & 59 & 83 & 8.2 & 24.4 & 76.1\\
+    India & 5.5 & 3.4 & 3 & 21 & 68 & 0.1 & 2.3 & 23.3\\
+    Ivory Coast & 3.9 & 1.9 & 3 & 19 & 56 & 0.1 & 2.0 & 17.7\\
+    Kenya & 2.6 & 1.9 & 12 & 37 & 71 & 1.0 & 6.8 & 35.5\\
+    Madagascar & 1.1 & 1.3 & 72 & 88 & 97 & 35.4 & 96.0 & 244.4\\
+    Malawi & 1.0 & 1.8 & 59 & 84 & 96 & 18.1 & 61.7 & 177.3\\
+    Mali & 2.1 & 1.4 & 7 & 34 & 71 & 0.4 & 5.2 & 34.1\\
+    Mozambique & 0.9 & 2.2 & 52 & 76 & 90 & 12.3 & 39.2 & 113.1\\
+    Nepal & 4.5 & 2.5 & 1 & 5 & 40 & 0.0 & 0.4 & 7.5\\
+    Niger & 1.7 & 1.6 & 28 & 67 & 90 & 3.8 & 23.1 & 90.9\\
+    Nigeria & -1.3 & 1.8 & 20 & 50 & 84 & 2.4 & 14.3 & 64.1\\
+    Pakistan & 3.2 & 2.0 & 1 & 15 & 68 & 0.0 & 1.3 & 22.4\\
+    Papua New Guinea & 1.5 & 1.6 & 21 & 45 & 76 & 2.9 & 12.2 & 49.3\\
+    Rwanda & 4.8 & 3.0 & 25 & 57 & 84 & 2.9 & 15.9 & 64.2\\
+    Senegal & 3.3 & 1.7 & 3 & 20 & 58 & 0.1 & 2.0 & 18.5\\
+    South Sudan & NA & NA & 47 & 72 & 91 & 12.4 & 40.5 & 122.8\\
+    Sudan & -2.9 & 0.8 & 18 & 54 & 88 & 2.1 & 14.9 & 70.5\\
+    Tanzania & 2.8 & 2.3 & 26 & 61 & 87 & 3.1 & 18.7 & 74.9\\
+    Uganda & 1.7 & 2.2 & 27 & 59 & 85 & 3.6 & 18.3 & 71.7\\
+    Uzbekistan & 4.0 & 3.3 & 12 & 43 & 82 & 1.4 & 9.4 & 51.5\\
+    Yemen & NA & NA & 4 & 23 & 64 & 0.2 & 2.9 & 23.2\\
+    Zambia & 0.0 & 1.9 & 53 & 71 & 87 & 15.4 & 40.8 & 109.6\\
+    Zimbabwe & -1.0 & 0.9 & 29 & 55 & 79 & 3.3 & 15.1 & 55.1\\
+    \bottomrule
+    \end{tabular}}
+    \end{table}
+
+    \begin{table}[b]
+
+      \caption{\label{tab:cap}Antipoverty caps for major lower-income countries in 2030.}
+      \makebox[\textwidth][c]{
+      \begin{tabular}[t]{lrrrrrrrrr}
+      \toprule Poverty line (\$/day) & 2.15 & 2.15 & 2.15 & 2.15 & 2.15 & 2.15 & BCS & 3.44 & 3.44 \\ 
+      Growth scenario & 3\% & 3\% & 7\% & 7\% & \multicolumn{2}{c}{Projection} & 3\% & 3\% & BCL \\ 
+      HFCE rescaling & & \checkmark & & \checkmark & & \checkmark & & & \\ 
+       \midrule
+      World & 442.6 & 1785.2 & 618.7 & 2442.3 & 384.3 & 1741.9 & $+\infty$ & 376.0 & 204.3\\
+      Low-Income Countries & 29.7 & 200.7 & 160.9 & 518.9 & 15.7 & 101.1 & $+\infty$ & 13.1 & 3.8\\
+      Sub-Saharan Africa & 37.7 & 636.1 & 52.8 & 1119.1 & 31.0 & 631.5 & $+\infty$ & 16.3 & 6.6\\
+      \midrule Angola & 63.1 & 896.5 & 132.4 & 1283.4 & 41.1 & 755.7 & 6.0 & 20.7 & 15.2\\
+      Bangladesh & 69.0 & 1461.6 & $+\infty$ & $+\infty$ & 71.4 & 1506.2 & NA & 50.1 & 7.6\\
+      Benin & 50.1 & 376.6 & 79.0 & 523.0 & 40.1 & 333.0 & 30.5 & 24.4 & 8.4\\
+      Burkina Faso & 49.4 & 49.4 & 90.5 & 90.5 & 40.9 & 40.9 & 24.7 & 25.1 & 11.1\\
+      Burundi & 3.4 & 3.4 & 8.6 & 8.6 & 2.1 & 2.1 & 2.5 & 2.5 & 2.3\\
+      Cameroon & 53.8 & 326.9 & 97.0 & 476.0 & 40.4 & 275.0 & 17.3 & 29.5 & 14.2\\
+      Chad & 16.4 & 16.4 & 34.2 & 34.2 & 12.4 & 12.4 & 10.1 & 6.9 & 4.7\\
+      D.R. Congo & 6.7 & 6.7 & 14.7 & 14.7 & 5.6 & 5.6 & NA & 3.2 & 2.0\\
+      Ethiopia & 43.8 & 43.8 & 71.7 & 71.7 & 51.2 & 51.2 & 19.2 & 22.0 & 4.4\\
+      Ghana & 47.8 & 1501.7 & 85.1 & 2067.0 & 43.8 & 1440.7 & 30.1 & 26.3 & 9.8\\
+      Guinea & 21.6 & 160.4 & 35.0 & 225.3 & 18.2 & 143.5 & 17.2 & 13.2 & 6.3\\
+      Haiti & 18.5 & 593.3 & 39.5 & 895.7 & 12.1 & 466.8 & 4.5 & 7.9 & 4.9\\
+      India & 56.1 & 1750.5 & 79.1 & 2378.6 & 58.3 & 1804.3 & NA & 35.3 & 13.5\\
+      Ivory Coast & 55.4 & 1127.2 & 80.2 & 1534.2 & 48.5 & 1028.7 & NA & 32.5 & 13.6\\
+      Kenya & 42.1 & 1291.1 & 75.4 & 1775.5 & 33.6 & 1174.5 & 14.1 & 19.3 & 6.4\\
+      Madagascar & 2.0 & 200.7 & 4.6 & 422.2 & 1.8 & 125.5 & 2.0 & 2.0 & 1.6\\
+      Malawi & 3.6 & 7.6 & 9.1 & 44.4 & 2.7 & 4.6 & 8.2 & 2.5 & 2.1\\
+      Mali & 33.8 & 33.8 & 55.6 & 55.6 & 25.3 & 25.3 & 27.1 & 16.9 & 9.5\\
+      Mozambique & 21.0 & 61.9 & 59.5 & 166.8 & 15.6 & 46.0 & 28.9 & 4.5 & 2.9\\
+      Nepal & 66.3 & 660.2 & $+\infty$ & $+\infty$ & 63.5 & 635.2 & 38.2 & 56.9 & 10.8\\
+      Niger & 16.2 & 16.2 & 38.4 & 38.4 & 11.3 & 11.3 & 8.0 & 5.0 & 2.9\\
+      Nigeria & 14.2 & 102.5 & 29.5 & 177.8 & 11.1 & 79.9 & 5.9 & 7.0 & 4.1\\
+      Pakistan & 55.9 & 1875.4 & $+\infty$ & $+\infty$ & 51.2 & 1740.1 & 20.1 & 36.3 & 11.5\\
+      Papua New Guinea & 20.6 & 123.2 & 39.2 & 212.0 & 16.1 & 95.1 & NA & 11.1 & 3.6\\
+      Rwanda & 32.0 & 451.2 & 74.1 & 664.8 & 32.3 & 452.6 & 7.2 & 10.9 & 3.1\\
+      Senegal & 72.7 & 250.6 & 103.0 & 344.4 & 62.9 & 223.3 & 60.8 & 41.7 & 17.6\\
+      South Sudan & 6.8 & 19.7 & 24.9 & 135.9 & NA & NA & NA & 3.3 & NA\\
+      Sudan & 20.0 & 819.5 & 49.0 & 1148.3 & 11.5 & 661.9 & 4.3 & 6.7 & 7.9\\
+      Tanzania & 23.7 & 378.8 & 57.8 & 567.6 & 19.4 & 345.9 & 9.6 & 7.5 & 3.3\\
+      Uganda & 29.9 & 314.0 & 77.3 & 483.3 & 23.3 & 281.0 & 10.4 & 8.5 & 3.7\\
+      Uzbekistan & 22.7 & 139.0 & 44.9 & 213.8 & 24.1 & 144.8 & 36.2 & 10.8 & NA\\
+      Yemen & 60.2 & 237.9 & $+\infty$ & $+\infty$ & NA & NA & NA & 30.2 & 7.7\\
+      Zambia & 11.8 & 30.0 & 27.5 & 91.8 & 9.3 & 22.5 & 3.7 & 4.6 & 3.0\\
+      Zimbabwe & 40.6 & 133.1 & 85.3 & 235.7 & 26.7 & 83.7 & NA & 17.2 & NA\\
+      \bottomrule
+      \end{tabular}}
+      \end{table}
+
+      \begin{table}[b]
+
+        \caption[Anti-extrme-poverty taxes for major lower-income countries in 2030.]{\label{tab:tax}Antipoverty tax required to eliminate extreme poverty (at \$2.15/day) in major lower-income countries in 2030 (marginal rate in \%).}
+        \makebox[\textwidth][c]{
+        \begin{tabular}[t]{lrrrrrrrrr}
+        \toprule Taxation threshold (\$/day) & 6.85 & 18.15 & 18.15 & 18.15 & 18.15 & 6.85 & 6.85 & 6.85 & 18.15 \\ 
+        Growth scenario & 3\% & 7\% & 3\% & Trend & \multicolumn{2}{c}{Projection} & 7\% & 3\% & 7\% \\ 
+        HFCE rescaling & & & & & & & & \checkmark & \checkmark \\ 
+         \midrule
+        World & 0.2 & 0.1 & 0.3 & 0.4 & 0.3 & 0.2 & 0.1 & 0.1 & 0.1\\
+        Low-Income Countries & 14.6 & 5.5 & 44.5 & 112.2 & 125.9 & 31.0 & 2.9 & 9.5 & 3.5\\
+        Sub-Saharan Africa & 11.5 & 8.3 & 30.1 & 61.5 & 42.5 & 15.5 & 3.3 & 5.1 & 2.4\\
+        \midrule Angola & 11.4 & 9.1 & 28.2 & 177.2 & 44.3 & 18.0 & 3.8 & 3.6 & 1.8\\
+        Bangladesh & 0.1 & 0.0 & 0.6 & 0.0 & 0.4 & 0.1 & 0.0 & 0.0 & 0.0\\
+        Benin & 1.5 & 0.7 & 6.8 & 12.8 & 13.8 & 3.0 & 0.2 & 0.8 & 0.2\\
+        Burkina Faso & 3.2 & 1.3 & 9.7 & 11.1 & 14.7 & 4.7 & 0.5 & 3.2 & 1.3\\
+        Burundi & 285.8 & 449.4 & $>$ 10k & $>$ 10k & $>$ 10k & 600.7 & 69.5 & 285.8 & 449.4\\
+        Cameroon & 3.1 & 2.0 & 9.9 & 19.6 & 17.9 & 5.3 & 0.8 & 2.1 & 1.0\\
+        Chad & 19.3 & 16.1 & 130.6 & $>$ 10k & 246.0 & 33.9 & 3.2 & 19.3 & 16.1\\
+        D.R. Congo & 103.1 & 155.2 & 743.7 & 2482.0 & 1239.1 & 140.8 & 26.8 & 103.1 & 155.2\\
+        Ethiopia & 2.2 & 1.1 & 10.3 & 2.0 & 5.9 & 1.3 & 0.3 & 2.2 & 1.1\\
+        Ghana & 3.6 & 3.5 & 13.9 & 14.3 & 16.6 & 4.2 & 1.1 & 1.0 & 0.5\\
+        Guinea & 1.8 & 2.1 & 36.0 & 10.4 & 85.3 & 3.3 & 0.2 & 1.0 & 0.4\\
+        Haiti & 32.7 & 34.3 & 97.3 & 242.0 & 164.6 & 52.9 & 12.5 & 8.3 & 4.9\\
+        India & 0.5 & 0.1 & 1.6 & 0.4 & 1.2 & 0.4 & 0.0 & 0.1 & 0.0\\
+        Ivory Coast & 0.4 & 0.2 & 2.0 & 1.2 & 3.9 & 0.8 & 0.1 & 0.1 & 0.0\\
+        Kenya & 3.8 & 2.8 & 15.9 & 19.5 & 25.9 & 5.9 & 0.8 & 0.8 & 0.3\\
+        Madagascar & 620.6 & 2019.5 & $>$ 10k & $>$ 10k & $>$ 10k & 1072.2 & 179.7 & 32.3 & 16.4\\
+        Malawi & 260.0 & 354.8 & $>$ 10k & $>$ 10k & $>$ 10k & 397.8 & 63.8 & 93.7 & 49.7\\
+        Mali & 1.9 & 0.9 & 12.0 & 21.2 & 30.9 & 4.3 & 0.2 & 1.9 & 0.9\\
+        Mozambique & 45.8 & 32.0 & 89.2 & 151.8 & 109.9 & 56.1 & 16.6 & 31.4 & 18.5\\
+        Nepal & 0.0 & 0.0 & 0.1 & 0.0 & 0.2 & 0.0 & 0.0 & 0.0 & 0.0\\
+        Niger & 28.5 & 17.6 & 123.5 & 222.1 & 228.3 & 50.2 & 4.7 & 28.5 & 17.6\\
+        Nigeria & 19.5 & 22.7 & 187.6 & $>$ 10k & 387.0 & 33.7 & 3.0 & 9.8 & 4.2\\
+        Pakistan & 0.0 & 0.0 & 0.3 & 0.1 & 1.0 & 0.2 & 0.0 & 0.0 & 0.0\\
+        Papua New Guinea & 13.2 & 15.2 & 75.0 & 136.5 & 128.1 & 20.9 & 3.5 & 8.4 & 5.7\\
+        Rwanda & 12.9 & 8.2 & 41.2 & 20.8 & 40.7 & 12.7 & 2.8 & 4.3 & 1.5\\
+        Senegal & 0.4 & 0.2 & 1.5 & 1.2 & 3.1 & 0.8 & 0.1 & 0.3 & 0.1\\
+        South Sudan & 101.6 & 52.3 & 603.5 & $>$ 10k & NA & NA & 11.7 & 49.8 & 16.1\\
+        Sudan & 17.8 & 12.4 & 73.0 & 2942.7 & 197.9 & 46.4 & 2.8 & 2.0 & 0.6\\
+        Tanzania & 17.7 & 10.0 & 62.2 & 68.1 & 86.3 & 23.7 & 3.0 & 5.1 & 1.5\\
+        Uganda & 18.3 & 12.1 & 52.4 & 81.4 & 69.8 & 24.4 & 4.1 & 6.8 & 2.7\\
+        Uzbekistan & 8.5 & 8.1 & 51.7 & 31.7 & 44.2 & 7.5 & 1.6 & 4.8 & 2.4\\
+        Yemen & 0.9 & 0.0 & 3.8 & 86.1 & NA & NA & 0.0 & 0.6 & 0.0\\
+        Zambia & 58.2 & 60.1 & 166.2 & 362.1 & 216.7 & 74.3 & 23.7 & 39.6 & 31.4\\
+        Zimbabwe & 10.5 & 6.1 & 27.2 & 107.9 & 56.9 & 20.5 & 2.6 & 7.8 & 3.7\\
+        \bottomrule
+        \end{tabular}}
+        \end{table}
+
+        \begin{table}[b]
+
+          \caption[Anti-severe-poverty taxes for major lower-income countries in 2030.]{\label{tab:tax4}Antipoverty tax required to eliminate severe poverty (at \$3.65/day) in major lower-income countries in 2030 (marginal rate in \%).}
+          \makebox[\textwidth][c]{
+          \begin{tabular}[t]{lrrrrrrrrr}
+          \toprule Taxation threshold (\$/day) & 6.85 & 18.15 & 18.15 & 18.15 & 18.15 & 6.85 & 6.85 & 6.85 & 18.15 \\ 
+          Growth scenario & 3\% & 7\% & 3\% & Trend & \multicolumn{2}{c}{Projection} & 7\% & 3\% & 7\% \\ 
+          HFCE rescaling & & & & & & & & \checkmark & \checkmark \\ 
+           \midrule
+          World & 1.0 & 0.5 & 1.4 & 1.7 & 1.6 & 1.1 & 0.4 & 0.7 & 0.3\\
+          Low-Income Countries & 57.2 & 25.1 & 174.5 & 388.0 & 464.3 & 114.4 & 13.4 & 37.3 & 15.8\\
+          Sub-Saharan Africa & 49.2 & 42.2 & 129.2 & 224.3 & 172.5 & 63.1 & 16.7 & 21.9 & 12.5\\
+          \midrule Angola & 41.2 & 38.0 & 102.3 & 510.7 & 151.6 & 61.6 & 15.8 & 13.0 & 7.5\\
+          Bangladesh & 3.8 & 1.7 & 19.0 & 3.5 & 15.2 & 3.1 & 0.4 & 0.9 & 0.2\\
+          Benin & 16.4 & 12.3 & 72.2 & 118.6 & 126.0 & 27.1 & 3.3 & 8.5 & 3.5\\
+          Burkina Faso & 23.4 & 16.4 & 70.8 & 78.6 & 97.3 & 30.9 & 6.6 & 23.4 & 16.4\\
+          Burundi & 963.8 & 1983.9 & $>$ 10k & $>$ 10k & $>$ 10k & 1787.8 & 306.7 & 963.8 & 1983.9\\
+          Cameroon & 16.2 & 13.8 & 51.6 & 91.0 & 84.4 & 24.7 & 5.2 & 11.0 & 6.9\\
+          Chad & 116.1 & 146.6 & 785.2 & $>$ 10k & 1304.4 & 179.7 & 29.0 & 116.1 & 146.6\\
+          D.R. Congo & 362.1 & 659.4 & 2611.6 & 8008.2 & 4168.2 & 473.6 & 113.8 & 362.1 & 659.4\\
+          Ethiopia & 18.4 & 16.4 & 85.8 & 24.8 & 55.7 & 12.4 & 4.0 & 18.4 & 16.4\\
+          Ghana & 15.8 & 16.1 & 60.3 & 62.0 & 71.3 & 18.2 & 5.2 & 4.2 & 2.1\\
+          Guinea & 21.5 & 35.3 & 441.1 & 152.0 & 929.6 & 36.5 & 3.3 & 12.7 & 6.7\\
+          Haiti & 97.1 & 108.3 & 288.8 & 681.1 & 473.9 & 152.1 & 39.3 & 24.8 & 15.4\\
+          India & 8.3 & 3.8 & 28.6 & 8.3 & 23.6 & 7.0 & 1.2 & 1.5 & 0.3\\
+          Ivory Coast & 6.3 & 3.8 & 28.6 & 18.1 & 49.5 & 10.1 & 1.1 & 2.1 & 0.6\\
+          Kenya & 25.2 & 22.5 & 106.9 & 127.0 & 162.2 & 36.6 & 6.4 & 5.4 & 2.2\\
+          Madagascar & 1683.2 & 6551.1 & $>$ 10k & $>$ 10k & $>$ 10k & 2730.1 & 582.8 & 87.7 & 53.4\\
+          Malawi & 886.5 & 1596.0 & $>$ 10k & $>$ 10k & $>$ 10k & 1260.5 & 287.0 & 319.5 & 223.4\\
+          Mali & 23.1 & 19.5 & 149.6 & 232.4 & 312.3 & 43.2 & 4.1 & 23.1 & 19.5\\
+          Mozambique & 146.1 & 122.9 & 284.4 & 441.9 & 337.8 & 172.4 & 64.0 & 100.1 & 71.2\\
+          Nepal & 1.0 & 0.5 & 4.7 & 2.1 & 6.2 & 1.3 & 0.1 & 0.5 & 0.2\\
+          Niger & 172.7 & 171.6 & 747.5 & 1165.2 & 1190.4 & 261.7 & 46.1 & 172.7 & 171.6\\
+          Nigeria & 115.2 & 197.4 & 1107.3 & $>$ 10k & 2067.2 & 179.9 & 26.0 & 57.6 & 36.4\\
+          Pakistan & 6.5 & 2.2 & 35.3 & 30.8 & 62.2 & 11.6 & 0.4 & 0.9 & 0.1\\
+          Papua New Guinea & 54.8 & 74.0 & 312.4 & 540.0 & 509.4 & 83.0 & 17.0 & 35.2 & 27.8\\
+          Rwanda & 69.4 & 61.7 & 222.3 & 129.5 & 220.5 & 68.8 & 20.9 & 23.4 & 11.5\\
+          Senegal & 6.2 & 3.2 & 23.7 & 20.1 & 44.0 & 10.9 & 1.0 & 4.7 & 1.8\\
+          South Sudan & 333.2 & 216.6 & 1978.2 & $>$ 10k & NA & NA & 48.3 & 163.3 & 66.9\\
+          Sudan & 124.1 & 120.0 & 509.8 & $>$ 10k & 1125.3 & 263.7 & 27.4 & 14.1 & 5.4\\
+          Tanzania & 105.4 & 96.6 & 370.5 & 396.7 & 475.1 & 130.7 & 29.3 & 30.6 & 14.4\\
+          Uganda & 91.9 & 81.8 & 263.4 & 372.6 & 331.2 & 115.9 & 28.0 & 34.3 & 18.0\\
+          Uzbekistan & 57.2 & 62.5 & 347.6 & 220.2 & 300.4 & 50.7 & 12.7 & 32.6 & 18.3\\
+          Yemen & 10.3 & 0.9 & 45.3 & 560.7 & NA & NA & 0.3 & 7.1 & 0.5\\
+          Zambia & 154.0 & 176.1 & 440.1 & 898.2 & 560.3 & 192.0 & 69.3 & 105.0 & 91.9\\
+          Zimbabwe & 47.7 & 39.4 & 123.6 & 375.2 & 221.7 & 80.1 & 16.9 & 35.5 & 24.1\\
+          \bottomrule
+          \end{tabular}}
+          \end{table}
+
+          \begin{table}[b]
+
+            \caption[Anti-acute-poverty taxes for major lower-income countries in 2030.]{\label{tab:tax7}Antipoverty tax required to eliminate acute poverty (at \$6.85/day) in major lower-income countries in 2030 (marginal rate in \%).}
+            \makebox[\textwidth][c]{
+            \begin{tabular}[t]{lrrrrrrrrr}
+            \toprule Taxation threshold (\$/day) & 6.85 & 18.15 & 18.15 & 18.15 & 18.15 & 6.85 & 6.85 & 6.85 & 18.15 \\ 
+            Growth scenario & 3\% & 7\% & 3\% & Trend & \multicolumn{2}{c}{Projection} & 7\% & 3\% & 7\% \\ 
+            HFCE rescaling & & & & & & & & \checkmark & \checkmark \\ 
+             \midrule
+            World & 5.8 & 3.1 & 8.1 & 8.1 & 8.8 & 6.2 & 2.4 & 4.0 & 2.0\\
+            Low-Income Countries & 210.0 & 107.8 & 640.1 & 1269.2 & 1592.3 & 392.5 & 57.5 & 136.8 & 68.1\\
+            Sub-Saharan Africa & 190.8 & 198.4 & 501.4 & 753.1 & 634.2 & 231.9 & 78.5 & 85.1 & 58.6\\
+            \midrule Angola & 145.1 & 153.3 & 360.6 & 1450.0 & 506.1 & 205.7 & 63.8 & 45.8 & 30.2\\
+            Bangladesh & 58.3 & 54.6 & 289.5 & 91.3 & 250.1 & 50.9 & 13.0 & 13.6 & 5.2\\
+            Benin & 110.9 & 129.5 & 489.2 & 713.7 & 747.4 & 160.7 & 34.8 & 57.4 & 37.3\\
+            Burkina Faso & 109.5 & 111.8 & 331.0 & 358.6 & 422.7 & 134.1 & 45.0 & 109.5 & 111.8\\
+            Burundi & 2738.5 & 6734.8 & $>$ 10k & $>$ 10k & $>$ 10k & 4724.1 & 1041.1 & 2738.5 & 6734.8\\
+            Cameroon & 70.6 & 75.5 & 224.7 & 365.9 & 342.8 & 100.4 & 28.5 & 47.7 & 37.7\\
+            Chad & 491.2 & 858.6 & 3323.0 & $>$ 10k & 5051.1 & 695.7 & 170.0 & 491.2 & 858.6\\
+            D.R. Congo & 1125.8 & 2436.1 & 8119.6 & $>$ 10k & $>$ 10k & 1422.3 & 420.2 & 1125.8 & 2436.1\\
+            Ethiopia & 128.1 & 147.4 & 597.2 & 208.3 & 415.6 & 92.5 & 36.1 & 128.1 & 147.4\\
+            Ghana & 71.4 & 83.1 & 272.4 & 279.2 & 317.1 & 80.8 & 26.9 & 18.9 & 11.1\\
+            Guinea & 175.2 & 444.1 & 3599.3 & 1477.9 & 6695.5 & 262.8 & 41.2 & 103.7 & 83.7\\
+            Haiti & 303.5 & 368.9 & 902.7 & 1963.9 & 1412.4 & 453.5 & 133.9 & 77.4 & 52.5\\
+            India & 85.5 & 71.2 & 294.9 & 124.4 & 258.1 & 75.9 & 23.1 & 15.7 & 6.6\\
+            Ivory Coast & 54.2 & 55.6 & 247.7 & 175.8 & 375.2 & 76.2 & 15.9 & 17.8 & 8.9\\
+            Kenya & 132.1 & 162.4 & 559.3 & 642.7 & 780.9 & 176.2 & 46.3 & 28.1 & 15.6\\
+            Madagascar & 4283.8 & $>$ 10k & $>$ 10k & $>$ 10k & $>$ 10k & 6674.3 & 1662.0 & 223.1 & 152.2\\
+            Malawi & 2547.3 & 5496.2 & $>$ 10k & $>$ 10k & $>$ 10k & 3462.5 & 988.3 & 917.9 & 769.2\\
+            Mali & 150.1 & 222.5 & 972.8 & 1361.4 & 1709.9 & 236.7 & 46.4 & 150.1 & 222.5\\
+            Mozambique & 421.3 & 411.3 & 820.2 & 1194.4 & 948.2 & 484.0 & 214.2 & 288.6 & 238.4\\
+            Nepal & 19.9 & 13.8 & 93.9 & 47.9 & 116.8 & 23.8 & 3.9 & 11.0 & 4.4\\
+            Niger & 678.9 & 959.1 & 2939.1 & 4183.6 & 4257.3 & 936.1 & 257.9 & 678.9 & 959.1\\
+            Nigeria & 517.8 & 1182.9 & 4976.7 & $>$ 10k & 8603.3 & 748.6 & 155.6 & 258.9 & 218.2\\
+            Pakistan & 109.5 & 112.7 & 590.7 & 542.4 & 830.0 & 154.3 & 22.8 & 14.4 & 5.2\\
+            Papua New Guinea & 222.4 & 350.3 & 1266.8 & 2058.6 & 1953.5 & 318.5 & 80.6 & 142.8 & 131.6\\
+            Rwanda & 280.9 & 335.9 & 899.7 & 593.0 & 893.9 & 279.2 & 113.8 & 94.5 & 62.9\\
+            Senegal & 56.3 & 52.5 & 214.5 & 190.7 & 333.4 & 82.7 & 16.6 & 42.1 & 29.2\\
+            South Sudan & 1009.5 & 864.8 & 5994.0 & $>$ 10k & NA & NA & 193.0 & 494.9 & 267.0\\
+            Sudan & 585.9 & 821.8 & 2406.0 & $>$ 10k & 4500.9 & 1054.7 & 187.5 & 66.5 & 36.7\\
+            Tanzania & 421.2 & 537.3 & 1480.9 & 1564.0 & 1809.7 & 497.8 & 163.0 & 122.4 & 80.3\\
+            Uganda & 359.2 & 417.4 & 1029.6 & 1351.5 & 1234.0 & 431.9 & 143.1 & 134.1 & 91.7\\
+            Uzbekistan & 313.3 & 482.6 & 1904.2 & 1326.4 & 1694.7 & 286.1 & 98.3 & 178.7 & 141.7\\
+            Yemen & 82.5 & 18.0 & 363.7 & 2537.4 & NA & NA & 6.1 & 57.3 & 10.5\\
+            Zambia & 414.3 & 513.9 & 1183.8 & 2283.8 & 1476.0 & 505.8 & 202.3 & 282.4 & 268.1\\
+            Zimbabwe & 174.3 & 180.5 & 451.9 & 1156.5 & 736.9 & 266.1 & 77.5 & 129.9 & 110.7\\
+            \bottomrule
+            \end{tabular}}
+            \end{table}
+
+            \begin{table}[b]
+
+              \caption[Income floor (in \$/day) financed by a 10\% tax above \$10/day.]{\label{tab:tax}Income floor (in \$/day) financed by a 10\% tax above \$10/day for major lower-income countries in 2030.}
+              \makebox[\textwidth][c]{
+              \begin{tabular}[t]{lrrrrrrr}
+              \toprule Growth scenario over 2022--2030 & 3\% & 3\% & \multicolumn{2}{c}{Projection} & 7\% & 7\% & \makecell{7\% since \\2015} \\ 
+              HFCE rescaling & & \checkmark & & \checkmark & & \checkmark & \\ 
+               \midrule
+              World & 8.6 & 10.3 & 8.4 & 10.1 & 12.1 & 14.4 & 16.7\\
+              Low-Income Countries & 1.9 & 2.2 & 1.5 & 1.7 & 3.3 & 3.6 & 4.4\\
+              Sub-Saharan Africa & 2.1 & 2.7 & 1.9 & 2.5 & 3.1 & 3.9 & 5.3\\
+              \midrule Angola & 2.1 & 3.2 & 1.7 & 2.8 & 3.1 & 4.6 & 7.8\\
+              Bangladesh & 4.4 & 6.2 & 4.6 & 6.4 & 6.4 & 8.7 & 7.3\\
+              Benin & 3.2 & 3.8 & 2.8 & 3.4 & 4.8 & 5.5 & 6.8\\
+              Burkina Faso & 2.8 & 2.8 & 2.6 & 2.6 & 4.1 & 4.1 & 6.0\\
+              Burundi & 0.9 & 0.9 & 0.7 & 0.7 & 1.3 & 1.3 & 2.8\\
+              Cameroon & 3.1 & 3.5 & 2.6 & 3.0 & 4.5 & 5.1 & 7.7\\
+              Chad & 1.8 & 1.8 & 1.6 & 1.6 & 2.8 & 2.8 & 7.1\\
+              D.R. Congo & 1.0 & 1.0 & 0.9 & 0.9 & 1.6 & 1.6 & 2.7\\
+              Ethiopia & 3.1 & 3.1 & 3.4 & 3.4 & 4.7 & 4.7 & 5.8\\
+              Ghana & 3.1 & 5.2 & 2.9 & 5.0 & 4.6 & 7.3 & 6.7\\
+              Guinea & 3.0 & 3.4 & 2.7 & 3.1 & 4.7 & 5.1 & 6.1\\
+              Haiti & 1.3 & 2.3 & 1.0 & 2.0 & 1.9 & 3.3 & 4.3\\
+              India & 3.8 & 5.9 & 3.9 & 6.1 & 5.6 & 8.2 & 7.1\\
+              Ivory Coast & 4.1 & 5.6 & 3.6 & 5.1 & 6.0 & 7.9 & 8.1\\
+              Kenya & 2.8 & 4.5 & 2.5 & 4.1 & 4.1 & 6.3 & 6.1\\
+              Madagascar & 0.5 & 1.3 & 0.4 & 1.2 & 0.9 & 1.8 & 1.7\\
+              Malawi & 0.9 & 1.1 & 0.8 & 1.0 & 1.3 & 1.6 & 2.4\\
+              Mali & 3.0 & 3.0 & 2.5 & 2.5 & 4.4 & 4.4 & 7.6\\
+              Mozambique & 1.3 & 1.4 & 1.2 & 1.3 & 1.8 & 2.0 & 3.3\\
+              Nepal & 5.8 & 6.7 & 5.5 & 6.4 & 8.4 & 9.5 & 11.5\\
+              Niger & 1.7 & 1.7 & 1.5 & 1.5 & 2.5 & 2.5 & 3.9\\
+              Nigeria & 1.8 & 2.2 & 1.6 & 1.9 & 2.8 & 3.2 & 6.0\\
+              Pakistan & 3.9 & 6.1 & 3.6 & 5.7 & 5.8 & 8.5 & 8.3\\
+              Papua New Guinea & 2.0 & 2.3 & 1.7 & 2.0 & 3.0 & 3.4 & 5.8\\
+              Rwanda & 2.0 & 2.7 & 2.0 & 2.7 & 2.9 & 3.8 & 3.9\\
+              Senegal & 4.1 & 4.4 & 3.6 & 3.9 & 6.0 & 6.3 & 8.6\\
+              South Sudan & 0.9 & 1.2 & NA & NA & 2.0 & 2.3 & 2.2\\
+              Sudan & 1.9 & 3.3 & 1.5 & 2.7 & 2.8 & 4.5 & 7.6\\
+              Tanzania & 1.9 & 2.6 & 1.8 & 2.4 & 2.8 & 3.6 & 4.2\\
+              Uganda & 1.8 & 2.4 & 1.7 & 2.2 & 2.7 & 3.4 & 4.4\\
+              Uzbekistan & 2.2 & 2.6 & 2.3 & 2.7 & 3.4 & 3.8 & 4.7\\
+              Yemen & 3.6 & 4.0 & NA & NA & 7.8 & 8.3 & 7.2\\
+              Zambia & 1.0 & 1.2 & 0.9 & 1.0 & 1.5 & 1.7 & 2.8\\
+              Zimbabwe & 2.1 & 2.3 & 1.7 & 1.9 & 3.1 & 3.3 & 5.9\\
+              \bottomrule
+              \end{tabular}}
+              \end{table}
+
+              \begin{table}[b]
+
+                \caption[Net gain per country of global antipoverty taxes.]{\label{tab:gain}Net gain per country of a global antipoverty tax above \$100/day, for most populous countries in 2030 after 3\%
+                growth since 2022. \small{\textit{Note that revenues are likely underestimated without HFCE rescaling, and the cost overestimated in lower-income countries with HFCE rescaling (as the extra income is wrongly attributed to the sole top 1\%, which often concentrates the entire taxable base).}}}
+                \centering
+                \begin{tabular}[t]{lrrrrrr}
+                \toprule Tax rate & 1.2\% & 1.2\% & 0.3\% & 0.3\% & 10\% & 10\%  \\ 
+                HFCE rescaling &  & \checkmark &  & \checkmark & & \checkmark \\ 
+                 \midrule
+                Revenues (\% global income) & 0.15 & 0.41 & 0.04 & 0.10 & 1.20 & 3.42\\
+                International transfers & 0.14 & 0.31 & 0.04 & 0.09 & 1.17 & 2.32\\
+                Income floor (\$/day) & 2.17 & 3.31 & 1.44 & 2.14 & 4.29 & 7.00\\
+                Gini & 0.62 & 0.71 & 0.62 & 0.71 & 0.60 & 0.65\\
+                \midrule Low-Income Countries & 4.05 & 10.47 & 1.17 & 3.28 & 22.24 & 50.86\\
+                Sub-Saharan Africa & 3.26 & 8.63 & 0.86 & 2.52 & 19.94 & 44.26\\
+                \midrule Algeria & 0.00 & -0.27 & 0.00 & -0.07 & 0.04 & -0.41\\
+                Angola & 3.84 & 5.87 & 1.19 & 2.03 & 19.27 & 24.99\\
+                Argentina & -0.05 & -0.37 & -0.01 & -0.09 & -0.40 & -3.07\\
+                Bangladesh & 0.03 & -0.22 & 0.00 & -0.12 & 2.47 & 4.62\\
+                Brazil & 0.00 & -0.04 & 0.00 & 0.00 & -0.26 & -0.96\\
+                Canada & -0.20 & -0.29 & -0.05 & -0.07 & -1.65 & -2.42\\
+                China & -0.01 & -0.17 & 0.00 & -0.04 & -0.09 & -0.97\\
+                Colombia & 0.15 & -0.30 & 0.08 & -0.04 & 0.50 & -2.96\\
+                D.R. Congo & 11.53 & 32.00 & 3.45 & 11.05 & 54.50 & 126.84\\
+                Egypt & 0.00 & -0.81 & 0.00 & -0.21 & 0.78 & -4.83\\
+                Ethiopia & 0.52 & 2.92 & 0.05 & 0.48 & 7.27 & 30.50\\
+                France & -0.16 & -0.20 & -0.04 & -0.05 & -1.36 & -1.69\\
+                Germany & -0.19 & -0.28 & -0.05 & -0.07 & -1.60 & -2.36\\
+                India & 0.13 & 0.02 & 0.00 & -0.10 & 4.62 & 6.07\\
+                Indonesia & 0.00 & -0.49 & 0.00 & -0.16 & 1.42 & -0.82\\
+                Iraq & 0.00 & -0.30 & 0.00 & -0.07 & 0.07 & -1.52\\
+                Italy & -0.15 & -0.25 & -0.04 & -0.06 & -1.30 & -2.25\\
+                Japan & -0.14 & -0.25 & -0.04 & -0.07 & -1.15 & -2.12\\
+                Kenya & 1.05 & 1.92 & 0.19 & 0.36 & 11.05 & 14.07\\
+                Mexico & 0.01 & -0.57 & 0.00 & -0.14 & 0.12 & -4.45\\
+                Mozambique & 12.59 & 28.74 & 4.08 & 10.77 & 52.87 & 103.65\\
+                Myanmar & 0.03 & 0.35 & 0.00 & 0.01 & 1.93 & 12.30\\
+                Nigeria & 2.51 & 9.51 & 0.39 & 2.10 & 22.09 & 59.44\\
+                Pakistan & 0.01 & -0.35 & 0.00 & -0.16 & 3.38 & 4.76\\
+                Philippines & 0.05 & -0.36 & 0.00 & -0.13 & 1.70 & -0.24\\
+                South Korea & -0.10 & -0.16 & -0.02 & -0.04 & -0.82 & -1.30\\
+                Spain & -0.12 & -0.16 & -0.03 & -0.04 & -1.03 & -1.48\\
+                Sudan & 2.23 & 5.17 & 0.33 & 0.95 & 23.73 & 33.87\\
+                Tanzania & 3.27 & 9.65 & 0.45 & 2.08 & 28.28 & 52.23\\
+                Thailand & -0.01 & -0.37 & 0.00 & -0.09 & -0.10 & -2.88\\
+                Turkey & -0.06 & -0.50 & -0.02 & -0.13 & -0.51 & -4.04\\
+                Uganda & 3.77 & 10.36 & 0.75 & 2.62 & 27.30 & 54.13\\
+                UK & -0.18 & -0.30 & -0.04 & -0.07 & -1.48 & -2.46\\
+                USA & -0.42 & -0.58 & -0.11 & -0.14 & -3.51 & -4.78\\
+                Vietnam & -0.01 & 0.00 & 0.00 & -0.01 & -0.01 & 0.59\\
+                \bottomrule
+                \end{tabular}
+                \end{table}
+
+\end{document}
