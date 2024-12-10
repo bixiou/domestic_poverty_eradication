@@ -518,6 +518,7 @@ rm(pop)
 pop_rural_urban <- read.csv2("../data/pop_rural_urban.csv") # Last updated 07/05/2023 https://databank.worldbank.org/source/population-estimates-and-projections/preview/on#
 LIC <- c("AFG", "BFA", "BDI", "TCD", "COD", "ERI", "ETH", "GMB", "GIN", "GNB", "PRK", "LBR", "MDG", "MWI", "MLI", "MOZ", "NER", "RWA", "SOM", "SRE", "SDN", "SSD", "SYR", "TGO", "UGA", "YEM", "ZMB") # 2023 official classification. LIC: 650M people TODO! remove ZMB, no longer in the list
 SSA <- c("SDN", "AGO", "GIN", "GMB", "GNB", "GNQ", "BDI", "BEN", "BFA", "SEN", "BWA", "CAF", "SLE", "SOM", "SSD", "CIV", "CMR", "COD", "COG", "COM", "LBR", "LSO", "RWA", "SWZ", "TCD", "TGO", "MLI", "MDG", "DJI", "ERI", "ESH", "ETH", "MWI", "MUS", "MRT", "MOZ", "TZA", "UGA", "ZMB", "ZWE", "NGA", "NER", "NAM", "GHA", "GAB", "ZAF")
+# LDC <- c("AGO", "AFG", "BGD", "BTN", "BFA", "BDI", "KHM", "CAF", "TCD", "COM", "COG", "DJI", "ERI", "ETH", "GMB", "GIN", "GNB", "LSO", "LBR", "MDG", "MWI", "MLI", "MRT", "MOZ", "NER", "RWA", "STP", "SEN", "SLE", "SOM", "SSD", "SDN", "TGO", "TZA", "UGA", "VUT", "YEM", "ZMB", "TUV", "TLS", "LAO", "MMR", "NEP")
 # setdiff(p$country_code[p$country_code %in% LIC & !is.na(p$welfare_avg_1)], SSA) # SYR, YEM
 # setdiff(SSA, LIC) # many
 
