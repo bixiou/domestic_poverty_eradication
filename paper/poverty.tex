@@ -78,11 +78,12 @@
 % \usepackage[super,comma,sort]{natbib} % WPcomment
 \usepackage[round,sort&compress]{natbib} % NCCcomment
 % \usepackage[natbibapa]{apacite}
-% \usepackage[style=apa,sortcites=true,sorting=nyt,backend=biber]{biblatex}
+% \usepackage[style=apa,sortcites=true,sorting=nyt]{biblatex}
 % \bibliographystyle{apacite} 
 \usepackage{url} % [hyphens]
 \usepackage[hyperpageref]{backref} % back references biblio. Needs latexmk at compilation.
 \usepackage[pagebackref]{hyperref}
+% \usepackage{hyperref}
 % \usepackage{multibib} % incompatible with backref
 \hypersetup{
   colorlinks=true, % breaklinks=true,
@@ -525,7 +526,7 @@ Also, any custom figure can be easily produced using this code.
 
 % \bibliographystyle{naturemag_noURL} % nature class works only with style naturemag or naturemag_noURL, and naturemag bugs if there are certain URLs (like .pdf). Also, nature class only works with \cite, not \citet or \citep.  % WPcomment
 \renewcommand{\url}[1]{\href{#1}{Link}} % NCCcomment
-\bibliographystyle{plainnaturl_clean} % NCCcomment
+% \bibliographystyle{plainnaturl_clean} % NCCcomment
 \bibliography{poverty}
 % \input{app} 
 
