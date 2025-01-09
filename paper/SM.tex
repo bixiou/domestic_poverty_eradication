@@ -1,0 +1,237 @@
+
+\documentclass[12pt,english]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tgpagella} % Palatino text only
+\usepackage{mathpazo}  % Palatino math & text
+\usepackage[left=1.5in,right=1.5in,top=1.5in,bottom=1.5in]{geometry}
+% \linespread{2}
+% \usepackage[super,comma,sort]{natbib} % WPcomment
+\usepackage[round,sort&compress]{natbib} % NCCcomment
+\usepackage{url} % [hyphens]
+\usepackage[hyperpageref]{backref} % back references biblio. Needs latexmk at compilation.
+\usepackage[pagebackref]{hyperref}
+% \usepackage{multibib} % incompatible with backref
+\hypersetup{
+  colorlinks=true, % breaklinks=true,
+  urlcolor=purple,    % color of external links
+  linkcolor=blue,  % color of toc, list of figs etc.
+  citecolor=violet,   % color of links to bibliography
+}
+\usepackage{bm}
+\usepackage{indentfirst}
+\setcitestyle{aysep={}} 
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{eurosym}
+\usepackage{amsfonts}
+\usepackage{enumerate}
+\usepackage{babel}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{supertabular}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{dsfont}
+\usepackage{fancyvrb}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{comment}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{gensymb}
+\usepackage{textcomp}
+\usepackage{placeins} % Floats appear in their section (to use with \FloatBarrier or [section])
+
+\usepackage{tabulary}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{fullpage}
+\usepackage{morefloats}
+\usepackage{makecell}
+\usepackage{lscape}
+\usepackage{pdflscape}
+\usepackage{longtable}
+\usepackage{rotating}
+\usepackage{fancyhdr}
+\usepackage{tocbibind} % Adds biblio to ToC
+% \usepackage{tocloft}
+\usepackage{titletoc} % Adds title to ToC (use with tocloft?)
+\usepackage[export]{adjustbox}
+\usepackage[anythingbreaks]{breakurl} % for links
+\usepackage{multicol}
+\usepackage{lineno}
+% \linenumbers
+\makeatletter
+\renewcommand\tableofcontents{% removes "Contents" from ToC
+    \@starttoc{toc}%
+}
+\makeatother
+\newsavebox\ltmcbox % For net gain table over two columns
+%\usepackage[nomarkers,figuresonly]{endfloat} % Figures at the end
+%\usepackage[section,below]{placeins} % Floats placed in the section they appear in.
+\renewcommand{\floatpagefraction}{.99}
+\newenvironment{stretchpars}{\par\setlength{\parfillskip}{0pt}}{\par} % to justify a line
+
+% % Getting landscape page and page number/footer on bottom of page (instead of to the left)
+% \fancypagestyle{mylandscape}{
+% \fancyhf{} %Clears the header/footer
+% \fancyfoot{% Footer
+% \makebox[\textwidth][r]{% Right
+%   \rlap{\hspace{1.5cm}% Push out of margin by \footskip
+%     \smash{% Remove vertical height
+%       \raisebox{13.6cm}{% Raise vertically
+%         \rotatebox{90}{\thepage}}}}}}% Rotate counter-clockwise
+% \renewcommand{\headrulewidth}{0pt}% No header rule
+% \renewcommand{\footrulewidth}{0pt}% No footer rule
+% }
+
+% \fancypagestyle{page_left}{%
+% 	\renewcommand{\headrulewidth}{0pt}
+%   \fancyhf{}
+%   \fancyfoot[OC]{%
+%       \begin{tikzpicture}[remember picture,overlay]
+%           \node[xshift=1cm] (number) at (current page.west) {\thepage};
+%       \end{tikzpicture}
+%   }%
+% }
+% \renewcommand{\thesubfigure}{\Alph{subfigure}}
+
+% \newcites{App}{Appendix References}
+
+% \captionsetup[table]{skip=-10pt}
+% \begin{document}
+
+% \maketitle
+
+% \clearpage
+% % \startcontents
+% % \printcontents{ }{1}{\section{\contentsname}}
+% % \clearpage
+% \section{Introduction\label{sec:intro}}
+
+% % \clearpage
+% \renewcommand{\bibsection}{\section{\refname}}
+% \bibliographystyle{naturemag}
+% \bibliography{global_tax_attitudes}
+% % \stopcontents
+
+% \end{document}
+
+
+\title{Supplementary Material for\\ \textit{Shortfall of Domestic Resources\\ to Eradicate Extreme Poverty by 2030}} 
+
+% \author{Adrien Fabre$^{1,2}$} % WPcomment
+% \author{Adrien Fabre\footnote{CNRS, CIRED. E-mail: adrien.fabre@cnrs.fr.}}
+% I thank Michalis Moatsos for his help in using his data. I thank Thomas Goumont and Elise Thai for assistance. I declare that I also serve as president of Global Redistribution Advocates.} % NCCcomment 
+
+\date{\today} % NCCcomment
+
+\begin{document}
+
+\sloppy
+\maketitle
+
+
+\listoftables
+\listoffigures
+
+\clearpage
+\section{Additional figures}
+
+Many more figures (with varying poverty lines, taxation thresholds, growth scenarios, etc.) are available on \href{https://github.com/bixiou/domestic_poverty_eradication/tree/main/figures}{github.com/bixiou/domestic\_poverty\_eradication}. Also, any custom figure can be easily produced using this code.
+
+% Main text figures:
+% y_expropriated_2_average
+% antipoverty_2_tax_7_average
+% antipoverty_2_tax_18_very_optimistic
+% demogrant_7__10
+
+% Appendix figures:
+% s_antipoverty_2_tax_7_average
+% antipoverty_2_tax_7_reg
+% antipoverty_2_tax_18_average
+% s_antipoverty_2_tax_18_very_optimistic
+% antipoverty_4_tax_18_average
+% antipoverty_7_tax_18_average
+% antipoverty_7_tax_7_average
+% demogrant_7__10_very_optimistic
+% s_demogrant_7__10
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). Data has been rescaled to match HFCE aggregate from national account. In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:s_antipoverty_2_tax_7_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/s_antipoverty_2_tax_7_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$6.85/day after predicted growth.]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, with growth until 2030 predicted at the country level. 
+  }\label{fig:antipoverty_2_tax_7_reg}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_2_tax_7_reg.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$18.15/day after 3\% growth.]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_2_tax_18_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_2_tax_18_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-extreme-poverty tax above \$18.15/day after 7\% growth (HFCE-scaled).]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). Data has been rescaled to match HFCE aggregate from national account. In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 7\% over 2022--2030. 
+  }\label{fig:s_antipoverty_2_tax_18_very_optimistic}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/s_antipoverty_2_tax_18_very_optimistic.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-severe-poverty tax above \$18.15/day after 3\% .]{Linear tax rate above \$18.15/day eradicating severe poverty (in \%). In this idealized policy, all tax revenue is transferred to the severe poor and lift them at \$3.65/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_4_tax_18_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_4_tax_18_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-acute-poverty tax above \$18.15/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$6.85/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_7_tax_18_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_7_tax_18_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Anti-acute-poverty tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$6.85/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:antipoverty_7_tax_7_average}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/antipoverty_7_tax_7_average.pdf}}
+\end{figure}
+
+\begin{figure}[!htb]
+  \caption[Income floor of 10\% tax above \$6.85/day after 7\% growth.]{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day (in 2017 PPP \$/day). In this idealized policy, all tax revenue is transferred to the poorest and lift them at the income floor, assuming away distorsions, and after a yearly growth of 7\% over 2022--2030. 
+  }\label{fig:demogrant_7__10_very_optimistic}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/demogrant_7__10_very_optimistic.pdf}}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!htb]
+  \caption[Income floor of 10\% tax above \$6.85/day after 3\% growth (HFCE-scaled).]{Income floor that can be funded with a 10\% marginal tax on income above \$6.85/day (in 2017 PPP \$/day). Data has been rescaled to match HFCE aggregate from national account. In this idealized policy, all tax revenue is transferred to the poorest and lift them at the income floor, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
+  }\label{fig:s_demogrant_7__10}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
+  {../figures/s_demogrant_7__10.pdf}}
+\end{figure}
+
+% \clearpage
+\section{Additional tables}
+\input{../tables/income.tex}
+\input{../tables/trend.tex}
+\input{../tables/cap.tex}
+\input{../tables/tax.tex}
+\input{../tables/tax4.tex}
+\input{../tables/tax7.tex}
+\input{../tables/floor.tex}
+\input{../tables/gain.tex}
+
+\end{document}
