@@ -155,12 +155,12 @@ s <- tax_revenues(df = s, thresholds = 100, marginal_rates = 0.3, return = 'df',
 p <- tax_revenues(df = p, thresholds = 100, marginal_rates = 10, return = 'df', growth = "average", name_tax = "100__10", scope_tax = w) # 1.2%
 s <- tax_revenues(df = s, thresholds = 100, marginal_rates = 10, return = 'df', growth = "average", name_tax = "100__10", scope_tax = ws) # 2.3% closes 6.85$ pg
 
-w <- tax_revenues(df = w, thresholds = 100, marginal_rates = 1.2, return = 'df', growth = "average", name_tax = "100__1", scope_tax = w) # .14% closes 2.15$ pg
-ws <- tax_revenues(df = ws, thresholds = 100, marginal_rates = 1.2, return = 'df', growth = "average", name_tax = "100__1", scope_tax = ws) # .31% 
+w <- tax_revenues(df = w, thresholds = 100, marginal_rates = 1.2, return = 'df', growth = "average", name_tax = "100__1", scope_tax = w) # .15% closes 2.15$ pg
+ws <- tax_revenues(df = ws, thresholds = 100, marginal_rates = 1.2, return = 'df', growth = "average", name_tax = "100__1", scope_tax = ws) # .41% 
 w <- tax_revenues(df = w, thresholds = 100, marginal_rates = 0.3, return = 'df', growth = "average", name_tax = "100__03", scope_tax = w) # int'l transfer: .04%
-ws <- tax_revenues(df = ws, thresholds = 100, marginal_rates = 0.3, return = 'df', growth = "average", name_tax = "100__03", scope_tax = ws) # .09% closes 2.15$ pg
+ws <- tax_revenues(df = ws, thresholds = 100, marginal_rates = 0.3, return = 'df', growth = "average", name_tax = "100__03", scope_tax = ws) # .1% closes 2.15$ pg
 w <- tax_revenues(df = w, thresholds = 100, marginal_rates = 10, return = 'df', growth = "average", name_tax = "100__10", scope_tax = w) # 1.2%
-ws <- tax_revenues(df = ws, thresholds = 100, marginal_rates = 10, return = 'df', growth = "average", name_tax = "100__10", scope_tax = ws) # 2.3% closes 6.85$ pg
+ws <- tax_revenues(df = ws, thresholds = 100, marginal_rates = 10, return = 'df', growth = "average", name_tax = "100__10", scope_tax = ws) # 3.4% closes 6.85$ pg
 
 revenues_gain <- c(.0015, .0041, .0004, .001, 0.012, 0.0342)
 transfer_gain <- c(.0014, .0031, .0004, .0009, 0.0117, 0.0232)

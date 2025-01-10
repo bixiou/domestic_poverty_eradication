@@ -101,8 +101,7 @@ Also, any custom figure can be easily produced using this code.''
 
 \textit{Please ensure that your revised version follows our housestyle guides which are available on the site under 'Instructions to Authors'.  Please note that footnotes should appear as endnotes, after the text and before the references.   Pay particular attention to requirements for bibliographic details in references (e.g. include place of publication for books and mimeos, page span for articles and chapters in books).  In addition, please provide the issue number only if each issue of the journal begins on page 1.  In such cases it goes in parentheses:  Journal, 8(1), pp–pp.  Page numbers should always be provided.  Please refer to the following link:   https://www.tandf.co.uk//journals/authors/style/reference/tf\_APA6.pdf}~\\
 
-I have move the footnote as endnote as indicated. %As I didn't succeed in changing the bibliographic style to APA-6 using a LaTeX command, I would need to do it by hand. 
-I hope it is fine with you if I wait for an acceptance decision to fix the references.
+I have moved the footnote as endnote as indicated. I changed the bibliographic style to APA-6 in LaTeX and manually fixed references that did not comply with the requirements. 
 ~\\ ~\\
 
 \textit{The revised documents need to be in editable format and as you have submitted your paper in pdf format that is not possible. Please either convert your paper to Word or upload all the source files.}~\\
@@ -120,36 +119,50 @@ The Tables are in LaTeX format and the Figures in PDF format, not in image forma
 
 \textit{Summary}
 
-\textit{This paper explores the potential fulfilment of SDG1, which focuses on eradicating poverty by 2030. The analysis is structured around three distinct scenarios: (1) poverty eradication achieved exclusively through economic growth, (2) implementation of two extreme tax schedules, and (3) global redistribution to address poverty. }~\\
-
-response
-~\\ ~\\
+\textit{This paper explores the potential fulfilment of SDG1, which focuses on eradicating poverty by 2030. The analysis is structured around three distinct scenarios: (1) poverty eradication achieved exclusively through economic growth, (2) implementation of two extreme tax schedules, and (3) global redistribution to address poverty. }
 
 \textit{The topic is highly relevant, as achieving the Sustainable Development Goals (SDGs) remains a pressing global challenge, with poverty eradication at its core. However, as it stands, the paper does not fully meet the standard expected for publication in The Journal of Development Studies. In the following comments, I outline major areas for improvement that I believe will strengthen the paper's contribution and overall impact.}~\\
 
-response
+I am grateful for your constructive feedback that helped greatly improve the paper. 
 ~\\ ~\\ 
 
 \textit{Major comments}
 
 \textit{I encourage the authors to ensure that the text is clear and concise. For instance, terms such as "imputation of national growth rates" and "extreme tax schedules" should be clearly explained for a broader audience. Another example of unclear statements can be found in the introduction (second paragraph). “I fix the rate (at 100\%) and find the required taxation threshold”. From the very beginning of the paper, it is not clear what this sentence means. The first paragraph of Section 3.4 reads, “Figure 2 presents the (additional) tax rate”. What does additional mean? Additional to the antipoverty cap? }~\\
 
-response
+Thank you for allowing me to clarify the text. In the Introduction, I now explain in more detail the concepts used in the paper. They were originally succinctely presented as follows: ``\textit{I estimate the parameter of two tax policies that would raise enough revenues to eradicate poverty. In the ``antipoverty cap'', I fix the rate (at 100\%) and find the required taxation threshold. In the ``antipoverty tax'', I fix the threshold and find the rate needed. As a last indicator, I fix both the threshold and the rate and compute the income floor that the tax could finance.}'' 
+
+They are now pedagogically explained: ``\textit{I estimate the parameter of two tax policies that would raise enough revenue to eradicate poverty. In the ``antipoverty cap'', I fix the tax rate at its maximum value of 100\% so that the tax effectively becomes a cap on top incomes, and I find the required cap (or taxation threshold). All income above the cap is assumed to be redistributed to the lowest incomes in order to eradicate poverty. In the ``antipoverty tax'', I fix the taxation threshold and find the tax rate needed to raise the revenue required to eradicate poverty. As a last indicator, I fix both the taxation threshold and the tax rate and compute the income floor that the tax could finance (by redistributing tax revenue to the lowest incomes).}''
+
+Besides, I replaced ``imputing growth'' by ``adjusting it for growth'' in the occurrence of ``imputing'': ``BCL study the data as it stands rather than imputing growth''. I could not find any occurrence of ``extreme tax schedules'' in the text. However, I realized that the term ``anti-extreme-poverty tax'' might not be clear enough, so I italicized ``extreme-poverty'': it now reads ``anti-\textit{extreme-poverty} tax'' everywhere in the text.
+
+I also removed ``(additional)'' from ``Figure 2 presents the (additional) tax rate'' and added a sentence to clarify: ``Note that this hypothetical tax would apply on top of existing taxes.'' 
+
+Finally, I added the following words in bold to clarify our abstract: ``With credible annual growth of 3\%, even capping incomes at \$7 a day \textbf{(to finance an increase in incomes for the poorest individuals)} cannot eradicate extreme poverty in 5 low-income countries.''
+
+I hope that the text is now perfectly clear and concise.
+
 ~\\ ~\\
 
 \textit{The authors need to better articulate the specific contribution of their work. The paper appears to be an updated application of previous studies, particularly those by Bolch et al. (2022). However, the novelty of the current study is not sufficiently clear. For example, while the authors highlight the imputation of national growth rates and the use of a poverty line aligned with SDG1, these aspects are not sufficiently emphasized or contextualized within the broader literature. How does this paper advance the field beyond being an update? Does it offer new insights into the policy implications of SDG1? Are the results of the scenarios robust to different assumptions about economic growth or redistribution? These points should be explicitly addressed to establish the paper's unique contribution. }~\\
 
-response
+response TODO
 ~\\ ~\\
 
 \textit{The literature review needs significant improvement. In the last paragraph of the introduction, the authors briefly mention that their work is related to studies on global income distribution but fail to explain how and why. In addition, I wonder how do the scenarios modeled in this paper compare with similar exercises in the literature? Are there methodological or theoretical advancements introduced here? Strengthening the link to prior research will help readers understand the relevance and placement of the study within the broader academic debate. }~\\
 
 response
+\textit{I follow Lakner \& Milanovic (2016) by merging income and consumption data without adjustment in the main specification. 
+Anand \& Segal (2015) discuss common issues regarding the global income distribution and introduce a method to handle discrepancies between data sources. I follow a similar method as a robustness check, as explained in Section \ref{subsec:data}. }
 ~\\ ~\\
 
 \textit{While the three scenarios provide a useful framework, they are not adequately justified. Why were these specific scenarios chosen? Are they exhaustive or representative of potential pathways to achieving SDG1? }~\\
 
-response
+I assume that by scenario, you are referring to (i) the effect of balanced growth, (ii) idealized national redistribution policies, and (iii) idealized global redistribution. The paper studies (i) to assess whether SDG1 could be achieved without redistribution, confirming that it cannot. The paper then turns to domestic policies and shows that even the most radical domestic policies would not be sufficient to achieve SDG1. It concludes by showing how small the required effort would be if poverty eradication were financed at the global rather than the domestic level. 
+
+The thought experiments are not meant to be exhaustive nor representative pathways to achieve SDG1. They are presented to showcase how relying solely on conventional solutions (namely, growth and domestic policies) would fall short of SDG1. In contrast, global solidarity has the potential to dramatically accelerate the eradication of poverty.
+
+To justify the paper's structure, I added the following paragraph in the Introduction: \textit{In this paper, I explore in turn the effects of balanced growth alone, idealized national redistribution policies, and idealized global redistribution. The thought experiments are not meant to be exhaustive or representative pathways to achieving the first SDG. They are presented to demonstrate that relying on growth and domestic policies alone would fall short of eradicating poverty by 2030. In contrast, global solidarity has the potential to dramatically accelerate poverty eradication.}
 ~\\ ~\\
 
 \textit{For the growth-only scenario, is the assumption of uniform distribution of economic growth realistic? What do historical trends or projected economic conditions say? Assuming that these trends prevail in the upcoming years, how could they affect the results? }~\\
@@ -159,22 +172,19 @@ response
 
 \textit{In the global redistribution scenario, how are political feasibility and implementation challenges addressed? These considerations are critical for translating the findings into actionable insights. }~\\
 
-response
+I recognize that global redistribution \textit{might be} politically or technically infeasible. This observation should not compromise the modest goal of the paper, which is to demonstrate that SDG1 cannot be achieved without global redistribution. If, in addition, global redistribution turns out to be infeasible, it would mean that SDG1 cannot be achieved. In the present paper, I remain agnostic regarding the feasibility of global redistribution and simply note that this \textit{might be} a path towards SDG1. Knowing that global solidarity is the only way to achieve SDG1, it may be worth studying the feasibility of this path rather than neglecting its possibility entirely. 
+While addressing the feasibility of global redistribution remains outside the scope of this paper, I added the following sentences acknowledging the challenges it represents. % TODO complete and reproduce for R2's last point
 ~\\ ~\\
 
 \textit{Related to taxation scenarios, I wonder if the antipoverty cap would not generate new poor individuals. If the whole income share up to a certain threshold is completely redistributed to the bottom, all individuals with incomes above that level would automatically have zero income and become poor. }~\\
 
-response
+In the antipoverty cap, the income of expropriated individuals would be set at the cap (not at zero). To clarify this point, I completed the first sentence of the Section on ``Antipoverty caps'' with the words in bold: ``I estimate the income cap that each country should impose to fill the extreme poverty gap with the expropriated income\textbf{, i.e. all income above the cap}''.
 ~\\ ~\\
 
 \textit{A thorough discussion of the study's limitations is essential to enhance its credibility and contextualize its findings. This discussion should be integrated into the final sections of the paper to provide a balanced perspective and acknowledge potential constraints. For instance, the scenarios are based on specific assumptions about global trends and policies, which may not account for heterogeneity across countries and regions. A discussion about these contextual factors would help frame the study's conclusions more accurately. The study focuses primarily on economic variables, such as growth, taxation, and redistribution. }~\\
-
-response
-~\\ ~\\
-
 \textit{However, non-economic factors like education, healthcare access, and social protection systems also play critical roles in poverty reduction. Acknowledging the exclusion of these dimensions would provide a more nuanced view of the analysis.}~\\
 
-response
+% TODO
 ~\\ ~\\
 
 
@@ -182,12 +192,9 @@ response
 
 \textit{This paper examines whether growth and domestic redistribution are sufficient to eradicate extreme poverty by 2030. The authors estimate the parameter of two tax policies that would raise enough revenues to eradicate poverty. In the “antipoverty cap”, the rate is fixed at 100\% to find the required taxation threshold. In the “antipoverty tax”, the threshold is fixed to find the rate needed. In the lowest income countries, extreme poverty is estimated to persist even after strong growth and radical redistribution. The paper concludes by exemplifying international transfers that would eradicate poverty by 2030. }~\\
 
-response
-~\\ ~\\
-
 \textit{This paper addresses an issue that is apt and policy relevant. While the findings are mostly in line with the existing literature, I believe that contribution of the paper can be made stronger. I have three main concerns and some recommendations that I hope the author would find useful. }~\\
 
-response
+I am grateful for your positive assessment of the paper and for the constructive feedback. I have implemented all suggested changes and believe that the paper has greatly improved as a result.
 ~\\ ~\\
  
 \textit{Main Concerns:}
@@ -195,20 +202,30 @@ response
 \textit{1.	Limited novelty}
 \textit{[page 3] as it stands, the main contribution of this paper is to employ the Bolch et al. (2022) methodology to the most recent data i.e., the period 2018–2021 and to a larger sample of countries by imputing income data using consumption for countries with no income data available. The author claims using a poverty line higher than the one officially used in the first SDG as a contribution, which to me serves more like a robustness check. Altogether, these contributions reflect limited novelty for the Journal of Development Studies. The author needs to substantiate this part. One way to do this is to highlight the difference between the outcomes currently discussed and the outcomes obtained using latest data, but the sample of countries used in Bolch et al (2022) data. This will also give the readers a sense of how credible the imputation procedure is.    }~\\
 
-response
+Although Bolch et al. (2022) --- hereafter, BCL --- exclude developed countries (which have income rather than consumption data) from their analysis, this does not affect the results on the domestic capacity to eradicate absolute poverty (as developed countries are clearly in capacity to do so). 
+
+In the last paragraph of the \textit{Antipoverty caps} section, I reproduce BCL results with up-to-date data and compare our findings. The result is that more countries are in capacity to eradicate according to the updated data. 
+
+Compared to BCL, the present paper offers several improvements: (i) it uses more recent data (from 2018-2021 vs. 2009-2010), (ii) it uses additional poverty lines (including the official one used in the first SDG, absent from BCL), (iii) it imputes growth to make data comparable across countries despite heterogeneous consumption-survey years, (iv) it rescales consumption survey data to national accounts aggregate, (v) it plot world maps. On top of the paper, I provide an open source repository not only allowing to reproduce the paper but also handle World Bank's PIP data (ex-PovcalNet), compute all sorts of inequality indicators (Gini, top 10\% share, antipoverty tax rate, etc.) and plot world maps of these indicators with ready-to-use functions. This code will be useful to other researchers, including for subsequent waves of PIP data. 
+
+While I recognize that my paper presents little methodological novelty compared to BCL (in the same way that BCL did not offer much methodological novelty compared to Ravallion, 2010), I believe that it offers a timely contribution to the assessment of the first SDG. Indeed, BCL cannot be used to assess the prospects for achieving the first SDG; the paper's improvements are necessary to do so. 
+
+To highlight the paper's contributions, I added the following paragraph at the end of the Introduction: \textit{The main contribution of this paper is to provide an explicit assessment of the prospects for achieving the first SDG. While existing studies estimate the poverty reduction that can be achieved through either growth or domestic redistribution, I study the combination of both. I also improve upon existing studies by presenting results in the form of world maps and by providing an open source code to work with global inequality data: \href{https://github.com/bixiou/domestic_poverty_eradication}{github.com/bixiou/domestic\_poverty\_eradication}. This code offers ready-to-use functions to compute all sorts of inequality indicators (Gini, top 10\% share, antipoverty tax rate, etc.) and plot world maps of these indicators.}
 ~\\ ~\\
 
 \textit{2.	Absence of a theoretical framework}
-This paper employs a methodology like Bolch et al. (2022) to assess which countries have sufficient domestic resources to achieve the first SDG. It is important to briefly discuss this framework in the paper in a separate methodology section as I had to go back to Bolch et al. (2022) to refresh my knowledge about this methodology. }~\\
+\textit{This paper employs a methodology like Bolch et al. (2022) to assess which countries have sufficient domestic resources to achieve the first SDG. It is important to briefly discuss this framework in the paper in a separate methodology section as I had to go back to Bolch et al. (2022) to refresh my knowledge about this methodology. }~\\
 
-response
+response TODO
 ~\\ ~\\
 
 \textit{3.	Narrow scope of the methodology}
 
 \textit{[page 6] the first paragraph starts with “Assuming that each country will continue to grow at the same rate as in the recent past…”, it would be nice if the author considers scenarios of heterogenous growth across countries. As this static framework is not suitable for drawing any causal inference, it would be good if the author mentions the difference between correlational and causal outcomes in the paper while interpreting the outcomes. }~\\
 
-response
+In the scenario you mention (\textit{Trend (2014--2019)}), I already consider heterogenous growth across countries. To clarify this point, I added the words in bold in the following passages: ``These methods include: extending the 2014--2019 \textbf{country} growth trend''; ``Assuming that each country will continue to grow at the same rate as \textbf{it did} in the recent past''. 
+
+To emphasize that no causal inference can be drawn from the paper, I added the following sentence at the end of the paragraphs that warn against a naive interpretation of the idealized policies simulated: ``The paper's estimates should not be viewed as causal outcomes of the effects of the idealized policies simulated.''
 ~\\ ~\\
 
 \textit{Minor points:}
@@ -216,12 +233,16 @@ response
 \textit{4.	The structure of the paper}
 \textit{This paper currently reads more like a book chapter. It would be necessary to restructure it to be accepted in a journal. For instance, a summary of the key results must be included in the introduction. The key contributions of the paper can be discussed in light of the literature in the introduction.}~\\
 
-response
+I added two paragraphs in the introduction to address this concern. The first one is right before the \textit{Literature} paragraph and reads: ``\textit{To assess the prospects of achieving the first SDG, I explore in turn the effects of balanced growth alone, idealized national redistribution policies, and idealized global redistribution. The thought experiments are not meant to be exhaustive or representative pathways to achieving the first SDG. They are presented to demonstrate that relying on growth and domestic policies alone would fall short of eradicating poverty by 2030. In contrast, global solidarity has the potential to dramatically accelerate poverty eradication.}''
+
+The second one concludes the Introduction and reads: ``\textit{The main contribution of this paper is to provide an explicit assessment of the prospects for achieving the first SDG. While existing studies estimate the poverty reduction that can be achieved through either growth or domestic redistribution, I study the combination of both. I also improve upon existing studies by presenting results in the form of world maps and by providing an open source code to work with global inequality data: \href{https://github.com/bixiou/domestic_poverty_eradication}{github.com/bixiou/domestic\_poverty\_eradication}. This code offers ready-to-use functions to compute all sorts of inequality indicators (Gini, top 10\% share, antipoverty tax rate, etc.) and plot world maps of these indicators.}''
 ~\\ ~\\
 
 \textit{5. In the conclusion, the author mentions the case of China's profound government commitment. It is important that the author highlights how feasible such interventions in other developing countries, whether there could be any institutional barriers. Finally, as the author alludes to transfer based on international solidarity as a panacea to eradicate extreme poverty, it would be nice to discuss some policy directives on this matter. How feasible are these interventions based on the transfer of global income to eradicate poverty? This question remains largely unanswered in this paper.}~\\
 
-
+To acknowledge the institutional barriers to a replication of the Chinese miracle, I added the words in bold in the following sentence: ``The D.R.C. is poorer today than China was in 1990, 
+so even if it replicates the Chinese miracle, \textbf{which is not easy given its institutional capacity,} it will not be able to eradicate extreme poverty on its own before 2055.''
+% TODO
 ~\\ ~\\
 
 \clearpage 
