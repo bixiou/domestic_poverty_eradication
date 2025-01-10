@@ -76,13 +76,13 @@
 \usepackage[left=1.5in,right=1.5in,top=1.5in,bottom=1.5in]{geometry}
 % \linespread{2}
 % \usepackage[super,comma,sort]{natbib} % WPcomment
-\usepackage[round,sort&compress]{natbib} % NCCcomment
-% \usepackage[natbibapa]{apacite}
-% \usepackage[style=apa,sortcites=true,sorting=nyt]{biblatex}
-% \bibliographystyle{apacite} 
-\usepackage{url} % [hyphens]
-\usepackage[hyperpageref]{backref} % back references biblio. Needs latexmk at compilation.
-\usepackage[pagebackref]{hyperref}
+% \usepackage[round,sort&compress]{natbib} % NCCcomment
+\usepackage[natbibapa]{apacite}
+\bibliographystyle{apacite} 
+% \usepackage{url} % [hyphens]
+% \usepackage[hyperpageref]{backref} % back references biblio. Needs latexmk at compilation. Incompatible with apacite.
+\usepackage{hyperref}
+% \usepackage[pagebackref]{hyperref} % Incompatible with apacite.
 % \usepackage{hyperref}
 % \usepackage{multibib} % incompatible with backref
 \hypersetup{
@@ -525,7 +525,7 @@ Also, any custom figure can be easily produced using this code.
 \theendnotes
 
 % \bibliographystyle{naturemag_noURL} % nature class works only with style naturemag or naturemag_noURL, and naturemag bugs if there are certain URLs (like .pdf). Also, nature class only works with \cite, not \citet or \citep.  % WPcomment
-\renewcommand{\url}[1]{\href{#1}{Link}} % NCCcomment
+% \renewcommand{\url}[1]{\href{#1}{Link}} % NCCcomment
 % \bibliographystyle{plainnaturl_clean} % NCCcomment
 \bibliography{poverty}
 % \input{app} 
