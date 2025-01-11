@@ -323,4 +323,8 @@ cat(sub("Angola", "\\\\midrule Angola",
     digits = 1, linesep = rep("", nrow(table_floor)-1), longtable = F, label = "tax",
     caption.short = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day.", col.names = NULL), collapse="\n")), fixed = T))), file = "../tables/floor.tex")  # 
 
+
+##### Robustness: unbalanced growth #####
+View(p11)
+
 # save.image(".RData")

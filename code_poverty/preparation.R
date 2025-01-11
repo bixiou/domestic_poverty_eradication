@@ -229,29 +229,29 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
   if (grepl("trend", growth)) { 
     df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + df$mean_growth_gdp_pc_14_19)^8 
     if (growth == "trend_pos") df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + pmax(0, df$mean_growth_gdp_pc_14_19))^8 
-    df$growth_gdp_pc_year_30 <- df$gdp_pc_2030/df$gdp_pc_year
+    df$growth_gdp_pc_year_30 <- unlist(df$gdp_pc_2030)/unlist(df$gdp_pc_year)
     # df$country_code[is.na(df$gdp_pc_year)] # "SSD" "SYR" "VEN" "YEM"
     # df$country_code[is.na(df$growth_gdp_pc_year_30)] # "SSD" "SYR" "TKM" "VEN" "YEM". TKM has grown 7.368 times in 98-22 and .994 in 14-19 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD/TKM
     df$growth_gdp_pc_year_30[is.na(df$growth_gdp_pc_year_30)] <- 1 
     growths <- df$growth_gdp_pc_year_30
   } else if (growth == "sdg8") {
     df$gdp_pc_2030_sdg <- df$gdp_pc_2015 * (1.07^15) 
-    df$growth_gdp_pc_year_30_sdg <- df$gdp_pc_2030_sdg/df$gdp_pc_year
+    df$growth_gdp_pc_year_30_sdg <- unlist(df$gdp_pc_2030_sdg)/unlist(df$gdp_pc_year)
     df$growth_gdp_pc_year_30_sdg[is.na(df$growth_gdp_pc_year_30_sdg)] <- 1.07^15
     growths <- df$growth_gdp_pc_year_30_sdg
   } else if (growth == "imf") {
-    df$growth_gdp_pc_year_30_imf <- df$gdp_pc_2030_imf/df$gdp_pc_year
+    df$growth_gdp_pc_year_30_imf <- unlist(df$gdp_pc_2030_imf)/unlist(df$gdp_pc_year)
     growths <- df$growth_gdp_pc_year_30_imf
   } else if (growth == "reg") {
-    df$growth_gdp_pc_year_30_reg <- df$gdp_pc_2030_reg/df$gdp_pc_year
+    df$growth_gdp_pc_year_30_reg <- unlist(df$gdp_pc_2030_reg)/unlist(df$gdp_pc_year)
     growths <- df$growth_gdp_pc_year_30_reg
   } else if (grepl("optimistic|strong|average", growth)) {
     df$gdp_pc_max_2030 <- df$gdp_pc_2022 * growth_rate^8 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
-    df$growth_gdp_pc_max_year_30 <- df$gdp_pc_max_2030/df$gdp_pc_year
+    df$growth_gdp_pc_max_year_30 <- unlist(df$gdp_pc_max_2030)/unlist(df$gdp_pc_year)
     df$growth_gdp_pc_max_year_30[is.na(df$growth_gdp_pc_max_year_30)] <- growth_rate^(2030 - df$year[is.na(df$growth_gdp_pc_max_year_30)])
     growths <- df$growth_gdp_pc_max_year_30
   } else if (growth == "now") {
-    df$growth_gdp_pc_2022 <- df$gdp_pc_2022/df$gdp_pc_year
+    df$growth_gdp_pc_2022 <- unlist(df$gdp_pc_2022)/unlist(df$gdp_pc_year)
     df$growth_gdp_pc_2022[is.na(df$growth_gdp_pc_2022)] <- 1 # Optimistic (in practice it's more .48-.58*), before: growth_rate^(2022 - df$year[is.na(df$growth_gdp_pc_2022)]) was even more optimistic. *Growth 2022/p$year according to IMF "South Sudan"-2016-0.568 "Syria"-2003-? "Venezuela"-2006-0.477 "Yemen"-2014-0.585 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD
     growths <- df$growth_gdp_pc_2022
   } else if (growth %in% c("none", "bolch")) growths <- rep(1, nrow(df))
@@ -328,15 +328,26 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
 
 ##### Data #####
 # PIP/PovcalNet data is *per capita* (without adjustment for household composition).
-create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) { 
+create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_max = T) { 
   data <- read.csv(paste0("../data/Povcalnet ", ppp_year, ".csv")) # https://datacatalogfiles.worldbank.org/ddh-published/0063646/DR0090251/world_100bin.csv?versionId=2023-05-31T15:19:01.1473846Z on https://datacatalog.worldbank.org/search/dataset/0063646
   
   # Data cleaning
-  temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year))
-  year_max <- setNames(temp$year_max, temp$country_code)
-  data$year_max <- year_max[data$country_code]
+  if (year_max) {
+    temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year))
+    year_max <- setNames(temp$year_max, temp$country_code)
+    data$year_max <- year_max[data$country_code]
+    p <- data[data$year == data$year_max,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
+  } else {
+    # temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_ante = min(year)) # goes back as far as 1968
+    temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year), year_ante = max(year[year <= max(year) - 1])) # highest year among years no higher than maximum year - 5
+    # temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_ante = nth(sort(year, decreasing = TRUE), 2, default = NA)) # 2nd highest year
+    year_ante <- setNames(temp$year_ante, temp$country_code)
+    # year_max <- setNames(temp$year_max, temp$country_code)
+    # year_ante[year_ante == -Inf] <- year_max[year_ante == -Inf]
+    data$year_ante <- year_ante[data$country_code]
+    p <- data[data$year == data$year_ante,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
+  }
   # data <- data[data$year == data$year_max,]
-  p <- data[data$year == data$year_max,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
   names(p) <- sub("avg_welfare_", "welfare_avg_", names(p), fixed = T)
   p$mean_welfare <- rowSums(p[,paste0("welfare_avg_", 1:100)] * p[,paste0("pop_share_", 1:100)])
   
@@ -406,7 +417,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE) {
     data$year_bolch[rows_to_change] <- data$year_bolch[rows_to_change] - 1 }
   temp <- data[data$year == data$year_bolch,]
   temp <- temp %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile), values_fn = mean)
-  temp <- temp[!is.na(temp$country_code),!grepl("_NA|year_max|welfare_type|year$", names(temp))]
+  temp <- temp[!is.na(temp$country_code),!grepl("_NA|year_max|year_min|welfare_type|year$", names(temp))]
   # temp <- temp[,!names(temp) %in% c("year", "year_max")] # If we put it again, change 7 to 5 in 7:ncol...
   names(temp) <- sub("avg_welfare_", "avg_", names(temp), fixed = T)
   names(temp) <- sub("quantile_", "max_", names(temp), fixed = T)
@@ -509,7 +520,7 @@ create_appendix_table <- function(fun, ncol = NULL, poverty_thresholds = NULL, e
 pop <- read.csv("../data/future population by age 2022.csv") # https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2022_PopulationByAge5GroupSex_Medium.zip
 pop <- pop[, c("Location", "ISO2_code", "ISO3_code", "Time", "AgeGrpStart", "PopTotal")]
 pop$PopTotal <- 1e3 * pop$PopTotal
-pop <- pop[pop$Time %in% c(sort(unique(p$year)), 2030),] # TODO! p not defined yet. Simply remove?
+# pop <- pop[pop$Time %in% c(sort(unique(p$year)), 2030),] # TODO! p not defined yet. Simply remove?
 pop_iso3 <- aggregate(PopTotal ~ Time + ISO3_code, data = pop, FUN = sum)
 pop_iso3 <- pop_iso3 %>% pivot_wider(names_from = Time, values_from = PopTotal)
 names(pop_iso3) <- c("country_code", paste0("pop_", names(pop_iso3)[-1]))
@@ -524,6 +535,7 @@ SSA <- c("SDN", "AGO", "GIN", "GMB", "GNB", "GNQ", "BDI", "BEN", "BFA", "SEN", "
 
 start <- Sys.time()
 p <- p17 <- create_p()
+pante <- create_p(year_max = F)
 s <- create_p(rescale = T)
 p11 <- create_p(ppp_year = 2011)
 w <- create_world_distribution()
