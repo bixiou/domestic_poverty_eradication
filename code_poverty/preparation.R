@@ -12,6 +12,7 @@ name_var_growth <- function(growth = "optimistic") {
                    growth == "sdg8" ~ "y7", # 7% growth over 2015-30
                    growth == "reg" ~ "y_reg", # Forecasts future growth using a quadratic model of past growth (middle ground between our average (world growth) and (country) trend)
                    growth == "imf" ~ "y_imf", # Uses IMF forecasts (in the envelope of none - very_optimistic)
+                   growth == "trend_ineq" ~ "Y3_ineq", # 3% growth over 2023-30 and year_ante-year inequality trend extend up to 2030
                    TRUE ~ growth))
 } 
 
@@ -317,9 +318,9 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
     wdf[[paste0(var, "_max_", i)]] <- wquantiles[wpercentiles[i]]
     wdf[[paste0(var, "_min_", i)]] <- wdf[[paste0(var, "_max_", i-1)]]
     wdf[[paste0(var, "_pop_share_", i)]] <- sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))/sum(df[[pop_yr]])
-    wdf[[paste0(var, "_avg_", i)]] <- if (wdf[[paste0(var, "_pop_share_", i)]] == 0) wdf[[paste0(var, "_avg_", i-1)]] else (sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * df[[paste0(var, "_avg_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))) / (wdf[[paste0(var, "_pop_share_", i)]]*sum(df[[pop_yr]]))
+    wdf[[paste0(var, "_avg_", i)]] <- if (wdf[[paste0(var, "_pop_share_", i)]] == 0 & i != 1) wdf[[paste0(var, "_avg_", i-1)]] else (sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * df[[paste0(var, "_avg_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))) / (wdf[[paste0(var, "_pop_share_", i)]]*sum(df[[pop_yr]]))
   }
-  wdf[[paste0("mean_", var)]] <- rowSums(wdf[,paste0(var, "_avg_", 1:100)] * wdf[,paste0(var, "_pop_share_", 1:100)]) 
+  wdf[[paste0("mean_", var)]] <- rowSums(wdf[,paste0(var, "_avg_", 1:100)] * wdf[,paste0(var, "_pop_share_", 1:100)])
   
   wdf <- compute_inequality(var = var, df = wdf, return = "df")
   return(wdf)
@@ -339,7 +340,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
     p <- data[data$year == data$year_max,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
   } else {
     # temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_ante = min(year)) # goes back as far as 1968
-    temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year), year_ante = max(year[year <= max(year) - 1])) # highest year among years no higher than maximum year - 5
+    temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year), year_ante = max(year[year <= max(year) - 5])) # highest year among years no higher than maximum year - 5
     # temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_ante = nth(sort(year, decreasing = TRUE), 2, default = NA)) # 2nd highest year
     year_ante <- setNames(temp$year_ante, temp$country_code)
     # year_max <- setNames(temp$year_max, temp$country_code)
@@ -463,7 +464,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   return(p)
 }
 
-create_world_distribution <- function(df = p17, region = df$country_code) {
+create_world_distribution <- function(df = p, region = df$country_code) {
   w <- data.frame(country = "World", pop_2022 = sum(df$pop_2022), pop_2030 = sum(df$pop_2030))
   w <- compute_world_distribution(name_var_growth("imf"), df = df, wdf = w, region = region)
   w <- compute_world_distribution(name_var_growth("reg"), df = df, wdf = w, region = region)
@@ -477,6 +478,7 @@ create_world_distribution <- function(df = p17, region = df$country_code) {
   w <- compute_world_distribution(name_var_growth("none"), df = df, wdf = w, region = region)
   w <- compute_world_distribution(name_var_growth("now"), df = df, wdf = w, region = region)
   w <- compute_world_distribution(name_var_growth("bolch"), df = df, wdf = w, region = region)
+  if ("Y3_ineq_avg_2" %in% names(df)) w <- compute_world_distribution(name_var_growth("trend_ineq"), df = df, wdf = w, region = region)
   return(w)
 }
 
@@ -535,7 +537,7 @@ SSA <- c("SDN", "AGO", "GIN", "GMB", "GNB", "GNQ", "BDI", "BEN", "BFA", "SEN", "
 
 start <- Sys.time()
 p <- p17 <- create_p()
-pante <- create_p(year_max = F)
+pante <- create_p(year_max = F) # TODO! solve warnings: issue with unlist 
 s <- create_p(rescale = T)
 p11 <- create_p(ppp_year = 2011)
 w <- create_world_distribution()
@@ -546,6 +548,24 @@ ssas <- create_world_distribution(region = SSA, df = s)
 lics <- create_world_distribution(region = LIC, df = s)
 # w11 <- create_world_distribution(df = p11) # 9 min
 
+# /!\ There are duplicated rows in p and pante: pante$country_code[duplicated(pante$country_code)] => I remove them below
+p <- p[!duplicated(p$country_code),]
+s <- s[!duplicated(s$country_code),]
+pante <- pante[!duplicated(pante$country_code),]
+nrow(pante)
+for (c in pante$country_code) p$year_ante[p$country_code == c] <- pante$year[pante$country_code == c] 
+for (i in 1:100) p[[paste0("welfare_share_", i)]] <- p[[paste0("welfare_avg_", i)]]/rowSums(p[, grepl("^welfare_avg_", names(p))])
+for (i in 1:100) pante[[paste0("welfare_share_", i)]] <- pante[[paste0("welfare_avg_", i)]]/rowSums(pante[, grepl("^welfare_avg_", names(pante))])
+for (i in 1:100) for (c in pante$country_code) p[[paste0("increase_share_", i)]][p$country_code == c] <- (p[[paste0("welfare_share_", i)]][p$country_code == c] - pante[[paste0("welfare_share_", i)]][pante$country_code == c])/(p$year - p$year_ante)[p$country_code == c]
+for (i in 1:100) p[[paste0("growth_share_", i)]] <- p[[paste0("increase_share_", i)]]/p[[paste0("welfare_share_", i)]]
+# max(rowSums(p[, grepl("increase_share_", names(p))]), na.rm = T) # 1e-16
+for (i in 1:100) p[[paste0("share_", i, "_2030")]] <- p[[paste0("welfare_share_", i)]] + p[[paste0("increase_share_", i)]] * (2030 - p$year)
+# rowSums(p[, grepl("^share_", names(p))])
+for (i in 1:100) p[[paste0("Y3_ineq_avg_", i)]] <- p[[paste0("share_", i, "_2030")]] * rowSums(p[, grepl("^Y3_avg_", names(p))])
+for (j in 1:nrow(p)) if (!is.na(p[j, "Y3_ineq_avg_10"])) p[j, paste0("Y3_ineq_avg_", 1:100)] <- pmax(0.01, sort(unlist(p[j, paste0("Y3_ineq_avg_", 1:100)])))
+for (i in 1:100) p[[paste0("Y3_ineq_max_", i)]] <- p[[paste0("Y3_max_", i)]] * p[[paste0("Y3_ineq_avg_", i)]]/p[[paste0("Y3_avg_", i)]]
+for (i in 1:100) p[[paste0("Y3_ineq_min_", i)]] <- p[[paste0("Y3_min_", i)]] * p[[paste0("Y3_ineq_avg_", i)]]/p[[paste0("Y3_avg_", i)]]
+w <- compute_world_distribution(name_var_growth("trend_ineq"), df = p, wdf = w)
 selected_countries <- order(p$country)[order(p$country) %in% which(p$pop_2022 > 1e7 & no.na(p$mean_welfare, 0, num_as_char = FALSE) < 6)]
 p$country_short <- p$country
 p$country_short[p$country == "Democratic Republic of the Congo"] <- "D.R. Congo"

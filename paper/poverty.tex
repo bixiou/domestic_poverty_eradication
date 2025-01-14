@@ -301,7 +301,8 @@ The main contribution of this paper is to provide an explicit assessment of the 
 % I can adjust to HFCE as robustness check https://data.worldbank.org/indicator/NE.CON.PRVT.PP.KD with the assumption that the extra money is held by the rich (>13$/day), 
 The percentiles of each country's post-tax income (or consumption) are estimated by the Poverty and Inequality Platform (PIP) of the World Bank (ex-PovcalNet). PIP aggregates the most recent household surveys (60\% of countries were surveyed between 2018 and 2021). This data is based on purchasing power parity (PPP) and given in constant 2017 \$. % TODO! condense in one sentence this paragraph and the following sentence; put Data/ to appendix
 
-In low-income countries (those of greatest interest to us), PIP provides data on per capita \textit{consumption} (rather than income). Thereby, the data does not capture services procured by the government. Another potential concern with household surveys is that the aggregate (national) consumption they imply is generally lower than the one estimated in national accounts \citep{deaton_measuring_2005,prydz_disparities_2022,hlasny_impact_2022}. This discrepancy comes from measurement errors on both sides: on the one hand, household surveys suffer from underreporting of top incomes and large expenditures; on the other hand, national accounts do not properly account for informal work %and auto-consumption, % TODO? cite? Deaton (2001) argues that in India approximately half of the gap between national accounts consumption and household surveys is due to imputed rents
+In low-income countries (those of greatest interest to us), PIP provides data on per capita \textit{consumption} (rather than income). Thereby, the data does not capture services procured by the government. % TODO healthcare, etc.
+Another potential concern with household surveys is that the aggregate (national) consumption they imply is generally lower than the one estimated in national accounts \citep{deaton_measuring_2005,prydz_disparities_2022,hlasny_impact_2022}. This discrepancy comes from measurement errors on both sides: on the one hand, household surveys suffer from underreporting of top incomes and large expenditures; on the other hand, national accounts do not properly account for informal work %and auto-consumption, % TODO? cite? Deaton (2001) argues that in India approximately half of the gap between national accounts consumption and household surveys is due to imputed rents
 and tend to inflate agricultural output \citep{angrist_why_2021}. 
 Furthermore, authoritarian countries have been shown to produce inflated GDP statistics, except for countries below the GDP threshold of eligibility for preferential loans by the World Bank \citep{martinez_how_2022}. % international development association
 While Household Final Consumption Expenditures (HFCE) from national accounts is 44\% greater than the aggregate consumption from household surveys, the ``discrepancy ratio'' is largest for middle-income countries and is only 12\% for low-income countries. 
@@ -312,12 +313,12 @@ As a robustness check, I also re-derive the main results after adjusting aggrega
 As is common in this literature \citep{karver_mdgs_2012,hellebrandt_future_2015,bicaba_can_2017}, my baseline assumes ``balanced growth'', meaning that each percentile grows at the same rate between the country's survey year and 2030. 
 I rescale incomes by the observed growth of GDP p.c. (in PPP) up to 2022 (using World Bank data) and by different methods for the 2022--2030 period. 
 These methods include: extending the 2014--2019 country growth trend (which excludes COVID years); extending the trend for growing countries and assuming no growth when GDP p.c. has contracted between 2014 and 2019; assuming a constant growth (of either 0\%, 3\%, 4.5\%, 6\%, or 7\%); using IMF forecasts (\cite{imf_world_2023} extended up to 2030 by replicating the 2026--2028 forecasted growth in 2028--2030); projecting future growth using an autoregressive quadratic model that predicts the 2011--2019 growth based on the 1991-2011 growth (then applied to 2022--2030 using the 2002--2022 growth). Besides, I deviate from this two-step procedure to assess the original SDGs, 
-by assuming a constant growth of 7\% starting in 2015.
+by assuming a constant growth of 7\% starting in 2015. % TODO! unbalanced growth (or later?)
 
 \section{Results}
 \subsection{The effect of balanced growth}
 
-To estimate global poverty rates, the World Bank scales up the percentiles measured in household surveys by the country's GDP growth between the survey year and the year of interest.\footnote{The World Bank also adjusts growth rates when data captures consumption rather than income, cf. \href{https://datanalytics.worldbank.org/PIP-Methodology/lineupestimates.html\#extrapolations}{datanalytics.worldbank.org/PIP-Methodology/lineupestimates.html}.} I project global poverty rates and poverty gaps in 2030 using the same assumption of balanced growth (i.e., constant inequality), for a range of growth scenarios (Table \ref{tab:poverty}). 
+To estimate global poverty rates, the World Bank scales up the percentiles measured in household surveys by the country's GDP growth between the survey year and the year of interest.\footnote{The World Bank also adjusts growth rates when data captures consumption rather than income, cf. \href{https://datanalytics.worldbank.org/PIP-Methodology/lineupestimates.html\#extrapolations}{datanalytics.worldbank.org/PIP-Methodology/lineupestimates.html}.} I project global poverty rates and poverty gaps in 2030 using the same assumption of balanced growth (i.e., constant inequality), for a range of growth scenarios (Table \ref{tab:poverty}). % TODO! unbalanced growth (or earlier?)
 
 \input{../tables/poverty.tex}
 
@@ -331,7 +332,7 @@ I estimate that 6\% of the world population will live in extreme poverty in 2030
 If each country grows by 3\% each year, extreme poverty would decline slightly more than in the realistic projections, at 5\%. 
 Although steady growth reduces poverty, growth alone cannot achieve the first SDG: If the world grows by 7\% each year (the maximum rate observed for a given country over 2010--2019), % CN 6.7%
 the extreme poverty rate would still be 3\% in 2030. Even if the world had experienced a 7\% growth rate starting in 2015 (when the SDGs were adopted), extreme poverty would not have been completely eliminated, at 1\% of the world population in 2030. 
-As we cannot rely on growth alone to eliminate poverty, let us add domestic redistribution to the equation.
+As we cannot rely on growth alone to eliminate poverty, let us add domestic redistribution to the equation. 
 
 \subsection{Idealized redistributive policies}
 
@@ -430,7 +431,7 @@ A final way of approaching the issue is to set a tax schedule, compute how much 
 and the tax rate too low for top incomes, 
 this simple tax schedule seems to correctly reflect the fiscal capacity of governments. Note that the value of the income floor depends on the whole income distribution: the top of the distribution determines the revenues that can be generated; and the bottom dictates the cost of raising low incomes up to a given floor. 
 
-Figure \ref{fig:demogrant_7__10} presents the income floor that can funded in 2030 with our simple tax in a 3\% growth scenario. While the number of countries unable to eradicate extreme poverty through this tax totals 23, a figure akin to the count of low-income countries at 27, a mere 13 countries fall into both categories.
+Figure \ref{fig:demogrant_7__10} presents the income floor that can funded in 2030 with our simple tax in a 3\% growth scenario. 23 countries are unable to eradicate extreme poverty through this tax. This figure is close to the count of low-income countries, at 27, but only 13 countries fall into both categories.
 %Although there are about as many countries that cannot close the extreme poverty gap with this tax (23) as there are low-income countries (27), only 13 countries fall into both of these groups. 
 For example, while Ethiopia (a low-income country) can finance an income floor of \$3.08/day, Nigeria (classified as a lower-middle-income country) can only finance a floor of \$1.83/day. 
 

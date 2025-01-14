@@ -6,8 +6,8 @@ mean(p$year < 2022 & p$year > 2017)
 mean(p$hfce/p$mean_welfare, na.rm = T) # 1.44 (20% NA)
 
 #####  Balanced growth ##### 
-growth_scenarios <- setNames(c("now", "trend", "trend_pos", "imf", "reg", "none", "average", "strong", "optimistic", "very_optimistic", "sdg8"), # , "bolch"
-                             c("2022 Estimate", "Trend (2014--2019)", "Max(Trend, 0)", "IMF forecast", "Autoregressive projection", "0\\% growth", "3\\% growth", "4.5\\% growth", "6\\% growth", "7\\% growth", "7\\% growth since 2016")) # Quadratic model
+growth_scenarios <- setNames(c("now", "trend", "trend_pos", "imf", "reg", "none", "average", "strong", "optimistic", "very_optimistic", "sdg8", "trend_ineq"), # , "bolch"
+                             c("2022 Estimate", "Trend (2014--2019)", "Max(Trend, 0)", "IMF forecast", "Autoregressive projection", "0\\% growth", "3\\% growth", "4.5\\% growth", "6\\% growth", "7\\% growth", "7\\% growth since 2016", "Unbalanced growth (inequality trend + 3\\% growth)")) # Quadratic model
 table_poverty <- cbind(#"scenario" = names(growth_scenarios), 
   "rate2" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 2.15, growth = s, return = "rate")), 
   "rate4" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 3.65, growth = s, return = "rate")), 
@@ -18,7 +18,7 @@ table_poverty <- cbind(#"scenario" = names(growth_scenarios),
   "gap7" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 6.85, unit = '%', growth = s)),
   "gap18" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 18.15, unit = '%', growth = s))) 
 cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty rate (\\%)} & \\multicolumn{4}{c}{Poverty gap (\\% of GDP)} \\\\ \n (Poverty line in \\$/day)", 
-        paste(kbl(table_poverty[c(1, 2, 3, 5, 7, 10, 11),], "latex", 
+        paste(kbl(table_poverty[c(1, 2, 3, 5, 7, 10, 11), ], "latex", 
       caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios. Poverty rates are expressed in \\% of world population and poverty gaps in \\% of world GDP. Poverty lines are in PPP \\$/day.", 
       row.names = T, position = "h", escape = F, booktabs = T, digits = c(1, 1, 1, 1, 2, 2, 2, 2), label = "poverty", linesep = rep("", nrow(table_poverty)-1), 
       caption.short = "Global poverty (rates and gaps) in 2030 under different growth scenarios.",
@@ -114,13 +114,13 @@ plot_world_map("antipoverty_bcs_tax_bcs", breaks = c(0, .1, 1, 5, 10, 25, 50, 10
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 
-##### Demogrant for a given tax ##### 
+##### Demogrant (income floor) for a given tax ##### 
 p$demogrant_7__10 <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "average", scope_tax = p)
 sort(setNames(p$demogrant_7__10, p$country))
 sort(setNames(p$demogrant_7__10, p$country)[p$country_code %in% LIC])
-sum(p$demogrant_7__10 < 2.15)
-length(LIC)
-sum(p$demogrant_7__10 < 2.15 & p$country_code %in% LIC)
+sum(p$demogrant_7__10 < 2.15) # 23 TODO! check
+length(LIC) # 27
+sum(p$demogrant_7__10 < 2.15 & p$country_code %in% LIC) # 13
 plot_world_map("demogrant_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
                legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T)  
@@ -323,8 +323,49 @@ cat(sub("Angola", "\\\\midrule Angola",
     digits = 1, linesep = rep("", nrow(table_floor)-1), longtable = F, label = "tax",
     caption.short = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day.", col.names = NULL), collapse="\n")), fixed = T))), file = "../tables/floor.tex")  # 
 
+(table_floor_full <- create_appendix_table(fun = "compute_income_floor", marginal_rates = list(10), thresholds = list(6.85), 
+                                      growths = c("average", "trend_ineq", "average", "reg", "reg", "very_optimistic", "very_optimistic", "sdg8"), dfs = list(p, p, s, p, s, p, s, p)))
+cat(sub("Angola", "\\\\midrule Angola", 
+        sub("toprule", "toprule Growth scenario over 2022--2030 & 3\\\\% & \\\\makecell{3\\\\% + trend \\\\\\\\inequality} & 3\\\\% & \\\\multicolumn{2}{c}{Projection} & 7\\\\% & 7\\\\% & \\\\makecell{7\\\\% since \\\\\\\\2015} \\\\\\\\ \nHFCE rescaling & & & \\\\checkmark & & \\\\checkmark & & \\\\checkmark & \\\\\\\\ \n \\\\midrule", 
+            sub("end{tabular}", "end{tabular}}", sub("centering", "makebox[\\\\textwidth][c]{", paste(kbl(table_floor_full, "latex", 
+    caption = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day for major lower-income countries in 2030.", position = "b", escape = F, booktabs = T, 
+    digits = 1, linesep = rep("", nrow(table_floor_full)-1), longtable = F, label = "tax",
+    caption.short = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day.", col.names = NULL), collapse="\n")), fixed = T))), file = "../tables/floor_full.tex")  # 
+
 
 ##### Robustness: unbalanced growth #####
-View(p11)
+# Quantiles / SD of growth_share_; avg growth_share_ by quintile; evol of Gini, etc.; poverty rates & gaps; discrepancies in income floor
+table_poverty[c(7, 12), ]
+quantile(p$year - p$year_ante, c(.05, .1, .25, .5, .75, .9, .95), na.rm = T) 
+mean(p$year - p$year_ante == 1, na.rm = T)
+quantile(p[, grepl("growth_share_", names(p))], c(.05, .1, .25, .5, .75, .9, .95), na.rm = T) 
+# 92% of yearly variation in shares is within [-5%; +5%] and 47% within [-1%; +1%] of their last share
+mean(abs(p[, grepl("growth_share_", names(p))]) < .01, na.rm = T) # 47%
+mean(abs(p[, grepl("growth_share_", names(p))]) < .05, na.rm = T) # 92%
+sd(unlist(p[, grepl("growth_share_", names(p))]), na.rm = T) # .07 (very high, driven by outliers)
+for (i in 1:5) p[[paste0("growth_q", i)]] <- rowMeans(p[, paste0("growth_share_", (i-1)*20+c(1:20))])
+mean(p$growth_q1, na.rm = T) # .001
+mean(p$growth_q2, na.rm = T) # .005
+mean(p$growth_q3, na.rm = T) # .005
+mean(p$growth_q4, na.rm = T) # .0004
+mean(p$growth_q5, na.rm = T) # -.003
+mean(p$growth_q1 > 0, na.rm = T) # 58% (between 40% and 60% > 0 for each quintile)
+mean(p$growth_q5 > 0, na.rm = T) # 40%
+
+compute_inequality(df = w, var = "Y3", return = 'gini') # .62
+compute_inequality(df = w, var = "Y3_ineq", return = 'gini', recompute = T) # .62
+
+p$demogrant_7__10_ineq <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "trend_ineq", scope_tax = p)
+sum(p$demogrant_7__10 < 2.15, na.rm = T)
+sum(p$demogrant_7__10_ineq < 2.15, na.rm = T)
+setdiff(p$country[p$demogrant_7__10 < 2.15 | p$demogrant_7__10_ineq < 2.15], p$country[p$demogrant_7__10 < 2.15 & p$demogrant_7__10_ineq < 2.15])
+quantile(p$demogrant_7__10_ineq/p$demogrant_7__10-1, c(.05, .1, .25, .5, .75, .9, .95), na.rm = T)
+mean(p$demogrant_7__10_ineq > p$demogrant_7__10-1, na.rm = T) # 79%
+mean(p$demogrant_7__10_ineq/p$demogrant_7__10-1 < .2, na.rm = T) # 82%
+mean(p$demogrant_7__10_ineq/p$demogrant_7__10-1 < .1, na.rm = T) # 68%
+mean(abs(p$demogrant_7__10_ineq/p$demogrant_7__10-1) < .1, na.rm = T) # 44%
+mean(abs(p$demogrant_7__10_ineq/p$demogrant_7__10-1) < .33, na.rm = T) # 82%
+
+View(p[,grepl("Y3|code", names(p))])
 
 # save.image(".RData")
