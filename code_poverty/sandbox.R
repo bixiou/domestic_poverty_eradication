@@ -1373,6 +1373,28 @@ cat(sub("Low-Income", "\\\\midrule Low-Income", sub("Algeria", "\\\\midrule Alge
 #                   caption.short = "Net gain per country of a global antipoverty tax.", col.names = NULL), collapse="\n"))), file = "../tables/gain.tex")  # \\\\multicolumn{4}{c}{\\\\$2.15/day} & BCS & \\\\multicolumn{2}{c}{\\\\$3.44/day}
 
 
+##### Unbalanced growth #####
+# Quantiles / SD of growth_share_; avg growth_share_ by quintile; evol of Gini, etc.; poverty rates & gaps; discrepancies in income floor
+table_poverty[c(7, 12), ]
+quantile(p[, grepl("growth_share_", names(p))], c(.05, .1, .25, .5, .75, .9, .95), na.rm = T)
+sd(pmax(-5, unlist(p[, grepl("growth_share_", names(p))])), na.rm = T) # .06 (very high, driven by outliers)
+setdiff(p$country[p$demogrant_7__10 < 2.15 | p$demogrant_7__10_ineq < 2.15], p$country[p$demogrant_7__10 < 2.15 & p$demogrant_7__10_ineq < 2.15])
+quantile(p$demogrant_7__10_ineq/p$demogrant_7__10-1, c(.05, .1, .25, .5, .75, .9, .95), na.rm = T)
+mean(p$demogrant_7__10_ineq > p$demogrant_7__10, na.rm = T) # 60%
+mean(p$demogrant_7__10_ineq/p$demogrant_7__10-1 < .2, na.rm = T) # 89%
+mean(p$demogrant_7__10_ineq/p$demogrant_7__10-1 < .1, na.rm = T) # 75%
+
+
+(table_floor <- create_appendix_table(fun = "compute_income_floor", marginal_rates = list(10), thresholds = list(6.85), 
+                                      growths = c("average", "average", "reg", "reg", "very_optimistic", "very_optimistic", "sdg8"), dfs = list(p, s, p, s, p, s, p)))
+cat(sub("Angola", "\\\\midrule Angola", 
+        sub("toprule", "toprule Growth scenario over 2022--2030 & 3\\\\% & 3\\\\% & \\\\multicolumn{2}{c}{Projection} & 7\\\\% & 7\\\\% & \\\\makecell{7\\\\% since \\\\\\\\2015} \\\\\\\\ \nHFCE rescaling & & \\\\checkmark & & \\\\checkmark & & \\\\checkmark & \\\\\\\\ \n \\\\midrule", 
+            sub("end{tabular}", "end{tabular}}", sub("centering", "makebox[\\\\textwidth][c]{", paste(kbl(table_floor, "latex", 
+        caption = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day for major lower-income countries in 2030.", position = "b", escape = F, booktabs = T, 
+        digits = 1, linesep = rep("", nrow(table_floor)-1), longtable = F, label = "tax",
+        caption.short = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day.", col.names = NULL), collapse="\n")), fixed = T))), file = "../tables/floor.tex")  # 
+
+
 
 ##### 1% of richest billion doubles poorest billion #####
 

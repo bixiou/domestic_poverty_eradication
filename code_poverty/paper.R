@@ -2,8 +2,13 @@
 
 ##### Data #####
 p$scaling_factor[p$country %in% c("Burundi", "Democratic Republic of the Congo")]
-mean(p$year < 2022 & p$year > 2017)
-mean(p$hfce/p$mean_welfare, na.rm = T) # 1.44 (20% NA)
+mean(p$year <= 2021 & p$year >= 2018) # 59%
+mean(p$hfce/p$mean_welfare, na.rm = T) # 1.42 (20% NA)
+mean((p$hfce/p$mean_welfare)[p$country_code %in% LIC], na.rm = T) # 1.11
+mean((p$hfce/p$mean_welfare)[p$gdp_pc_2022 < 2e4 & p$gdp_pc_2022 > 1e3], na.rm = T) # 1.53
+mean((p$hfce/p$mean_welfare)[p$gdp_pc_2022 > 2e4], na.rm = T) # 1.26
+mean(is.na(p$hfce/p$mean_welfare))
+
 
 #####  Balanced growth ##### 
 growth_scenarios <- setNames(c("now", "trend", "trend_pos", "imf", "reg", "none", "average", "strong", "optimistic", "very_optimistic", "sdg8", "trend_ineq"), # , "bolch"
@@ -61,7 +66,7 @@ plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 sort(setNames(p$antipoverty_2_tax_7_average, p$country), decreasing = T)
-wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA]) # 49%
+wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA]) # 49% /!\
 wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% LIC], p$pop_2030[p$country_code %in% LIC]) # 64%
 sum(p$antipoverty_2_tax_7_average > 100) # 5
 
@@ -116,6 +121,7 @@ plot_world_map("antipoverty_bcs_tax_bcs", breaks = c(0, .1, 1, 5, 10, 25, 50, 10
 
 ##### Demogrant (income floor) for a given tax ##### 
 p$demogrant_7__10 <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "average", scope_tax = p)
+p$demogrant_7__10_ineq <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "trend_ineq", scope_tax = p)
 sort(setNames(p$demogrant_7__10, p$country))
 sort(setNames(p$demogrant_7__10, p$country)[p$country_code %in% LIC])
 sum(p$demogrant_7__10 < 2.15) # 23 TODO! check
@@ -313,23 +319,13 @@ cat(sub("Angola", "\\\\midrule Angola", gsub("9999.0", "$>$ 10k",
     position = "b", escape = F, booktabs = T, digits = 1, linesep = rep("", nrow(table_tax7)-1), longtable = F, label = "tax7",
     col.names = NULL), collapse="\n")), fixed = T)), fixed = T)), file = "../tables/tax7.tex")  # 
 
-
-(table_floor <- create_appendix_table(fun = "compute_income_floor", marginal_rates = list(10), thresholds = list(6.85), 
-                                      growths = c("average", "average", "reg", "reg", "very_optimistic", "very_optimistic", "sdg8"), dfs = list(p, s, p, s, p, s, p)))
-cat(sub("Angola", "\\\\midrule Angola", 
-    sub("toprule", "toprule Growth scenario over 2022--2030 & 3\\\\% & 3\\\\% & \\\\multicolumn{2}{c}{Projection} & 7\\\\% & 7\\\\% & \\\\makecell{7\\\\% since \\\\\\\\2015} \\\\\\\\ \nHFCE rescaling & & \\\\checkmark & & \\\\checkmark & & \\\\checkmark & \\\\\\\\ \n \\\\midrule", 
-    sub("end{tabular}", "end{tabular}}", sub("centering", "makebox[\\\\textwidth][c]{", paste(kbl(table_floor, "latex", 
-    caption = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day for major lower-income countries in 2030.", position = "b", escape = F, booktabs = T, 
-    digits = 1, linesep = rep("", nrow(table_floor)-1), longtable = F, label = "tax",
-    caption.short = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day.", col.names = NULL), collapse="\n")), fixed = T))), file = "../tables/floor.tex")  # 
-
 (table_floor_full <- create_appendix_table(fun = "compute_income_floor", marginal_rates = list(10), thresholds = list(6.85), 
                                       growths = c("average", "trend_ineq", "average", "reg", "reg", "very_optimistic", "very_optimistic", "sdg8"), dfs = list(p, p, s, p, s, p, s, p)))
 cat(sub("Angola", "\\\\midrule Angola", 
-        sub("toprule", "toprule Growth scenario over 2022--2030 & 3\\\\% & \\\\makecell{3\\\\% + trend \\\\\\\\inequality} & 3\\\\% & \\\\multicolumn{2}{c}{Projection} & 7\\\\% & 7\\\\% & \\\\makecell{7\\\\% since \\\\\\\\2015} \\\\\\\\ \nHFCE rescaling & & & \\\\checkmark & & \\\\checkmark & & \\\\checkmark & \\\\\\\\ \n \\\\midrule", 
+        sub("toprule", "toprule Growth scenario over 2022--2030 & 3\\\\% & \\\\makecell{3\\\\%\\\\\\\\unbalanced} & 3\\\\% & \\\\multicolumn{2}{c}{Projection} & 7\\\\% & 7\\\\% & \\\\makecell{7\\\\% since \\\\\\\\2015} \\\\\\\\ \nHFCE rescaling & & & \\\\checkmark & & \\\\checkmark & & \\\\checkmark & \\\\\\\\ \n \\\\midrule", 
             sub("end{tabular}", "end{tabular}}", sub("centering", "makebox[\\\\textwidth][c]{", paste(kbl(table_floor_full, "latex", 
     caption = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day for major lower-income countries in 2030.", position = "b", escape = F, booktabs = T, 
-    digits = 1, linesep = rep("", nrow(table_floor_full)-1), longtable = F, label = "tax",
+    digits = 1, linesep = rep("", nrow(table_floor_full)-1), longtable = F, label = "floor",
     caption.short = "Income floor (in \\$/day) financed by a 10\\% tax above \\$10/day.", col.names = NULL), collapse="\n")), fixed = T))), file = "../tables/floor_full.tex")  # 
 
 
@@ -337,37 +333,28 @@ cat(sub("Angola", "\\\\midrule Angola",
 # Quantiles / SD of growth_share_; avg growth_share_ by quintile; evol of Gini, etc.; poverty rates & gaps; discrepancies in income floor
 mean(p$year - p$year_ante == 5, na.rm = T)
 mean(p$year - p$year_ante > 5 & p$year - p$year_ante <= 10, na.rm = T)
-  quantile(p$year - p$year_ante, c(.05, .1, .25, .5, .75, .9, .95, 1), na.rm = T) 
-table_poverty[c(7, 12), ]
-
-quantile(p[, grepl("growth_share_", names(p))], c(.05, .1, .25, .5, .75, .9, .95), na.rm = T) 
 # 98% of yearly variation in shares is within [-5%; +5%] and 66% within [-1%; +1%] of their last share
 mean(abs(p[, grepl("growth_share_", names(p))]) < .01, na.rm = T) # 66%
 mean(abs(p[, grepl("growth_share_", names(p))]) < .05, na.rm = T) # 98%
-sd(pmax(-5, unlist(p[, grepl("growth_share_", names(p))])), na.rm = T) # .06 (very high, driven by outliers)
 for (i in 1:5) p[[paste0("growth_q", i)]] <- rowMeans(p[, paste0("growth_share_", (i-1)*20+c(1:20))])
 mean(p$growth_q1, na.rm = T) # .002
 mean(p$growth_q2, na.rm = T) # .004
 mean(p$growth_q3, na.rm = T) # .003
 mean(p$growth_q4, na.rm = T) # .001
 mean(p$growth_q5, na.rm = T) # -.003
-mean(p$growth_q1 > 0, na.rm = T) # 63% (between 40% and 60% > 0 for each quintile)
-mean(p$growth_q2 > 0, na.rm = T)
+mean(p$growth_q1 > 0, na.rm = T) # 63%
+mean(p$growth_q2 > 0, na.rm = T) # 63%
 mean(p$growth_q3 > 0, na.rm = T) # 64%
-mean(p$growth_q4 > 0, na.rm = T)
+mean(p$growth_q4 > 0, na.rm = T) # 51%
 mean(p$growth_q5 > 0, na.rm = T) # 35%
 
 compute_inequality(df = w, var = "Y3", return = 'gini') # .62
 compute_inequality(df = w, var = "Y3_ineq", return = 'gini', recompute = T) # .62
 
-p$demogrant_7__10_ineq <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "trend_ineq", scope_tax = p)
-sum(p$demogrant_7__10 < 2.15, na.rm = T)
-sum(p$demogrant_7__10_ineq < 2.15, na.rm = T)
-setdiff(p$country[p$demogrant_7__10 < 2.15 | p$demogrant_7__10_ineq < 2.15], p$country[p$demogrant_7__10 < 2.15 & p$demogrant_7__10_ineq < 2.15])
-quantile(p$demogrant_7__10_ineq/p$demogrant_7__10-1, c(.05, .1, .25, .5, .75, .9, .95), na.rm = T)
-mean(p$demogrant_7__10_ineq > p$demogrant_7__10-1, na.rm = T) # 92%
-mean(p$demogrant_7__10_ineq/p$demogrant_7__10-1 < .2, na.rm = T) # 89%
-mean(p$demogrant_7__10_ineq/p$demogrant_7__10-1 < .1, na.rm = T) # 75%
+sum(p$demogrant_7__10 < 2.15, na.rm = T) # 23
+sum(p$demogrant_7__10_ineq < 2.15, na.rm = T) # 22
+sum(p$demogrant_7__10 < 2.15 & p$demogrant_7__10_ineq < 2.15, na.rm = T) # 20
+mean(p$demogrant_7__10_ineq/p$demogrant_7__10, na.rm = T)
 mean(abs(p$demogrant_7__10_ineq/p$demogrant_7__10-1) < .1, na.rm = T) # 60%
 mean(abs(p$demogrant_7__10_ineq/p$demogrant_7__10-1) < .33, na.rm = T) # 92%
 

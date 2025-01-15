@@ -416,7 +416,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
     data$year_bolch[rows_to_change] <- data$year_bolch[rows_to_change] - 1 }
   temp <- data[data$year == data$year_bolch,]
   temp <- temp %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile), values_fn = mean)
-  temp <- temp[!is.na(temp$country_code),!grepl("_NA|year_max|year_min|welfare_type|year$", names(temp))]
+  temp <- temp[!is.na(temp$country_code),!grepl("_NA|year_max|year_ante|welfare_type|year$", names(temp))]
   # temp <- temp[,!names(temp) %in% c("year", "year_max")] # If we put it again, change 7 to 5 in 7:ncol...
   names(temp) <- sub("avg_welfare_", "avg_", names(temp), fixed = T)
   names(temp) <- sub("quantile_", "max_", names(temp), fixed = T)
@@ -520,7 +520,6 @@ create_appendix_table <- function(fun, ncol = NULL, poverty_thresholds = NULL, e
 pop <- read.csv("../data/future population by age 2022.csv") # https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2022_PopulationByAge5GroupSex_Medium.zip
 pop <- pop[, c("Location", "ISO2_code", "ISO3_code", "Time", "AgeGrpStart", "PopTotal")]
 pop$PopTotal <- 1e3 * pop$PopTotal
-# pop <- pop[pop$Time %in% c(sort(unique(p$year)), 2030),] # TODO! p not defined yet. Simply remove?
 pop_iso3 <- aggregate(PopTotal ~ Time + ISO3_code, data = pop, FUN = sum)
 pop_iso3 <- pop_iso3 %>% pivot_wider(names_from = Time, values_from = PopTotal)
 names(pop_iso3) <- c("country_code", paste0("pop_", names(pop_iso3)[-1]))
@@ -570,6 +569,6 @@ selected_countries <- order(p$country)[order(p$country) %in% which(p$pop_2022 > 
 p$country_short <- p$country
 p$country_short[p$country == "Democratic Republic of the Congo"] <- "D.R. Congo"
 
-print(Sys.time() - start) # 1h
+print(Sys.time() - start) # 35 min
 beep()
 save.image(".RData")
