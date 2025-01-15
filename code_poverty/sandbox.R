@@ -599,6 +599,7 @@ p$bolch_index_2_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.
 mean_gap(p$bolch_poverty_rate_3, p$bolch_poverty_rate_original) # 50%
 mean_gap(p$bolch_index_1_now, p$bolch_pec_1) # 21%
 mean_gap(p$bolch_index_2_now, p$bolch_pec_2) # 65% mean(c(50, 21, 65)) # 45
+# dates from commit "first draft" on 14/02/24
 table_bolch_replication <- cbind("year" = p$year_bolch, "poverty_rate_replicated" = p$bolch_poverty_rate_3, "poverty_rate_original" = p$bolch_poverty_rate_original, 
                                  "bolch_1_replicated" = p$bolch_index_1_now, "bolch_1_original" = p$bolch_pec_1, "bolch_2_replicated" = p$bolch_index_2_now, "bolch_2_original" = p$bolch_pec_2)
 row.names(table_bolch_replication) <- p$country

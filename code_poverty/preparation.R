@@ -256,9 +256,9 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     df$growth_gdp_pc_2022[is.na(df$growth_gdp_pc_2022)] <- 1 # Optimistic (in practice it's more .48-.58*), before: growth_rate^(2022 - df$year[is.na(df$growth_gdp_pc_2022)]) was even more optimistic. *Growth 2022/p$year according to IMF "South Sudan"-2016-0.568 "Syria"-2003-? "Venezuela"-2006-0.477 "Yemen"-2014-0.585 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD
     growths <- df$growth_gdp_pc_2022
   } else if (growth %in% c("none", "bolch")) growths <- rep(1, nrow(df))
-  for (i in 1:100) df[[paste0(y, "_avg_", i)]] <- df[[paste0("welfare_avg_", i)]] * growths
-  for (i in 1:100) df[[paste0(y, "_max_", i)]] <- df[[paste0("quantile_", i)]] * growths
-  for (i in 2:100) df[[paste0(y, "_min_", i)]] <- df[[paste0("quantile_", i-1)]] * growths
+  if (y != "bolch") for (i in 1:100) df[[paste0(y, "_avg_", i)]] <- df[[paste0("welfare_avg_", i)]] * growths
+  if (y != "bolch") for (i in 1:100) df[[paste0(y, "_max_", i)]] <- df[[paste0("quantile_", i)]] * growths
+  if (y != "bolch") for (i in 2:100) df[[paste0(y, "_min_", i)]] <- df[[paste0("quantile_", i-1)]] * growths
   df[[paste0(y, "_min_1")]] <- df[[paste0(y, "_max_0")]] <- 0
   df[[paste0(y, "_max_100")]][is.na(df[[paste0(y, "_max_100")]])] <- df[[paste0(y, "_avg_100")]][is.na(df[[paste0(y, "_max_100")]])]
   
@@ -406,7 +406,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   countries_names <- setNames(p$country, p$country_code) 
   
   # Merge with original Bolch et al. (2022) results  
-  bolch_table_original <- read.csv("../data/bolch_table_original.csv") # Table imported from Bolch et al. (2022) PDF using tabula.technology
+  bolch_table_original <- read.csv("../data/bolch_table_original.csv") # Table imported from Bolch et al. (2022) PDF using tabula.technology; Indonesia guessed manually
   p <- merge(p, bolch_table_original, all.x = T)
   # Keep data from Bolch's survey years to replicate it
   year_bolch <- setNames(p$bolch_year, p$country_code) # sum(!is.na(year_bolch)) # 123
@@ -534,7 +534,7 @@ SSA <- c("SDN", "AGO", "GIN", "GMB", "GNB", "GNQ", "BDI", "BEN", "BFA", "SEN", "
 
 start <- Sys.time()
 p <- p17 <- create_p()
-pante <- create_p(year_max = F) # TODO! solve warnings: issue with unlist 
+pante <- create_p(year_max = F) 
 s <- create_p(rescale = T)
 p11 <- create_p(ppp_year = 2011)
 w <- create_world_distribution()
@@ -545,11 +545,13 @@ ssas <- create_world_distribution(region = SSA, df = s)
 lics <- create_world_distribution(region = LIC, df = s)
 # w11 <- create_world_distribution(df = p11) # 9 min
 
-# /!\ There are duplicated rows in p and pante: pante$country_code[duplicated(pante$country_code)] => I remove them below
-# Unbalanced growth
+# /!\ Why are there duplicated rows?
 p <- p[!duplicated(p$country_code),]
+p11 <- p11[!duplicated(p11$country_code),]
 s <- s[!duplicated(s$country_code),]
 pante <- pante[!duplicated(pante$country_code),]
+
+# Unbalanced growth
 nrow(pante)
 for (c in pante$country_code) p$year_ante[p$country_code == c] <- pante$year[pante$country_code == c] 
 for (i in 1:100) p[[paste0("welfare_share_", i)]] <- p[[paste0("welfare_avg_", i)]]/rowSums(p[, grepl("^welfare_avg_", names(p))])
