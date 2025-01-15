@@ -343,8 +343,6 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
     temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year), year_ante = max(year[year <= max(year) - 5])) # highest year among years no higher than maximum year - 5
     # temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_ante = nth(sort(year, decreasing = TRUE), 2, default = NA)) # 2nd highest year
     year_ante <- setNames(temp$year_ante, temp$country_code)
-    # year_max <- setNames(temp$year_max, temp$country_code)
-    # year_ante[year_ante == -Inf] <- year_max[year_ante == -Inf]
     data$year_ante <- year_ante[data$country_code]
     p <- data[data$year == data$year_ante,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
   }
@@ -549,6 +547,7 @@ lics <- create_world_distribution(region = LIC, df = s)
 # w11 <- create_world_distribution(df = p11) # 9 min
 
 # /!\ There are duplicated rows in p and pante: pante$country_code[duplicated(pante$country_code)] => I remove them below
+# Unbalanced growth
 p <- p[!duplicated(p$country_code),]
 s <- s[!duplicated(s$country_code),]
 pante <- pante[!duplicated(pante$country_code),]
@@ -566,6 +565,7 @@ for (j in 1:nrow(p)) if (!is.na(p[j, "Y3_ineq_avg_10"])) p[j, paste0("Y3_ineq_av
 for (i in 1:100) p[[paste0("Y3_ineq_max_", i)]] <- p[[paste0("Y3_max_", i)]] * p[[paste0("Y3_ineq_avg_", i)]]/p[[paste0("Y3_avg_", i)]]
 for (i in 1:100) p[[paste0("Y3_ineq_min_", i)]] <- p[[paste0("Y3_min_", i)]] * p[[paste0("Y3_ineq_avg_", i)]]/p[[paste0("Y3_avg_", i)]]
 w <- compute_world_distribution(name_var_growth("trend_ineq"), df = p, wdf = w)
+
 selected_countries <- order(p$country)[order(p$country) %in% which(p$pop_2022 > 1e7 & no.na(p$mean_welfare, 0, num_as_char = FALSE) < 6)]
 p$country_short <- p$country
 p$country_short[p$country == "Democratic Republic of the Congo"] <- "D.R. Congo"
