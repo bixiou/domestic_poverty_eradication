@@ -359,7 +359,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   p$hfce <- sapply(p$country_code, function(c) { temp[[as.character(unique(p$year[p$country_code == c]))]][temp$country_code == c] })
   p$hfce <- (p$hfce/p$pop_year)/365
   p$scaling_factor <- pmax(1, p$hfce/p$mean_welfare) # Rescale only if survey income < HFCE, as in Lakner & Milanovic (2013)
-  p$scaling_factor[is.na(p$scaling_factor)] <- 1.1235 # impute mean((p$hfce/p$mean_welfare)[p$country_code %in% LIC], na.rm = T)
+  p$scaling_factor[is.na(p$scaling_factor)] <- 1.108805 # impute mean((p$hfce/p$mean_welfare)[p$country_code %in% LIC], na.rm = T)
   if (rescale) p$welfare_avg_100 <- p$welfare_avg_100 + 100 * (p$scaling_factor - 1) * p$mean_welfare
   if (rescale) p$mean_welfare <- rowSums(p[,paste0("welfare_avg_", 1:100)] * p[,paste0("pop_share_", 1:100)])
   

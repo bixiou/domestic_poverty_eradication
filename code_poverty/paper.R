@@ -24,7 +24,7 @@ table_poverty <- cbind(#"scenario" = names(growth_scenarios),
   "gap18" = 100*sapply(growth_scenarios, function(s) compute_poverty_gap(df = w, threshold = 18.15, unit = '%', growth = s))) 
 cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty rate (\\%)} & \\multicolumn{4}{c}{Poverty gap (\\% of GDP)} \\\\ \n (Poverty line in \\$/day)", 
         paste(kbl(table_poverty[c(1, 2, 3, 5, 7, 12, 10, 11), ], "latex", 
-      caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios. Poverty rates are expressed in \\% of world population and poverty gaps in \\% of world GDP. Poverty lines are in PPP \\$/day.", 
+      caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios. Poverty rates are expressed in \\% of world population and poverty gaps in \\% of world GDP. Poverty lines are in 2017 PPP \\$/day.", 
       row.names = T, position = "h", escape = F, booktabs = T, digits = c(1, 1, 1, 1, 2, 2, 2, 2), label = "poverty", linesep = rep("", nrow(table_poverty)-1), 
       caption.short = "Global poverty (rates and gaps) in 2030 under different growth scenarios.",
       col.names = c("2.15", "3.65", "6.85", "18.15", "2.15", "3.65", "6.85", "18.15")), collapse="\n"), fixed = T), file = "../tables/poverty.tex") 
@@ -37,6 +37,25 @@ mean(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_201
 max(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
 mean(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
 max(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
+
+p$y_expropriated_35_average <- compute_antipoverty_maximum(df = p, threshold = 3.5, growth = "average")
+p$antipoverty_35_tax_7_average <- compute_antipoverty_tax(df = p, exemption_threshold = 7, poverty_threshold = 3.5, growth = "average")
+p$demogrant_70__10 <- compute_income_floor(df = p, thresholds = 7, marginal_rates = 10, growth = "average", scope_tax = p)
+par(mar = c(3.1, 3.1, .2, .1), mgp = c(2,1,0))
+country_example <- "Kenya"
+distr <- p[p$country == country_example, paste0("Y3_avg_", 1:100)]
+plot(1:100, distr, type = 'l', lwd = 2, ylab = "Consumption (in 2017 PPP $/day)", xlab = paste0(country_example, " individuals, from the poorest to the richest"), ylim = c(0, 20))
+lines(1:100, pmax(3.5, distr - .01*p$antipoverty_4_tax_7_average[p$country == country_example] * pmax(0, distr - 7)), lwd = 2, lty = 7, col = 'blue')
+lines(1:100, pmax(3.5, pmin(distr, p$y_expropriated_4_average[p$country == country_example])), lwd = 2, lty = 6, col = 'red')
+lines(1:100, pmax(p$demogrant_7__10[p$country == country_example], distr - 0.1 * pmax(0, distr - 7)), lwd = 2, lty = 5, col = 'darkgreen')
+grid() + abline(h = 7, lty = 9, col = 'grey') + abline(h = 3.5, lty = 9, col = 'grey') + axis(2, at = c(3.5)) + axis(2, at = c(7))
+axis(2, at = c(17.4)) + abline(h = 17.36, lty = 9, col = 'grey')
+
+plot(as.vector(distr), as.vector(distr), type = 'l', lwd = 2, ylab = "Consumption after the new policy (in 2017 PPP $/day)", xlab = "Current consumption (in 2017 PPP $/day)", xlim = c(0, 25), ylim = c(0, 25))
+lines(as.vector(distr), pmax(3.5, distr - .01*p$antipoverty_4_tax_7_average[p$country == country_example] * pmax(0, distr - 7)), col = "blue", type = 'l', lwd = 2)
+lines(as.vector(distr), pmax(3.5, pmin(distr, p$y_expropriated_4_average[p$country == country_example])), lwd = 2, lty = 6, col = 'red')
+lines(as.vector(distr), pmax(p$demogrant_7__10[p$country == country_example], distr - 0.1 * pmax(0, distr - 7)), lwd = 2, lty = 5, col = 'darkgreen')
+grid() + abline(h = 7, lty = 9, col = 'grey') + abline(h = 3.5, lty = 9, col = 'grey') + abline(h = 17.36, lty = 9, col = 'grey') + axis(2, at = c(3.5)) + axis(2, at = c(7)) + axis(2, at = c(17.4))
 
 
 #####  Antipoverty cap ##### 
