@@ -30,19 +30,21 @@ cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty 
       col.names = c("2.15", "3.65", "6.85", "18.15", "2.15", "3.65", "6.85", "18.15")), collapse="\n"), fixed = T), file = "../tables/poverty.tex") 
 
 
-#####  Antipoverty cap ##### 
-p$y_expropriated_2_average <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "average")
-plot_world_map("y_expropriated_2_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf),
-               legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)])  
-sort(setNames(p$y_expropriated_2_average, p$country), decreasing = T)
-
+##### Idealized redistributive policies #####
 setNames(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)]-1, p$country[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])
 s$country[s$mean_y_2022 < 3 & !is.na(s$gdp_pc_2014)]
 mean(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
 max(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
 mean(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
 max(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
+
+
+#####  Antipoverty cap ##### 
+p$y_expropriated_2_average <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "average")
+plot_world_map("y_expropriated_2_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf),
+               legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)])  
+sort(setNames(p$y_expropriated_2_average, p$country), decreasing = T)
 
 p$y_expropriated_2_very_optimistic <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "very_optimistic")
 sort(setNames(p$y_expropriated_2_very_optimistic, p$country), decreasing = T)
@@ -53,18 +55,18 @@ sort(setNames(p$y_expropriated_2_sdg8, p$country), decreasing = T)
 
 plot_world_map("y_expropriated_2_very_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
                legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 7%\ngrowth since 2022.", 
-               save = FALSE, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T)  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T)  
 
 p$s_y_expropriated_2_average <- compute_antipoverty_maximum(df = s, threshold = 2.15, growth = "average")
 plot_world_map("s_y_expropriated_2_average", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
                legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T)  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T)  
 
 # Antipoverty taxes
 p$antipoverty_2_tax_7_average <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "average")
 plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 sort(setNames(p$antipoverty_2_tax_7_average, p$country), decreasing = T)
 wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA]) # 46% 
 wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% LIC], p$pop_2030[p$country_code %in% LIC]) # 70%
@@ -73,7 +75,7 @@ sum(p$antipoverty_2_tax_7_average > 100) # 5
 p$antipoverty_2_tax_18_very_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "very_optimistic")
 plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $18/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 7%\ngrowth since 2022.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
 
 p$antipoverty_4_tax_4_bolch <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "bolch")
@@ -89,17 +91,17 @@ sum(p$antipoverty_4_tax_4_average > 100) # 6
 p$antipoverty_2_tax_18_average <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "average")
 plot_world_map("antipoverty_2_tax_18_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $18/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
 
 p$s_antipoverty_2_tax_7_average <- compute_antipoverty_tax(df = s, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "average")
 plot_world_map("s_antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 p$s_antipoverty_2_tax_18_very_optimistic <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "very_optimistic")
 plot_world_map("s_antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $18/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 7%\ngrowth since 2022.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 p$antipoverty_2_tax_18_trend <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "trend")
 p$mean_growth_gdp_pc_14_19[p$country == "India"] # 5.5%
@@ -109,13 +111,13 @@ p$antipoverty_2_tax_18_average[p$country == "India"] # 156%
 
 sort(setNames(p$bcs, p$country), decreasing = T)
 p$antipoverty_bcs_tax_bcs <- compute_antipoverty_tax(df = p11, exemption_threshold = "bcs", poverty_threshold = "bcs", growth = "average") # In 2011PPP, 2.15/3.65/6.85 is 1.9/3.2/5.5 https://documents1.worldbank.org/curated/en/099700509122212929/pdf/IDU05b43a261041c504a5f0bb3405d0ef310b9e1.pdf
-package("spatstat")
+
 weighted.median(p$bcs, p$pop_2030, na.rm = T) # 4.35
 sum(p$antipoverty_bcs_tax_bcs > 100, na.rm = T) # 14
 sort(setNames(p$antipoverty_bcs_tax_bcs, p$country), decreasing = T)
 plot_world_map("antipoverty_bcs_tax_bcs", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove Basic Consumption\nrequired to lift everyone\nabove Basic Consumption\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 
 ##### Demogrant (income floor) for a given tax ##### 
@@ -128,7 +130,7 @@ length(LIC) # 27
 sum(p$demogrant_7__10 < 2.15 & p$country_code %in% LIC) # 13
 plot_world_map("demogrant_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
                legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T)  
+               save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T)  
 
 p$demogrant_7__10_very_optimistic <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "very_optimistic", scope_tax = p)
 sum(p$demogrant_7__10_very_optimistic < 2.15) # 10
@@ -136,7 +138,7 @@ p$s_demogrant_7__10_very_optimistic <- compute_income_floor(df = s, thresholds =
 sum(p$s_demogrant_7__10_very_optimistic < 2.15) # 8
 plot_world_map("demogrant_7__10_very_optimistic", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
                legend = "Income floor\nthat can be funded\nwith a 5% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 7%\ngrowth since 2022.", 
-               save = FALSE, rev_color = F, format = c('png', 'pdf'), legend_x = .055, trim = T)  
+               save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055, trim = T)  
 p$demogrant_7__10_sdg8 <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "sdg8", scope_tax = p)
 sum(p$demogrant_7__10_sdg8 < 2.15) # 1
 sort(setNames(p$demogrant_7__10_sdg8, p$country), decreasing = T)
@@ -145,7 +147,7 @@ p$antipoverty_2_tax_7_sdg8 <- compute_antipoverty_tax(df = p, exemption_threshol
 sort(setNames(p$antipoverty_2_tax_7_sdg8, p$country))
 plot_world_map("antipoverty_2_tax_7_sdg8", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift all\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 7%\ngrowth since 2016.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 
 ##### Potential of global redistribution #####
@@ -206,22 +208,22 @@ floor_gain <- c(compute_income_floor(df = w, thresholds = 100, marginal_rates = 
 p$antipoverty_2_tax_7_reg <- compute_antipoverty_tax(df = s, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "reg")
 plot_world_map("antipoverty_2_tax_7_reg", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after\npredicted growth.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 p$antipoverty_4_tax_18_average <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 3.65, growth = "average")
 plot_world_map("antipoverty_4_tax_18_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $18.15/day\nrequired to lift everyone\nabove $3.65/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 p$antipoverty_7_tax_18_average <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 6.85, growth = "average")
 plot_world_map("antipoverty_7_tax_18_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $18.15/day\nrequired to lift everyone\nabove $6.85/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 p$antipoverty_7_tax_7_average <- compute_antipoverty_tax(df = s, exemption_threshold = 18.15, poverty_threshold = 6.85, growth = "average")
 plot_world_map("antipoverty_7_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
                legend = "Linear tax rate\nabove $18.15/day\nrequired to lift everyone\nabove $6.85/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = FALSE, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 
 

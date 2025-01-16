@@ -318,7 +318,7 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
     wdf[[paste0(var, "_max_", i)]] <- wquantiles[wpercentiles[i]]
     wdf[[paste0(var, "_min_", i)]] <- wdf[[paste0(var, "_max_", i-1)]]
     wdf[[paste0(var, "_pop_share_", i)]] <- sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))/sum(df[[pop_yr]])
-    wdf[[paste0(var, "_avg_", i)]] <- if (wdf[[paste0(var, "_pop_share_", i)]] == 0 & i != 1) wdf[[paste0(var, "_avg_", i-1)]] else (sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * df[[paste0(var, "_avg_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))) / (wdf[[paste0(var, "_pop_share_", i)]]*sum(df[[pop_yr]]))
+    wdf[[paste0(var, "_avg_", i)]] <- if (wdf[[paste0(var, "_pop_share_", i)]] == 0) wdf[[paste0(var, "_avg_", i-1)]] else (sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * df[[paste0(var, "_avg_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))) / (wdf[[paste0(var, "_pop_share_", i)]]*sum(df[[pop_yr]]))
   }
   wdf[[paste0("mean_", var)]] <- rowSums(wdf[,paste0(var, "_avg_", 1:100)] * wdf[,paste0(var, "_pop_share_", 1:100)])
   
@@ -539,10 +539,6 @@ s <- create_p(rescale = T)
 p11 <- create_p(ppp_year = 2011)
 w <- create_world_distribution()
 ws <- create_world_distribution(df = s)
-ssa <- create_world_distribution(region = SSA)
-lic <- create_world_distribution(region = LIC)
-ssas <- create_world_distribution(region = SSA, df = s)
-lics <- create_world_distribution(region = LIC, df = s)
 # w11 <- create_world_distribution(df = p11) # 9 min
 
 # /!\ Why are there duplicated rows?
@@ -566,6 +562,12 @@ for (j in 1:nrow(p)) if (!is.na(p[j, "Y3_ineq_avg_10"])) p[j, paste0("Y3_ineq_av
 for (i in 1:100) p[[paste0("Y3_ineq_max_", i)]] <- p[[paste0("Y3_max_", i)]] * p[[paste0("Y3_ineq_avg_", i)]]/p[[paste0("Y3_avg_", i)]]
 for (i in 1:100) p[[paste0("Y3_ineq_min_", i)]] <- p[[paste0("Y3_min_", i)]] * p[[paste0("Y3_ineq_avg_", i)]]/p[[paste0("Y3_avg_", i)]]
 w <- compute_world_distribution(name_var_growth("trend_ineq"), df = p, wdf = w)
+
+# Regional distributions
+ssa <- create_world_distribution(region = SSA)
+lic <- create_world_distribution(region = LIC)
+ssas <- create_world_distribution(region = SSA, df = s)
+lics <- create_world_distribution(region = LIC, df = s)
 
 selected_countries <- order(p$country)[order(p$country) %in% which(p$pop_2022 > 1e7 & no.na(p$mean_welfare, 0, num_as_char = FALSE) < 6)]
 p$country_short <- p$country
