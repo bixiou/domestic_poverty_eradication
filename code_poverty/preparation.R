@@ -4,7 +4,7 @@ name_var_growth <- function(growth = "optimistic") {
                    growth == "trend_pos" ~ "y_pos", # max 2014-19 trend, 0
                    growth == "none" ~ "welfare", # original data (~2017, cf. p$year)
                    growth == "now" ~ "y_2022", # in 2022 (original data rescaled with observed GDP growth)
-                   growth == "bolch" ~ "bolch", # replicates Bolch data (using their data years)
+                   growth == "BCL" ~ "BCL", # replicates BCL data (using their data years)
                    growth == "strong" ~ "Y4", # 4.5% growth over 2023-30
                    growth == "average" ~ "Y3", # 3% growth over 2023-30
                    growth == "optimistic" ~ "Y", # 6% growth over 2023-30
@@ -45,47 +45,47 @@ compute_poverty_gap <- function(df = p, threshold = 2.15, unit = "sum", growth =
   return(pg)
 }
 
-# Percentile above which we expropriate all y to fill the poverty gap TODO? rename: anti-poverty cap
-compute_antipoverty_maximum <- function(df = p, threshold = 2.15, return = "y", growth = "optimistic") { 
+# Percentile above which we expropriate all y to fill the poverty gap 
+compute_antipoverty_cap <- function(df = p, threshold = 2.15, return = "y", growth = "optimistic") { 
   y <- name_var_growth(growth)
   thresholds <- if (is.numeric(threshold)) rep(threshold, nrow(df)) else p[[threshold]]
   poverty_gap <- compute_poverty_gap(df = df, threshold = threshold, unit = "mean", growth = growth)
   percentile_expropriated <- rep(100, nrow(df))
-  y_expropriated <- rep(Inf, nrow(df))
+  antipoverty_cap <- rep(Inf, nrow(df))
   df[[paste0(find_pop_share_var(var = name_var_growth(growth), df), 101)]] <- 0
   for (c in 1:nrow(df)) {
     if (!is.na(poverty_gap[c])) {
       funded <- funded_old <- lower_percentile_effect <- lower_threshold_effect <- 0
       while (funded < poverty_gap[c] & percentile_expropriated[c] > 0) {
-        y_expropriated[c] <- df[[paste0(y, "_min_", percentile_expropriated[c])]][c]
-        # funded <- funded + df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - y_expropriated[c] + (100 - percentile_expropriated[c]) * (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - y_expropriated[c])
+        antipoverty_cap[c] <- df[[paste0(y, "_min_", percentile_expropriated[c])]][c]
+        # funded <- funded + df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - antipoverty_cap[c] + (100 - percentile_expropriated[c]) * (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - antipoverty_cap[c])
         funded_old <- funded
-        lower_percentile_effect <- (df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - y_expropriated[c]) * df[c, paste0(find_pop_share_var(var = name_var_growth(growth), df), percentile_expropriated[c])]
-        lower_threshold_effect <- (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - y_expropriated[c]) * sum(df[c,paste0(find_pop_share_var(var = name_var_growth(growth), df), (percentile_expropriated[c]+1):100)])
+        lower_percentile_effect <- (df[[paste0(y, "_avg_", percentile_expropriated[c])]][c] - antipoverty_cap[c]) * df[c, paste0(find_pop_share_var(var = name_var_growth(growth), df), percentile_expropriated[c])]
+        lower_threshold_effect <- (df[[paste0(y, "_max_", percentile_expropriated[c])]][c] - antipoverty_cap[c]) * sum(df[c,paste0(find_pop_share_var(var = name_var_growth(growth), df), (percentile_expropriated[c]+1):100)])
         funded <- funded + lower_percentile_effect + (percentile_expropriated[c] < 100) * lower_threshold_effect
         percentile_expropriated[c] <- percentile_expropriated[c] - 1 
-        # By convention, if we cannot close the poverty gap in the country, we set percentile_expropriated to 0 and y_expropriated at gdp_pc_2030
+        # By convention, if we cannot close the poverty gap in the country, we set percentile_expropriated to 0 and antipoverty_cap at gdp_pc_2030
         if (df[[paste0(y, "_min_", percentile_expropriated[c])]][c] < thresholds[c]) {
           percentile_expropriated[c] <- 0
-          y_expropriated[c] <- df[[paste0("mean_", y)]][c] # df$gdp_pc_2030[c]/365
+          antipoverty_cap[c] <- df[[paste0("mean_", y)]][c] # df$gdp_pc_2030[c]/365
         }
       }
       # The following implicitly assumes linear distribution of income within a percentile. This overestimates the antipoverty-cap as in reality, average is above median. A more precise estimate would be a bracketing method (dichotomy) from antipoverty_tax.
-      if (percentile_expropriated[c] == 99) y_expropriated[c] <- y_expropriated[c] + 2*(df[[paste0(y, "_avg_100")]][c] - y_expropriated[c]) * ((funded - poverty_gap[c])/(funded - funded_old))^2
-      else if (funded > poverty_gap[c]) y_expropriated[c] <- y_expropriated[c] + (df[[paste0(y, "_max_", (percentile_expropriated[c]+1))]][c] - y_expropriated[c]) * (lower_threshold_effect / (lower_percentile_effect + lower_threshold_effect)) * (funded - poverty_gap[c])/(funded - funded_old)
-    } else y_expropriated[c] <- NA
+      if (percentile_expropriated[c] == 99) antipoverty_cap[c] <- antipoverty_cap[c] + 2*(df[[paste0(y, "_avg_100")]][c] - antipoverty_cap[c]) * ((funded - poverty_gap[c])/(funded - funded_old))^2
+      else if (funded > poverty_gap[c]) antipoverty_cap[c] <- antipoverty_cap[c] + (df[[paste0(y, "_max_", (percentile_expropriated[c]+1))]][c] - antipoverty_cap[c]) * (lower_threshold_effect / (lower_percentile_effect + lower_threshold_effect)) * (funded - poverty_gap[c])/(funded - funded_old)
+    } else antipoverty_cap[c] <- NA
   }
   if (return == "percentile") return(percentile_expropriated)
   else if (return == "df") {
     name_var <- paste0(y, "_min_", if (is.numeric(threshold)) round(threshold) else threshold, "_cap")
-    df[[name_var]] <- y_expropriated
+    df[[name_var]] <- antipoverty_cap
     df[[paste0(name_var, "_percentile")]] <- percentile_expropriated
-    for (i in 1:100) df[[paste0(name_var, "_avg_", i)]] <- pmax(threshold, pmin(y_expropriated, df[[paste0(y, "_avg_", i)]]))
+    for (i in 1:100) df[[paste0(name_var, "_avg_", i)]] <- pmax(threshold, pmin(antipoverty_cap, df[[paste0(y, "_avg_", i)]]))
     df[[paste0("mean_", name_var)]] <- rowSums(df[,paste0(name_var, "_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
     df <- compute_inequality(var = paste0(name_var, "_avg_"), df = df, return = "df")
     return(df)
   }
-  else return(y_expropriated)
+  else return(antipoverty_cap)
 }
 
 compute_antipoverty_tax <- function(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, return = "tax", growth = "optimistic") {
@@ -98,14 +98,14 @@ compute_antipoverty_tax <- function(df = p, exemption_threshold = 6.85, poverty_
   antipoverty_tax <- compute_poverty_gap(df = df, threshold = poverty_threshold, growth = growth) / pmax(1e-10, taxable_base)
   name_threshold <- if (is.numeric(poverty_threshold)) round(poverty_threshold) else poverty_threshold
   df[[paste0(y, "_antipoverty_", name_threshold, "_tax_", name_exemption)]] <- 100 * antipoverty_tax
-  df[[paste0(y, "_bolch_index_min_", name_threshold, "_tax_", name_exemption)]] <- (antipoverty_tax <= 1) * (antipoverty_tax/2 + 1-antipoverty_tax) + (antipoverty_tax > 1) * (0.5/pmax(1e-8, antipoverty_tax))
+  df[[paste0(y, "_BCL_index_min_", name_threshold, "_tax_", name_exemption)]] <- (antipoverty_tax <= 1) * (antipoverty_tax/2 + 1-antipoverty_tax) + (antipoverty_tax > 1) * (0.5/pmax(1e-8, antipoverty_tax))
   if (return == "base") return(taxable_base)
   else if (return == "df") {
     for (i in 1:100) df[[paste0(y, "_min_", name_threshold, "_tax_", name_exemption,  "_avg_", i)]] <- pmax(poverty_threshold, df[[paste0(y, "_avg_", i)]] - df[[paste0(y, "_antipoverty_", name_threshold, "_tax_", name_exemption)]] * pmax(0, df[[paste0(y, "_avg_", i)]] - exemption_threshold))
     df[[paste0("mean_", y, "_min_", name_threshold, "_tax_", name_exemption)]] <- rowSums(df[,paste0(y, "_min_", name_threshold, "_tax_", name_exemption,  "_avg_", 1:100)] * df[,paste0(find_pop_share_var(y, df), 1:100)])
     df <- compute_inequality(var = paste0(y, "_min_", name_threshold, "_tax_", name_exemption), df = df, return = "df")
     return(df)
-  } else if (return %in% c("poverty_eradication_capacity", "PEC", "pec", "bolch_index", "bolch")) { return(df[[paste0(y, "_bolch_index_min_", name_threshold, "_tax_", name_exemption)]])
+  } else if (return %in% c("poverty_eradication_capacity", "PEC", "pec", "BCL_index", "BCL")) { return(df[[paste0(y, "_BCL_index_min_", name_threshold, "_tax_", name_exemption)]])
   } else return(df[[paste0(y, "_antipoverty_", name_threshold, "_tax_", name_exemption)]])
 }
 
@@ -255,10 +255,10 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     df$growth_gdp_pc_2022 <- unlist(df$gdp_pc_2022)/unlist(df$gdp_pc_year)
     df$growth_gdp_pc_2022[is.na(df$growth_gdp_pc_2022)] <- 1 # Optimistic (in practice it's more .48-.58*), before: growth_rate^(2022 - df$year[is.na(df$growth_gdp_pc_2022)]) was even more optimistic. *Growth 2022/p$year according to IMF "South Sudan"-2016-0.568 "Syria"-2003-? "Venezuela"-2006-0.477 "Yemen"-2014-0.585 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD
     growths <- df$growth_gdp_pc_2022
-  } else if (growth %in% c("none", "bolch")) growths <- rep(1, nrow(df))
-  if (y != "bolch") for (i in 1:100) df[[paste0(y, "_avg_", i)]] <- df[[paste0("welfare_avg_", i)]] * growths
-  if (y != "bolch") for (i in 1:100) df[[paste0(y, "_max_", i)]] <- df[[paste0("quantile_", i)]] * growths
-  if (y != "bolch") for (i in 2:100) df[[paste0(y, "_min_", i)]] <- df[[paste0("quantile_", i-1)]] * growths
+  } else if (growth %in% c("none", "BCL")) growths <- rep(1, nrow(df))
+  if (y != "BCL") for (i in 1:100) df[[paste0(y, "_avg_", i)]] <- df[[paste0("welfare_avg_", i)]] * growths
+  if (y != "BCL") for (i in 1:100) df[[paste0(y, "_max_", i)]] <- df[[paste0("quantile_", i)]] * growths
+  if (y != "BCL") for (i in 2:100) df[[paste0(y, "_min_", i)]] <- df[[paste0("quantile_", i-1)]] * growths
   df[[paste0(y, "_min_1")]] <- df[[paste0(y, "_max_0")]] <- 0
   df[[paste0(y, "_max_100")]][is.na(df[[paste0(y, "_max_100")]])] <- df[[paste0(y, "_avg_100")]][is.na(df[[paste0(y, "_max_100")]])]
   
@@ -405,16 +405,16 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   #Missing in PIP : Afghanistan, Brunei, Cuba, Erythrée, Guinée équatoriale, Cambodge, Kuwait, Lybie, Liechtenstein, Nouvelle Calédonie, Nouvelle Zélande, Oman, Puerto Rico, Qatar, Sahara Occidental, Arabie Saoudite, Singapore, Somalie, Taiwan
   countries_names <- setNames(p$country, p$country_code) 
   
-  # Merge with original Bolch et al. (2022) results  
-  bolch_table_original <- read.csv("../data/bolch_table_original.csv") # Table imported from Bolch et al. (2022) PDF using tabula.technology; Indonesia guessed manually
-  p <- merge(p, bolch_table_original, all.x = T)
-  # Keep data from Bolch's survey years to replicate it
-  year_bolch <- setNames(p$bolch_year, p$country_code) # sum(!is.na(year_bolch)) # 123
-  data$year_bolch <- year_bolch[data$country_code]
+  # Merge with original BCL et al. (2022) results  
+  BCL_table_original <- read.csv("../data/BCL_table_original.csv") # Table imported from BCL et al. (2022) PDF using tabula.technology; Indonesia guessed manually
+  p <- merge(p, BCL_table_original, all.x = T)
+  # Keep data from BCL's survey years to replicate it
+  year_BCL <- setNames(p$BCL_year, p$country_code) # sum(!is.na(year_BCL)) # 123
+  data$year_BCL <- year_BCL[data$country_code]
   for (c in unique(data$country_code)) {
-    rows_to_change <- data$country_code == c & data$year_bolch %in% (unique(data$year[data$country_code == c])+1) & !data$year_bolch %in% unique(data$year[data$country_code == c])
-    data$year_bolch[rows_to_change] <- data$year_bolch[rows_to_change] - 1 }
-  temp <- data[data$year == data$year_bolch,]
+    rows_to_change <- data$country_code == c & data$year_BCL %in% (unique(data$year[data$country_code == c])+1) & !data$year_BCL %in% unique(data$year[data$country_code == c])
+    data$year_BCL[rows_to_change] <- data$year_BCL[rows_to_change] - 1 }
+  temp <- data[data$year == data$year_BCL,]
   temp <- temp %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile), values_fn = mean)
   temp <- temp[!is.na(temp$country_code),!grepl("_NA|year_max|year_ante|welfare_type|year$", names(temp))]
   # temp <- temp[,!names(temp) %in% c("year", "year_max")] # If we put it again, change 7 to 5 in 7:ncol...
@@ -422,8 +422,8 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   names(temp) <- sub("quantile_", "max_", names(temp), fixed = T)
   temp$min_1 <- temp$max_0 <- 0
   for (i in 2:100) temp[[paste0("min_", i)]] <- temp[[paste0("max_", i-1)]]
-  names(temp)[4:ncol(temp)] <- paste0("bolch_", names(temp)[4:ncol(temp)])
-  temp$mean_bolch <- rowSums(temp[,paste0("bolch_avg_", 1:100)] * temp[,paste0("bolch_pop_share_", 1:100)], na.rm = T)
+  names(temp)[4:ncol(temp)] <- paste0("BCL_", names(temp)[4:ncol(temp)])
+  temp$mean_BCL <- rowSums(temp[,paste0("BCL_avg_", 1:100)] * temp[,paste0("BCL_pop_share_", 1:100)], na.rm = T)
   p <- merge(p, temp, all.x = T, by = c("country_code", "reporting_level")) #, by = c("country_code", "reporting_level"))
   
   # Add Moatsos' basic need poverty lines (Moatsos, 2021) and Bare bones basket with Consumption Shares (Moatsos, 2016)
@@ -442,8 +442,8 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   
   # y makes the assumption of constant growth while Y assumes 6% growth after 2022
   # p <- df # To run compute_distribution_2030, this line is needed to avoid bug (Indeed, urban/rural have been removed otherwise).
-  # p <- compute_inequality(var = "bolch", df = p, return = "df")
-  p <- compute_distribution_2030(growth = "bolch", df = p)
+  # p <- compute_inequality(var = "BCL", df = p, return = "df")
+  p <- compute_distribution_2030(growth = "BCL", df = p)
   p <- compute_distribution_2030(growth = "reg", df = p)
   p <- compute_distribution_2030(growth = "imf", df = p)
   p <- compute_distribution_2030(growth = "optimistic", df = p, growth_rate = 1.06)
@@ -475,7 +475,7 @@ create_world_distribution <- function(df = p, region = df$country_code) {
   w <- compute_world_distribution(name_var_growth("sdg8"), df = df, wdf = w, region = region)
   w <- compute_world_distribution(name_var_growth("none"), df = df, wdf = w, region = region)
   w <- compute_world_distribution(name_var_growth("now"), df = df, wdf = w, region = region)
-  w <- compute_world_distribution(name_var_growth("bolch"), df = df, wdf = w, region = region)
+  w <- compute_world_distribution(name_var_growth("BCL"), df = df, wdf = w, region = region)
   if ("Y3_ineq_avg_2" %in% names(df)) w <- compute_world_distribution(name_var_growth("trend_ineq"), df = df, wdf = w, region = region)
   return(w)
 }
@@ -526,7 +526,7 @@ names(pop_iso3) <- c("country_code", paste0("pop_", names(pop_iso3)[-1]))
 rm(pop)
 
 pop_rural_urban <- read.csv2("../data/pop_rural_urban.csv") # Last updated 07/05/2023 https://databank.worldbank.org/source/population-estimates-and-projections/preview/on#
-LIC <- c("AFG", "BFA", "BDI", "TCD", "COD", "ERI", "ETH", "GMB", "GIN", "GNB", "PRK", "LBR", "MDG", "MWI", "MLI", "MOZ", "NER", "RWA", "SOM", "SRE", "SDN", "SSD", "SYR", "TGO", "UGA", "YEM", "ZMB") # 2023 official classification. LIC: 650M people TODO! remove ZMB, no longer in the list
+LIC <- c("AFG", "BFA", "BDI", "TCD", "COD", "ERI", "ETH", "GMB", "GIN", "GNB", "PRK", "LBR", "MDG", "MWI", "MLI", "MOZ", "NER", "RWA", "SOM", "SRE", "SDN", "SSD", "SYR", "TGO", "UGA", "YEM", "ZMB") # 2023 official classification. LIC: 650M people 
 SSA <- c("SDN", "AGO", "GIN", "GMB", "GNB", "GNQ", "BDI", "BEN", "BFA", "SEN", "BWA", "CAF", "SLE", "SOM", "SSD", "CIV", "CMR", "COD", "COG", "COM", "LBR", "LSO", "RWA", "SWZ", "TCD", "TGO", "MLI", "MDG", "DJI", "ERI", "ESH", "ETH", "MWI", "MUS", "MRT", "MOZ", "TZA", "UGA", "ZMB", "ZWE", "NGA", "NER", "NAM", "GHA", "GAB", "ZAF")
 # LDC <- c("AGO", "AFG", "BGD", "BTN", "BFA", "BDI", "KHM", "CAF", "TCD", "COM", "COG", "DJI", "ERI", "ETH", "GMB", "GIN", "GNB", "LSO", "LBR", "MDG", "MWI", "MLI", "MRT", "MOZ", "NER", "RWA", "STP", "SEN", "SLE", "SOM", "SSD", "SDN", "TGO", "TZA", "UGA", "VUT", "YEM", "ZMB", "TUV", "TLS", "LAO", "MMR", "NEP")
 # setdiff(p$country_code[p$country_code %in% LIC & !is.na(p$welfare_avg_1)], SSA) # SYR, YEM

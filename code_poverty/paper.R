@@ -11,7 +11,7 @@ mean(is.na(p$hfce/p$mean_welfare))
 
 
 #####  Balanced growth ##### 
-growth_scenarios <- setNames(c("now", "trend", "trend_pos", "imf", "reg", "none", "average", "strong", "optimistic", "very_optimistic", "sdg8", "trend_ineq"), # , "bolch"
+growth_scenarios <- setNames(c("now", "trend", "trend_pos", "imf", "reg", "none", "average", "strong", "optimistic", "very_optimistic", "sdg8", "trend_ineq"), # , "BCL"
                              c("2022 Estimate", "Trend (2014--2019)", "Max(Trend, 0)", "IMF forecast", "Autoregressive projection", "0\\% growth", "3\\% growth", "4.5\\% growth", "6\\% growth", "7\\% growth", "7\\% growth since 2016", "3\\% unbalanced growth")) # Quadratic model , "Unbalanced growth (inequality trend + 3\\% growth)"
 table_poverty <- cbind(#"scenario" = names(growth_scenarios), 
   "rate2" = 100*sapply(growth_scenarios, function(s) compute_poverty_rate(df = w, threshold = 2.15, growth = s, return = "rate")), 
@@ -38,46 +38,59 @@ max(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014
 mean(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
 max(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
 
-p$y_expropriated_35_average <- compute_antipoverty_maximum(df = p, threshold = 3.5, growth = "average")
-p$antipoverty_35_tax_7_average <- compute_antipoverty_tax(df = p, exemption_threshold = 7, poverty_threshold = 3.5, growth = "average")
-p$demogrant_70__10 <- compute_income_floor(df = p, thresholds = 7, marginal_rates = 10, growth = "average", scope_tax = p)
+p$antipoverty_40_cap_average <- compute_antipoverty_cap(df = p, threshold = 4, growth = "average")
+p$antipoverty_40_tax_7_average <- compute_antipoverty_tax(df = p, exemption_threshold = 7, poverty_threshold = 4, growth = "average")
+p$floor_70__10 <- compute_income_floor(df = p, thresholds = 7, marginal_rates = 10, growth = "average", scope_tax = p)
 par(mar = c(3.1, 3.1, .2, .1), mgp = c(2,1,0))
 country_example <- "Kenya"
 distr <- p[p$country == country_example, paste0("Y3_avg_", 1:100)]
-plot(1:100, distr, type = 'l', lwd = 2, ylab = "Consumption (in 2017 PPP $/day)", xlab = paste0(country_example, " individuals, from the poorest to the richest"), ylim = c(0, 20))
-lines(1:100, pmax(3.5, distr - .01*p$antipoverty_4_tax_7_average[p$country == country_example] * pmax(0, distr - 7)), lwd = 2, lty = 7, col = 'blue')
-lines(1:100, pmax(3.5, pmin(distr, p$y_expropriated_4_average[p$country == country_example])), lwd = 2, lty = 6, col = 'red')
-lines(1:100, pmax(p$demogrant_7__10[p$country == country_example], distr - 0.1 * pmax(0, distr - 7)), lwd = 2, lty = 5, col = 'darkgreen')
-grid() + abline(h = 7, lty = 9, col = 'grey') + abline(h = 3.5, lty = 9, col = 'grey') + axis(2, at = c(3.5)) + axis(2, at = c(7))
-axis(2, at = c(17.4)) + abline(h = 17.36, lty = 9, col = 'grey')
 
-plot(as.vector(distr), as.vector(distr), type = 'l', lwd = 2, ylab = "Consumption after the new policy (in 2017 PPP $/day)", xlab = "Current consumption (in 2017 PPP $/day)", xlim = c(0, 25), ylim = c(0, 25))
-lines(as.vector(distr), pmax(3.5, distr - .01*p$antipoverty_4_tax_7_average[p$country == country_example] * pmax(0, distr - 7)), col = "blue", type = 'l', lwd = 2)
-lines(as.vector(distr), pmax(3.5, pmin(distr, p$y_expropriated_4_average[p$country == country_example])), lwd = 2, lty = 6, col = 'red')
-lines(as.vector(distr), pmax(p$demogrant_7__10[p$country == country_example], distr - 0.1 * pmax(0, distr - 7)), lwd = 2, lty = 5, col = 'darkgreen')
-grid() + abline(h = 7, lty = 9, col = 'grey') + abline(h = 3.5, lty = 9, col = 'grey') + abline(h = 17.36, lty = 9, col = 'grey') + axis(2, at = c(3.5)) + axis(2, at = c(7)) + axis(2, at = c(17.4))
+plot(1:100, distr, type = 'l', yaxt = "n", lwd = 2, ylab = "Consumption (in 2017 PPP $/day)", xlab = "Percentile of the consumption distribution in Kenya", ylim = c(0, 20))
+lines(1:100, pmax(4, pmin(distr, p$antipoverty_40_cap_average[p$country == country_example])), lwd = 2, lty = 6, col = 'red')
+abline(h = c(0, 4, 5, 10, 15, 20), lty = 9, col = 'grey') + axis(2, at = c(0, 4, 10, 15, 20)) + grid(ny = NA) #+ abline(v = 93, lty = 9, col = 'grey') + axis(1,at = 93)
+save_plot (filename = "Kenya_cap", folder = '../figures/', width = 400, height = 330, method='dev', trim = T, format = 'pdf')
+
+plot(1:100, distr, type = 'l', yaxt = "n", lwd = 2, ylab = "Consumption (in 2017 PPP $/day)", xlab = "Percentile of the consumption distribution in Kenya", ylim = c(0, 20))
+lines(1:100, pmax(4, distr - .01*p$antipoverty_40_tax_7_average[p$country == country_example] * pmax(0, distr - 7)), lwd = 2, lty = 8, col = 'blue')
+grid(ny = NA) + abline(h = c(0, 4, 7, 10, 15, 20), lty = 9, col = 'grey') + axis(2, at = c(0, 4, 7, 10, 15, 20)) #+ abline(v = 72, lty = 9, col = 'grey') + axis(1, at = 72) 
+save_plot (filename = "Kenya_tax", folder = '../figures/', width = 400, height = 330, method='dev', trim = T, format = 'pdf')
+
+plot(1:100, distr, type = 'l', lwd = 2, ylab = "Consumption (in 2017 PPP $/day)", xlab = "Percentile of the consumption distribution in Kenya", ylim = c(0, 20))
+lines(1:100, pmax(p$floor_70__10[p$country == country_example], distr - 0.1 * pmax(0, distr - 7)), lwd = 2, lty = 5, col = 'darkgreen')
+grid() + abline(h = c(0, 3), lty = 9, col = 'grey') + axis(2, at = c(0, 3)) + axis(2, at = c(7)) + abline(h = 7, lty = 9, col = 'grey') #+ abline(v = 72, lty = 9, col = 'grey') + axis(1, at = 72) 
+save_plot (filename = "Kenya_floor", folder = '../figures/', width = 400, height = 330, method='dev', trim = T, format = 'pdf')
+
+plot(c(0, distr), c(0, distr), type = 'l', lwd = 2, yaxt = "n", ylab = "Consumption after policy (in 2017 PPP $/day)            ", xlab = "Current consumption (in 2017 PPP $/day)", xlim = c(0, 25), ylim = c(0, 25))
+lines(as.vector(distr), pmax(4, distr - .01*p$antipoverty_40_tax_7_average[p$country == country_example] * pmax(0, distr - 7)), lty = 8, col = "blue", type = 'l', lwd = 2)
+lines(as.vector(distr), pmax(4, pmin(distr, p$antipoverty_40_cap_average[p$country == country_example])), lwd = 2, lty = 6, col = 'red')
+lines(as.vector(distr), pmax(p$floor_70__10[p$country == country_example], distr - 0.1 * pmax(0, distr - 7)), lwd = 2, lty = 5, col = 'darkgreen')
+abline(h = c(0, 3, 4, 7, 10, 15, 20), lty = 9, col = 'grey') + axis(2, at = c(0, 3, 7, 10, 15, 20)) + axis(2, at = 4) + grid(ny = NA)
+legend("topleft", lwd = 2, lty = c(1, 6, 8, 5), legend = c("Antipoverty cap", "Antipoverty tax", "Income floor"), col = c("red", "blue", "darkgreen"))
+save_plot (filename = "Kenya_policies", folder = '../figures/', width = 400, height = 330, method='dev', trim = T, format = 'pdf')
+# legend("topleft", lwd = 2, lty = c(1, 6, 8, 5), legend = c("Anti-$4-poverty cap", "Anti-$4-poverty tax", "Income floor (tax: 10%>$7)"), col = c("red", "blue", "darkgreen"))
+# save_plot (filename = "Kenya_policies_detailed", folder = '../figures/', width = 400, height = 330, method='dev', trim = T, format = 'pdf')
 
 
 #####  Antipoverty cap ##### 
-p$y_expropriated_2_average <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "average")
-plot_world_map("y_expropriated_2_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf),
+p$antipoverty_2_cap_average <- compute_antipoverty_cap(df = p, threshold = 2.15, growth = "average")
+plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf),
                legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)])  
-sort(setNames(p$y_expropriated_2_average, p$country), decreasing = T)
+sort(setNames(p$antipoverty_2_cap_average, p$country), decreasing = T)
 
-p$y_expropriated_2_very_optimistic <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "very_optimistic")
-sort(setNames(p$y_expropriated_2_very_optimistic, p$country), decreasing = T)
-p$s_y_expropriated_2_very_optimistic <- compute_antipoverty_maximum(df = s, threshold = 2.15, growth = "very_optimistic")
-sort(setNames(p$s_y_expropriated_2_very_optimistic, p$country), decreasing = T)
-p$y_expropriated_2_sdg8 <- compute_antipoverty_maximum(df = p, threshold = 2.15, growth = "sdg8")
-sort(setNames(p$y_expropriated_2_sdg8, p$country), decreasing = T)
+p$antipoverty_2_cap_very_optimistic <- compute_antipoverty_cap(df = p, threshold = 2.15, growth = "very_optimistic")
+sort(setNames(p$antipoverty_2_cap_very_optimistic, p$country), decreasing = T)
+p$s_antipoverty_2_cap_very_optimistic <- compute_antipoverty_cap(df = s, threshold = 2.15, growth = "very_optimistic")
+sort(setNames(p$s_antipoverty_2_cap_very_optimistic, p$country), decreasing = T)
+p$antipoverty_2_cap_sdg8 <- compute_antipoverty_cap(df = p, threshold = 2.15, growth = "sdg8")
+sort(setNames(p$antipoverty_2_cap_sdg8, p$country), decreasing = T)
 
-plot_world_map("y_expropriated_2_very_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
+plot_world_map("antipoverty_2_cap_very_optimistic", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
                legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 7%\ngrowth since 2022.", 
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T)  
 
-p$s_y_expropriated_2_average <- compute_antipoverty_maximum(df = s, threshold = 2.15, growth = "average")
-plot_world_map("s_y_expropriated_2_average", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
+p$s_antipoverty_2_cap_average <- compute_antipoverty_cap(df = s, threshold = 2.15, growth = "average")
+plot_world_map("s_antipoverty_2_cap_average", breaks = c(0, 2.15, 4, 7, 13, 20, 40, 100, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
                legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T)  
 
@@ -97,10 +110,10 @@ plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 1
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
 
-p$antipoverty_4_tax_4_bolch <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "bolch")
-sum(p$antipoverty_4_tax_4_bolch > 100, na.rm = T) # 30
-p$antipoverty_4_tax_22_bolch <- compute_antipoverty_tax(df = p, exemption_threshold = 22.36, poverty_threshold = 3.44, growth = "bolch")
-sum(p$antipoverty_4_tax_22_bolch > 100, na.rm = T) # 53
+p$antipoverty_4_tax_4_BCL <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "BCL")
+sum(p$antipoverty_4_tax_4_BCL > 100, na.rm = T) # 30
+p$antipoverty_4_tax_22_BCL <- compute_antipoverty_tax(df = p, exemption_threshold = 22.36, poverty_threshold = 3.44, growth = "BCL")
+sum(p$antipoverty_4_tax_22_BCL > 100, na.rm = T) # 53
 p$antipoverty_4_tax_18_now <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 3.44, growth = "now")
 p$antipoverty_4_tax_22_average <- compute_antipoverty_tax(df = p, exemption_threshold = 22.36, poverty_threshold = 3.44, growth = "average")
 sum(p$antipoverty_4_tax_22_average > 100) # 34
@@ -139,28 +152,28 @@ plot_world_map("antipoverty_bcs_tax_bcs", breaks = c(0, .1, 1, 5, 10, 25, 50, 10
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
 
 
-##### Demogrant (income floor) for a given tax ##### 
-p$demogrant_7__10 <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "average", scope_tax = p)
-p$demogrant_7__10_ineq <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "trend_ineq", scope_tax = p)
-sort(setNames(p$demogrant_7__10, p$country))
-sort(setNames(p$demogrant_7__10, p$country)[p$country_code %in% LIC])
-sum(p$demogrant_7__10 < 2.15) # 23 
+##### Income floor for a given tax ##### 
+p$floor_7__10 <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "average", scope_tax = p)
+p$floor_7__10_ineq <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "trend_ineq", scope_tax = p)
+sort(setNames(p$floor_7__10, p$country))
+sort(setNames(p$floor_7__10, p$country)[p$country_code %in% LIC])
+sum(p$floor_7__10 < 2.15) # 23 
 length(LIC) # 27
-sum(p$demogrant_7__10 < 2.15 & p$country_code %in% LIC) # 13
-plot_world_map("demogrant_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
+sum(p$floor_7__10 < 2.15 & p$country_code %in% LIC) # 13
+plot_world_map("floor_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
                legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T)  
 
-p$demogrant_7__10_very_optimistic <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "very_optimistic", scope_tax = p)
-sum(p$demogrant_7__10_very_optimistic < 2.15) # 10
-p$s_demogrant_7__10_very_optimistic <- compute_income_floor(df = s, thresholds = 6.85, marginal_rates = 10, growth = "very_optimistic", scope_tax = p)
-sum(p$s_demogrant_7__10_very_optimistic < 2.15) # 8
-plot_world_map("demogrant_7__10_very_optimistic", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
+p$floor_7__10_very_optimistic <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "very_optimistic", scope_tax = p)
+sum(p$floor_7__10_very_optimistic < 2.15) # 10
+p$s_floor_7__10_very_optimistic <- compute_income_floor(df = s, thresholds = 6.85, marginal_rates = 10, growth = "very_optimistic", scope_tax = p)
+sum(p$s_floor_7__10_very_optimistic < 2.15) # 8
+plot_world_map("floor_7__10_very_optimistic", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
                legend = "Income floor\nthat can be funded\nwith a 5% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 7%\ngrowth since 2022.", 
                save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055, trim = T)  
-p$demogrant_7__10_sdg8 <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "sdg8", scope_tax = p)
-sum(p$demogrant_7__10_sdg8 < 2.15) # 1
-sort(setNames(p$demogrant_7__10_sdg8, p$country), decreasing = T)
+p$floor_7__10_sdg8 <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "sdg8", scope_tax = p)
+sum(p$floor_7__10_sdg8 < 2.15) # 1
+sort(setNames(p$floor_7__10_sdg8, p$country), decreasing = T)
 
 p$antipoverty_2_tax_7_sdg8 <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "sdg8")
 sort(setNames(p$antipoverty_2_tax_7_sdg8, p$country))
@@ -207,17 +220,17 @@ floor_gain <- c(compute_income_floor(df = w, thresholds = 100, marginal_rates = 
 ##### Appendix figures ##### 
 ### Figures already plotted above:
 ## Main text figures:
-# y_expropriated_2_average
+# antipoverty_2_cap_average
 # antipoverty_2_tax_7_average
 # antipoverty_2_tax_18_very_optimistic
-# demogrant_7__10
+# floor_7__10
 
 ## Appendix figures:
 # s_antipoverty_2_tax_7_average
 # antipoverty_2_tax_18_average
 # s_antipoverty_2_tax_18_very_optimistic
-# demogrant_7__10_very_optimistic
-# s_demogrant_7__10
+# floor_7__10_very_optimistic
+# s_floor_7__10
 
 ### New Appendix figures:
 # antipoverty_2_tax_7_reg
@@ -247,7 +260,7 @@ plot_world_map("antipoverty_7_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50
 
 
 ##### Appendix tables ##### 
-table_income <- cbind(p$year, p$mean_welfare, p$mean_y_2022, p$mean_Y3, p$mean_Y7, p$mean_y_reg, p$mean_y, p$bolch_year_original, p$hfce/p$mean_welfare) 
+table_income <- cbind(p$year, p$mean_welfare, p$mean_y_2022, p$mean_Y3, p$mean_Y7, p$mean_y_reg, p$mean_y, p$BCL_year_original, p$hfce/p$mean_welfare) 
 world_income <- lic_income <- ssa_income <- table_income[1,]
 for (j in 1:8) world_income[j] <- wtd.mean(table_income[,j], p$pop_2030, na.rm = T)
 for (j in 1:8) lic_income[j] <- wtd.mean(table_income[,j], p$pop_2030 * p$country_code %in% LIC, na.rm = T)
@@ -292,7 +305,7 @@ cat(sub("Angola", "\\\\midrule Angola",
     caption.short = "Expected poverty and growth in 2030 in lower-income countries.", col.names = NULL), collapse="\n")), fixed = T))), file = "../tables/trend.tex")  
 
 
-(table_cap <- create_appendix_table(fun = "compute_antipoverty_maximum", thresholds = list(2.15, 2.15, 2.15, 2.15, 2.15, 2.15, "bcs", 3.44, 3.44), growths = c("average", "average", "very_optimistic", "very_optimistic", "reg", "reg", "average", "average", "bolch"), dfs = list(p, s, p, s, p, s, p, p, p)))
+(table_cap <- create_appendix_table(fun = "compute_antipoverty_cap", thresholds = list(2.15, 2.15, 2.15, 2.15, 2.15, 2.15, "bcs", 3.44, 3.44), growths = c("average", "average", "very_optimistic", "very_optimistic", "reg", "reg", "average", "average", "BCL"), dfs = list(p, s, p, s, p, s, p, p, p)))
 cat(sub("Angola", "\\\\midrule Angola", 
     sub("toprule", "toprule Poverty line (\\\\$/day) & 2.15 & 2.15 & 2.15 & 2.15 & 2.15 & 2.15 & BCS & 3.44 & 3.44 \\\\\\\\ \nGrowth scenario & 3\\\\% & 3\\\\% & 7\\\\% & 7\\\\% & \\\\multicolumn{2}{c}{Projection} & 3\\\\% & 3\\\\% & BCL \\\\\\\\ \nHFCE rescaling & & \\\\checkmark & & \\\\checkmark & & \\\\checkmark & & & \\\\\\\\ \n \\\\midrule", 
     gsub("Inf", "$+\\\\infty$", sub("end{tabular}", "end{tabular}}", sub("centering", "makebox[\\textwidth][c]{", paste(kbl(table_cap, "latex", 
@@ -367,12 +380,12 @@ mean(p$growth_q5 > 0, na.rm = T) # 35%
 compute_inequality(df = w, var = "Y3", return = 'gini') # .62
 compute_inequality(df = w, var = "Y3_ineq", return = 'gini', recompute = T) # .62
 
-sum(p$demogrant_7__10 < 2.15, na.rm = T) # 23
-sum(p$demogrant_7__10_ineq < 2.15, na.rm = T) # 22
-sum(p$demogrant_7__10 < 2.15 & p$demogrant_7__10_ineq < 2.15, na.rm = T) # 20
-mean(p$demogrant_7__10_ineq/p$demogrant_7__10, na.rm = T)
-mean(abs(p$demogrant_7__10_ineq/p$demogrant_7__10-1) < .1, na.rm = T) # 60%
-mean(abs(p$demogrant_7__10_ineq/p$demogrant_7__10-1) < .33, na.rm = T) # 92%
+sum(p$floor_7__10 < 2.15, na.rm = T) # 23
+sum(p$floor_7__10_ineq < 2.15, na.rm = T) # 22
+sum(p$floor_7__10 < 2.15 & p$floor_7__10_ineq < 2.15, na.rm = T) # 20
+mean(p$floor_7__10_ineq/p$floor_7__10, na.rm = T)
+mean(abs(p$floor_7__10_ineq/p$floor_7__10-1) < .1, na.rm = T) # 60%
+mean(abs(p$floor_7__10_ineq/p$floor_7__10-1) < .33, na.rm = T) # 92%
 
 View(p[,grepl("Y3|code", names(p))])
 

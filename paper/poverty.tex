@@ -1,10 +1,8 @@
 % TODO! Appendix max 1k words and detailed results in SM, also code in SM
 % TODO! pages etc. in biblio references, cf. https://files.taylorandfrancis.com/tf_APA6.pdf
-% TODO! footnote => endnote right before references
-% TODO!? Update to 2024 nowcast data? post-covid
+% TODO!! Update to 2024 nowcast data? post-covid
 
-% TODO! add schemas for antipoverty tax/caps, global tax distributional effect
-% TODO! appendix with WID cainc data
+% TODO!! appendix with WID cainc data
 % TODO discuss/use Hlasny & Verme
 % TODO discuss Deaton & Dupriez
 % TODO tone down that international transfers can solve poverty
@@ -243,7 +241,7 @@ In 2015, the Sustainable Development Goals set the eradication of extreme povert
 The very first Sustainable Development Goal (SDG) % SDG 1.1
 reads: ``By 2030, eradicate extreme poverty for all people everywhere, currently measured as people living on less than \$2.15 a day''. As we have passed the halfway point since the adoption of the SDGs in 2015, it is time to assess progress towards this universally accepted goal. 
 
-In this paper, I assess whether growth and domestic redistribution are sufficient to eradicate extreme poverty by 2030. I first study the extent of poverty in different growth scenarios. Then, I calculate the magnitude of domestic redistribution required in each country to eradicate poverty in 2030. I mobilize different indicators. For two idealized tax policies, I estimate the parameter that would raise enough revenue to eradicate poverty. In the ``antipoverty cap'', I fix the tax rate at its maximum value of 100\% so that the tax effectively becomes a cap on top incomes, and I find the required cap (or taxation threshold). All income above the cap is assumed to be redistributed to the lowest incomes in order to eradicate poverty. In the ``antipoverty tax'', I fix the taxation threshold and find the tax rate needed to raise the revenue required to eradicate poverty. As a last indicator, I fix both the taxation threshold and the tax rate, and I compute the income floor that the tax could finance (by redistributing tax revenue to the lowest incomes). In the lowest income countries, extreme poverty is estimated to persist even after strong growth and radical redistribution. % add idealized domestic policies to redistribute income. 
+In this paper, I assess whether growth and domestic redistribution are sufficient to eradicate extreme poverty by 2030. I first study the extent of poverty in different growth scenarios. Then, I calculate the magnitude of domestic redistribution required in each country to eradicate poverty in 2030. I mobilize different indicators. For two idealized tax policies, I estimate the parameter that would raise enough revenue to eradicate poverty. In the ``antipoverty cap'', I fix the tax rate at its maximum value of 100\% so that the tax effectively becomes a cap on top incomes, and I find the required cap (or taxation threshold). All income above the cap is assumed to be redistributed to the lowest incomes in order to eradicate poverty. In the ``antipoverty tax'', I fix the taxation threshold and find the tax rate needed to raise the revenue required to eradicate poverty. As a last indicator, the ``income floor'', I fix both the taxation threshold and the tax rate, and I compute the income floor that the tax could finance (by redistributing tax revenue to the lowest incomes). In the lowest income countries, extreme poverty is estimated to persist even after strong growth and radical redistribution. % add idealized domestic policies to redistribute income. 
 This has implications for the international community, as international solidarity appears necessary to achieve the first SDG. I complete the analysis by exemplifying international transfers that would eradicate poverty by 2030.
 
 To assess the prospects of achieving the first SDG, I explore in turn the effects of balanced growth alone, idealized national redistribution policies, and idealized global redistribution. The thought experiments are not meant to be exhaustive or representative pathways to achieving the first SDG. They are presented to demonstrate that relying on growth and domestic policies alone would fall short of eradicating poverty by 2030. This impossibility result is robust to a wide range of growth and redistribution scenarios, including extremely optimistic ones. In contrast, global solidarity has the potential to dramatically accelerate poverty eradication.
@@ -297,7 +295,7 @@ With the current trend, the SDGs will not be achieved and only limited progress 
 
 The main contribution of this paper is to provide an explicit assessment of the prospects for achieving the first SDG under ideal circumstances. While existing studies estimate the poverty reduction that can be achieved through either growth or domestic redistribution, I study the combination of both. I also introduce the notion of \textit{income floor} as a measure of the credible potential for redistribution. Finally, I improve upon existing studies by presenting results in the form of world maps and by providing an open source code to work with global inequality data: \href{https://github.com/bixiou/domestic_poverty_eradication}{github.com/bixiou/domestic\_poverty\_eradication}. This code offers ready-to-use functions to compute all sorts of inequality indicators (Gini, top 10\% share, antipoverty tax rate, etc.) and plot world maps of these indicators.
 
-% The rest of the paper is structured as followed: 
+The rest of the paper is structured as followed: Section \ref{subsec:data} describes the data used in the analysis. Section \ref{sec:results} presents the results: Section \ref{subsec:balanced_growth} assesses the effects of growth on poverty; Section \ref{subsec:method} presents the method to measure domestic capacity to eradicate poverty; Sections \ref{subsec:cap}, \ref{subsec:tax}, and \ref{subsec:floor} analyze respectively the antipoverty cap, the antipoverty tax, and the income floor; Section \ref{subsec:global} indicates how global redistribution could eradicate poverty. Section \ref{sec:conclusion} concludes.
 
 \section{Data}\label{subsec:data}
 % Important: data source, HFCE, balanced growth
@@ -322,8 +320,8 @@ I rescale incomes by the observed growth of GDP p.c. (in PPP) up to 2022 (using 
 These methods include: extending the 2014--2019 country growth trend (which excludes COVID years); extending the trend for growing countries and assuming no growth when GDP p.c. has contracted between 2014 and 2019; assuming a constant growth (of either 0\%, 3\%, 4.5\%, 6\%, or 7\%); using IMF forecasts (\cite{imf_world_2023} extended up to 2030 by replicating the 2026--2028 forecasted growth in 2028--2030); projecting future growth using an autoregressive quadratic model that predicts the 2011--2019 growth based on the 1991-2011 growth (then applied to 2022--2030 using the 2002--2022 growth). Besides, I deviate from this two-step procedure to assess the original SDGs, 
 by assuming a constant growth of 7\% starting in 2015. In Supplementary Material, I also analyze a path of unbalanced growth that extends recent trends in national inequality to 2030.  
 
-\section{Results}
-\subsection{The effect of balanced growth}
+\section{Results\label{sec:results}}
+\subsection{The effect of balanced growth\label{subsec:balanced_growth}}
 
 To estimate global poverty rates, the World Bank scales up the percentiles measured in household surveys by the country's GDP growth between the survey year and the year of interest.\footnote{The World Bank also adjusts growth rates when data captures consumption rather than income, cf. \href{https://datanalytics.worldbank.org/PIP-Methodology/lineupestimates.html\#extrapolations}{datanalytics.worldbank.org/PIP-Methodology/lineupestimates.html}.} I project global poverty rates and poverty gaps in 2030 using the same assumption of balanced growth (i.e., constant inequality), for a range of growth scenarios (Table \ref{tab:poverty}). I also show that the balanced growth assumption has little effect on poverty estimates compared to an alternative assumption of unbalanced growth in which national inequality evolves as in the recent past (see Supplementary Material for details). This is because inequality has been quite stable over the last years of data, with two thirds of percentile shares growing or contracting by less than 1\% per year.
 
@@ -341,12 +339,34 @@ Although steady growth reduces poverty, growth alone cannot achieve the first SD
 the extreme poverty rate would still be 2\% in 2030. Even if the world had experienced a 7\% growth rate starting in 2015 (when the SDGs were adopted), extreme poverty would not have been completely eliminated, at 1\% of the world population in 2030. 
 As we cannot rely on growth alone to eliminate poverty, let us add domestic redistribution to the equation. 
 
-\subsection{Idealized redistributive policies}
+\subsection{Methodology: idealized redistributive policies\label{subsec:method}}
 
 Studying the arithmetics of inequality at the country level, I use the poverty gap to approximate the revenues required to eliminate poverty. 
-More specifically, I consider taxes on top incomes to finance a transfer to the poorest that would lift them at the poverty line. I first consider two types of redistributive policies to close the poverty gap: (i) an ``antipoverty cap'' that would establish a ceiling on top incomes (and tax income at a 100\% rate above that threshold); (ii) an ``antipoverty tax'' that would raise a linear tax above a certain threshold. I also introduce another policy: (iii) the ``income floor'' that could be funded by a given, realistic tax schedule. The poverty gap can be closed by the latter tax schedule when the income floor exceeds the poverty line. Note that these hypothetical policies would apply on top of existing taxes. 
+More specifically, I consider taxes on top incomes to finance a transfer to the poorest that would lift them at the poverty line. These hypothetical policies would apply on top of existing taxes. I first consider two types of redistributive policies to close the poverty gap: (i) an ``antipoverty cap'' that would establish a ceiling on top incomes (and tax income at a 100\% rate above that threshold); (ii) an ``antipoverty tax'' that would raise a linear tax above a certain threshold. I also introduce another policy: (iii) the ``income floor'' that could be funded by a given, realistic tax schedule. The poverty gap can be closed by the latter tax schedule when the income floor exceeds the poverty line. 
 
-% TODO here health, educ...
+The idealized policies are depicted in Figure \ref{fig:kenya} using the example of Kenya: Figure \ref{fig:kenya_policies} represents the tax and transfers schedule, while Figures \ref{fig:kenya_cap}, \ref{fig:kenya_tax}, and \ref{fig:kenya_floor} show how the policies affect the distribution of income (or rather, consumption). In Figures \ref{fig:kenya_cap} and \ref{fig:kenya_tax}, the \$4-poverty gap is the area between the dashed line and the solid line on the left part of the graph. By construction, the area between the two curves on the right part of the graph is also equal to the poverty gap.
+
+\begin{figure}[h!]
+    \caption[Idealized redistributive policies]{Example of idealized redistributive policies: Kenya in 2030 after 3\% growth.}\label{fig:kenya}
+  \begin{subfigure}{.5\textwidth}
+    \caption[]{Consumption before/after idealized policies.}\label{fig:kenya_policies}
+    \includegraphics[width=\textwidth]{../figures/Kenya_policies.pdf}
+  \end{subfigure} \;
+  \begin{subfigure}{.5\textwidth}
+    \caption[]{Anti-\textit{\$4-poverty} cap: \$14.8/day.}\label{fig:kenya_cap}
+    \includegraphics[width=\textwidth]{../figures/Kenya_cap.pdf}
+  \end{subfigure}
+  \\ \quad \\
+  \begin{subfigure}{.5\textwidth}
+    \caption[]{Anti-\textit{\$4-poverty} tax (above \$7/day): 34\%.}\label{fig:kenya_tax}
+    \includegraphics[width=\textwidth]{../figures/Kenya_tax.pdf}
+  \end{subfigure} \;
+  \begin{subfigure}{.5\textwidth}
+    \caption[]{Income floor (funded by a 10\% tax above \$7/day): \$2.8/day.}\label{fig:kenya_floor}
+    \includegraphics[width=\textwidth]{../figures/Kenya_floor.pdf}
+  \end{subfigure}
+\end{figure}  
+
 These policies are idealized. The estimate of revenue they generate should be seen as an upper bound of what could be achieved if they were implemented in practice. 
 First, I ignore any costs associated with raising a tax or transferring money, as if the lowest-income countries already had sufficient administrative resources. Second, any tax (and a fortiori a 100\% tax) reduces economic activity (real or declared). In this exercise, I abstract from tax distorsions and assume that the policies would not affect the taxable base.% shorten (take out this or the following paragraph)
 
@@ -361,7 +381,7 @@ Therefore, the antipoverty cap, the antipoverty tax, and the income floor can be
 
 In low-income countries, we measure household consumption rather than income, meaning that we do not capture investment nor government spending. In other words, our idealized policies would leave productive investment and public services unaffected, an appropriate treatment given that these channels already contribute to growth and poverty reduction.% shorten
 
-Unless otherwise stated, I use the scenario of balanced growth at a rate of 3\%. I choose this rate as a baseline as it is an upper bound of growth rates recently experienced in the lowest-income countries. Indeed, among the 8 countries with an average consumption below 3\$/day, growth was on average negative over 2014--2019 (or 2014--2022), and the highest growing country (Central African Republic) grew at a rate of 2.4\% per year. % shorten as it seems I specify everywhere TODO: check
+Unless otherwise stated, I use the scenario of balanced growth at a rate of 3\%. I choose this rate as a baseline as it is an upper bound of growth rates recently experienced in the lowest-income countries. Indeed, among the 8 countries with an average consumption below 3\$/day, growth was on average negative over 2014--2019 (or 2014--2022), and the highest growing country (Central African Republic) grew at a rate of 2.4\% per year. % shorten as it seems I specify everywhere
 
 \subsection{Antipoverty caps\label{subsec:cap}}
 
@@ -372,7 +392,6 @@ Unless otherwise stated, I use the scenario of balanced growth at a rate of 3\%.
   {../figures/y_expropriated_2_average.pdf}}
 \end{figure} 
 
-% TODO! check legend - table correspond
 % table cap by country for different scenarios (incl. 2.15$ 3%, 7%, with and without HFCE, 3% BCS; $3.44 Bolch, 3%)
 % table tax: $2.15 above $6.85 g 3%; $2.15 ab $18.15 g 7%; $2.15 ab $18.15 g 3%; $2.15 ab $18.15 g trend; ($2.15 ab $6.85 g 7%; $2.15 above $6.85 g 3% HFCE; $2.15 ab $18.15 g 7% HFCE)
 %  table floor: 10% ab $6.85 g 3%; g 3% with HFCE; g 7%; g 7% since 2016
@@ -400,11 +419,11 @@ BCL found that 62 countries could not eradicate severe poverty (defined as \$$_\
 Their findings cannot be exactly reproduced with the revised PIP data, as the switch from 2005 to 2017 PPPs has altered not only the level but also the distribution of incomes (for the same reason, the results of BCL and \cite{ravallion_poorer_2010} cannot be compared). 
 When I replicate the computations of BCL (with their survey years but after scaling the original cut-offs into 2017 PPPs by a factor $2.15/1.25 = 1.72$), I find that 53 (resp. 30) 
 countries could not eradicate severe poverty with a cap at \$22.36/day (resp. \$3.44/day). 
-In other words, the revision of PIP data resulted in an apparent enrichment. % TODO: check
+%  % 
 Looking ahead, in our baseline scenario with 3\% growth, I find that in 2030, 34 (resp. 6) 
-countries will not be able to eradicate severe poverty with a cap at \$22.36/day (resp. \$3.44/day).
+countries will not be able to eradicate severe poverty with a cap at \$22.36/day (resp. \$3.44/day). In other words, growth significantly reduces poverty and increases the capacity of low-income countries to eradicate poverty.
 
-\subsection{Antipoverty taxes}
+\subsection{Antipoverty taxes\label{subsec:tax}}
 
 \begin{figure}[b!]
   \caption[Anti-\textit{extreme-poverty} tax above \$6.85/day in 2030 after 3\% growth.]{Linear tax rate above \$6.85/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 3\% over 2022--2030. 
@@ -419,7 +438,7 @@ The cut-off of \$6.85/day is defined by the World Bank as the median national po
 Consistently with the previous findings, taxing income at a 100\% rate above \$6.85/day would not generate enough revenues to eliminate extreme poverty in the five poorest countries. In Nigeria, closing the extreme poverty gap would require taxing the ``non-acutely-poor'' at a marginal rate of 20\%. 
 On average over Sub-Saharan Africa, the anti-\textit{extreme-poverty} tax would be 46\%, and 70\% in low-income countries (defined by the World Bank as countries with a GNI per capita below \$1,135 per year). Yet, imposing such a large tax burden on any income above just \$6.85/day seems unrealistic. 
 
-\begin{figure}[b!]
+\begin{figure}[h!]
   \caption[Anti-\textit{extreme-poverty} tax above \$18.15/day in 2030 after 3\% growth.]{Linear tax rate above \$18.15/day eradicating extreme poverty (in \%). In this idealized policy, all tax revenue is transferred to the extreme poor and lift them at \$2.15/day, assuming away distorsions, and after a yearly growth of 7\% over 2022--2030.
   }\label{fig:antipoverty_tax_18}
   \makebox[\textwidth][c]{\includegraphics[width=\textwidth]
@@ -436,9 +455,9 @@ Therefore, India seems able to eliminate extreme poverty by 2030 with its domest
 % By default, 6\% (7?) growth starting in 2023 
 % - Tax rate to eradicate poverty: above 7, 18: Figure 2
 
-\subsection{Income floor as a measure of credible potential for redistribution}
+\subsection{Income floor as a measure of credible potential for redistribution\label{subsec:floor}}
 
-A final way of approaching the issue is to set a tax schedule, compute how much revenues it would generate in each country, and estimate the income floor that these revenues could finance (by topping up the incomes of the poorest to the income floor). Note that the value of the income floor depends on the whole income distribution: the top of the distribution determines the revenues that can be generated; and the bottom dictates the cost of raising low incomes up to a given floor. As I have already explored extreme redistributive policies, I analyse here a more reasonable tax schedule. Namely, I consider a 10\% marginal tax rate on income above \$6.85/day. Although the tax base I choose may be too wide (affecting people on the verge of acute poverty) % taxation threshold may be too low 
+A final way of approaching the issue is to set a tax schedule, compute how much revenue it would generate in each country, and estimate the income floor that these revenues could finance (by topping up the incomes of the poorest to the income floor). Note that the value of the income floor depends on the whole income distribution: the top of the distribution determines the revenues that can be generated; and the bottom dictates the cost of raising low incomes up to a given floor. As I have already explored extreme redistributive policies, I analyse here a more reasonable tax schedule. Namely, I consider a 10\% marginal tax rate on income above \$6.85/day. Although the tax base I choose may be too wide (affecting people on the verge of acute poverty) % taxation threshold may be too low 
 and the tax rate too low for top incomes, 
 this simple tax schedule seems to correctly reflect the fiscal capacity of governments. Indeed, this tax schedule is conservatively inspired by \cite{ravallion_poorer_2010}, who uses a rate of 10\% but a higher threshold (corresponding to \$18/day) to assess whether a country has a high or low capacity to eradicate poverty. 
 
@@ -464,9 +483,9 @@ Second, the target 17.2 calls for ``Developed countries to implement fully their
 However, to meet the broader SDGs and ``end poverty in all its forms'', the 0.7\% target would not suffice and international solidarity should be significantly strenghtened. %global redistribution would need to be significantly increased. % TODO? system change => already in conclusion
 % shorten: take out this paragraph
 
-\subsection{The potential of global redistribution} % TODO? solidarity?
+\subsection{The potential of global redistribution\label{subsec:global}} % TODO? solidarity?
 
-In this section, we highlight the potential of globally redistributive policies to close the global poverty gap in 2030 in the baseline scenario of 3\% growth. %The policies described are idealized and should be understood as proxies for any action of international solidarity or system change that would bring about an equivalent transfer of resources. TODO? put back?
+In this section, we highlight the potential of globally redistributive policies to close the global poverty gap in 2030 in the baseline scenario of 3\% growth. The policies described are idealized and should be understood as proxies for any action of international solidarity or system change that would bring about an equivalent transfer of resources. %TODO? put back?
 % The wealth tax simulator of the World Inequality Lab\cite{chancel_world_2022} shows that a global 1.05\% marginal tax on wealth above \$100 million would collect 0.2\% of the global GDP, enough to close the extreme poverty gap. Alternativaly, one can collect the same amount (around \$200 billion per year) with a 2.8\% tax above \$1 billion or with a 0.47\% tax above \$5 million.
 
 If applied to the global level, the tax of the previous section would bring the global Gini from .62 down to .51 and finance an income floor at \$8.6/day, thereby closing the \$6.85/day poverty gap. By comparison, applied at the national level, it would only bring the global Gini down to .59 and reduce the poverty gap from 4.5\% to 3.7\% of global income. 
@@ -482,7 +501,7 @@ With contributions of up to 0.4\% of a country's income (in the U.S.), aggregate
 % These rates are expressed on top of the current tax system and apply to post-tax income. For example, the last tax schedule would leave unaffected the 96\% of the world population with a post-tax income per capita below \$3,000/month, reduce by 10\% the post-tax income at \$5,000/month, and reduce it  by 37\% at \$10,000/month. 
 
 % TODO! I can't use the HFCE-rescaled results if I attribute all extra income to the top 1% => Add orders of magnitude for global wealth tax + in NS version, keep only the wealth tax (bc HFCE entirely attributed to >100$/d leads to net losses in HMICs and wo HFCE losses are too high in HICs) 
-In reality, the global tax rates required to eradicate poverty may well be lower than just indicated, because our calculations used the raw PIP data instead of converting them to nominal terms and rescaling them to national accounts. Once I rescale the data to national accounts, (which are more accurate in high-income countries), 
+In reality, the global tax rates required to eradicate poverty may well be lower than just indicated, because our calculations used the raw PIP data instead of converting them to nominal terms and rescaling them to national accounts. Once I rescale the data to national accounts (which are more accurate in high-income countries), %and even without the conversion to nominal terms, 
 a mild 0.3\% marginal tax above \$100/day suffices to close the extreme poverty gap. Raising that rate to 10\% would collect 3.4\% of the world income, enough to finance a global income floor of \$7/day and end absolute poverty ``in all its forms'' (extreme and acute). % in all its forms. 
 These rates are expressed on top of the current tax system and apply to post-tax income. For example, the last tax schedule would leave unaffected the 95\% of the world's population whose per capita after-tax income is less than \$36,500/year, and would reduce the after-tax income of those at \$73,000/year by 5\%. 
 % TODO? Use ws instead of w? 
@@ -509,11 +528,11 @@ In a nutshell, whereas poverty alleviation cannot be achieved rapidly without in
 % - One example of global redistribution (incl. largest recipients/contributors)
 % x Inequality indicators BAU / national / global redistr: Table 2
 
-\section{Discussion} 
+\section{Discussion\label{sec:conclusion}} 
 
 To paraphrase the \cite{un_sustainable_2022}, ``as things stand, the world is not on track to end poverty by 2030.'' I have shown that the only prospect for low-income countries to eliminate extreme poverty on their own is the combination of strong growth, ambitious social programs and domestic redistribution, and time. 
 With record growth and profound government committment, China has officially eradicated extreme poverty in 2021. The D.R.C. is poorer today than China was in 1990, % https://data.worldbank.org/indicator/SI.POV.DDAY?locations=CD-CN-AE, https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD?locations=ET-CN-CD
-so even if it replicates the Chinese miracle, which is not easy given its institutional capacity, the D.R.C. will not be able to eradicate extreme poverty on its own before 2055. % Not to mention that the Chinese miracle relied on strong institutional capacity, which is often lacking in low-income countries. 
+so even if the D.R.C. replicates the Chinese miracle, which is not easy given its institutional capacity, the D.R.C. will not be able to eradicate extreme poverty on its own before 2055. % Not to mention that the Chinese miracle relied on strong institutional capacity, which is often lacking in low-income countries. 
 In contrast, international solidarity might be able to end poverty more quickly and at a much lower welfare cost. In this paper, I have illustrated the magnitude of the required transfer of resources with idealized international taxes, but in reality this could take other forms such as a systemic change in the rules or structures of the world economy. 
 To be fair, this paper only presents the orders of magnitude of global inequality. %Poverty is multidimensional and t
 In practice, structural factors that sustain poverty (like wars or corruption) %, corruption, or deficient administrative capacity). 
@@ -547,7 +566,7 @@ Finally, a number of limitations prevent the paper from providing definitive est
 \section*{\normalsize Data and code availability}
 
 All data and code of as well as figures of the paper are available on \href{https://github.com/bixiou/domestic_poverty_eradication}{github.com/bixiou/domestic\_poverty\_eradication}. Many more figures (with varying poverty lines, taxation thresholds, growth scenarios, etc.) are available on the repository. %\href{https://github.com/bixiou/domestic_poverty_eradication/tree/main/figures}{github.com/bixiou/domestic\_poverty\_eradication}. 
-Also, any custom figure can be easily produced using this code.
+Also, any custom figure can be easily produced using this code. The article also comes with a Figshare DOI: \href{https://figshare.com/articles/dataset/dx_doi_org_10_6084_m9_figshare_6025748/6025748}{10.6084/m9.figshare.28229477}.
 
 % \end{methods} % WPcomment
 \end{small}  % NCCcomment
@@ -574,7 +593,7 @@ Also, any custom figure can be easily produced using this code.
 % \end{addendum}
 
 % \onehalfspacing
-\clearpage
+% \clearpage
 \listoftables
 \listoffigures
 
