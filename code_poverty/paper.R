@@ -38,6 +38,7 @@ max(((p$gdp_pc_2019/p$gdp_pc_2014)^0.2)[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014
 mean(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
 max(((p$gdp_pc_2022/p$gdp_pc_2014)^(1/7))[p$mean_y_2022 < 3 & !is.na(p$gdp_pc_2014)])-1
 
+# Figure 1
 p$antipoverty_40_cap_average <- compute_antipoverty_cap(df = p, threshold = 4, growth = "average")
 p$antipoverty_40_tax_7_average <- compute_antipoverty_tax(df = p, exemption_threshold = 7, poverty_threshold = 4, growth = "average")
 p$floor_70__10 <- compute_income_floor(df = p, thresholds = 7, marginal_rates = 10, growth = "average", scope_tax = p)
@@ -72,10 +73,22 @@ save_plot (filename = "Kenya_policies", folder = '../figures/', width = 400, hei
 
 
 #####  Antipoverty cap ##### 
+# Figure 2 1240x620
 p$antipoverty_2_cap_average <- compute_antipoverty_cap(df = p, threshold = 2.15, growth = "average")
 plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf),
                legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)])  
+# with thick borders:
+plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf), thick_border = T,
+               legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)])  
+# with stripes:
+plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf), thick_border = T,
+               legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)], stripe_codes = p$country[p$antipoverty_2_cap_average > 25])  
+plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf), thick_border = T,
+               legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)], negative_stripes = T)  
 sort(setNames(p$antipoverty_2_cap_average, p$country), decreasing = T)
 
 p$antipoverty_2_cap_very_optimistic <- compute_antipoverty_cap(df = p, threshold = 2.15, growth = "very_optimistic")
@@ -95,19 +108,43 @@ plot_world_map("s_antipoverty_2_cap_average", breaks = c(0, 2.15, 4, 7, 13, 20, 
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T)  
 
 # Antipoverty taxes
+# Figure 3 1240x620
 p$antipoverty_2_tax_7_average <- compute_antipoverty_tax(df = p, exemption_threshold = 6.85, poverty_threshold = 2.15, growth = "average")
-plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), sep = "% to ", end = "%", 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# with thick borders:
+plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), sep = "% to ", end = "%", thick_border = T,
+               legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# with stripes:
+plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), thick_border = T, sep = "% to ", end = "%", 
+               legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T, stripe_codes = p$country[p$antipoverty_2_tax_7_average > 10]) 
+plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), thick_border = T, sep = "% to ", end = "%", 
+               legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T, negative_stripes = T) 
 sort(setNames(p$antipoverty_2_tax_7_average, p$country), decreasing = T)
 wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA]) # 46% 
 wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% LIC], p$pop_2030[p$country_code %in% LIC]) # 70%
 sum(p$antipoverty_2_tax_7_average > 100) # 5
 
+# Figure 4 1240x620
 p$antipoverty_2_tax_18_very_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = 2.15, growth = "very_optimistic")
-plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), 
+plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), sep = "% to ", end = "%", 
                legend = "Linear tax rate\nabove $18/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 7%\ngrowth since 2022.", 
                save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# with thick borders:
+plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), sep = "% to ", end = "%", thick_border = T,
+               legend = "Linear tax rate\nabove $18/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 7%\ngrowth since 2022.", 
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T)  
+# with stripes:
+plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), thick_border = T, sep = "% to ", end = "%", 
+               legend = "Linear tax rate\nabove $18/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 7%\ngrowth since 2022.", 
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T, stripe_codes = p$country[p$antipoverty_2_tax_18_very_optimistic > 10])  
+plot_world_map("antipoverty_2_tax_18_very_optimistic", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), thick_border = T, sep = "% to ", end = "%", 
+               legend = "Linear tax rate\nabove $18/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 7%\ngrowth since 2022.", 
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T, negative_stripes = T)  
 sort(setNames(p$antipoverty_2_tax_18_very_optimistic, p$country), decreasing = T)
 
 p$antipoverty_4_tax_4_BCL <- compute_antipoverty_tax(df = p, exemption_threshold = 3.44, poverty_threshold = 3.44, growth = "BCL")
@@ -160,10 +197,21 @@ sort(setNames(p$floor_7__10, p$country)[p$country_code %in% LIC])
 sum(p$floor_7__10 < 2.15) # 23 
 length(LIC) # 27
 sum(p$floor_7__10 < 2.15 & p$country_code %in% LIC) # 13
+# Figure 5 1240x620
 plot_world_map("floor_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ",
                legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T)  
-
+# with thick borders:
+plot_world_map("floor_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ", thick_border = T,
+               legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T)  
+# with stripes:
+plot_world_map("floor_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ", thick_border = T,
+               legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T, stripe_codes = p$country[p$floor_7__10 < 7])  
+plot_world_map("floor_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ", thick_border = T,
+               legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T, negative_stripes = T)  
 p$floor_7__10_very_optimistic <- compute_income_floor(df = p, thresholds = 6.85, marginal_rates = 10, growth = "very_optimistic", scope_tax = p)
 sum(p$floor_7__10_very_optimistic < 2.15) # 10
 p$s_floor_7__10_very_optimistic <- compute_income_floor(df = s, thresholds = 6.85, marginal_rates = 10, growth = "very_optimistic", scope_tax = p)
