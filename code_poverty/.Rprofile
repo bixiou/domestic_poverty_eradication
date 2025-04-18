@@ -157,46 +157,46 @@ Levels <- function(variable, data = p, miss = TRUE, numbers = FALSE, values = TR
   # else return(levels(as.factor(var))) # as.factor may cause issues as it converts to string
 }
 
-plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = FALSE, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, add_folder = '', thick_border = FALSE,
-                           breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, sep = "% to ", end = "%", strict_ineq_lower = FALSE, colors = NULL) {
-  if (is.null(breaks)) breaks <- c(-Inf, seq(0, 1, .2), Inf)
-  if (is.null(labels)) labels <- sub("≤", "<", sub("≥", ">", agg_thresholds(c(0), breaks, sep = sep, end = end, strict_ineq_lower = strict_ineq_lower, return = "levels")))
-  if (is.null(limits)) limits <- c(-.01, 100.01)
-
-  df <- data.frame(country_map = df$country, mean = pmin(limits[2], pmax(limits[1], df[[var]])))
-  if (continuous) df$mean <- pmax(pmin(df$mean, limits[2]), limits[1])
-  size_border <- 0 + (thick_border)*0.4
-
-  world_map <- map_data(map = "world")
-  world_map <- world_map[world_map$region != "Antarctica",] #
-  world_map <- world_map[!world_map$region %in% c("Antarctica", "American Samoa", "Micronesia", "Guam", "Niue", "Pitcairn Islands", "Cook Islands", "Tonga", "Kiribati", "Marshall Islands", "French Polynesia", "Fiji", "Samoa", "Wallis and Futuna", "Vanuatu"),]
-  # world_map$region <- iso.alpha(world_map$region)
-  world_map$region[world_map$region %in% c("French Guiana", "New Caledonia")] <- "France"
-
-  df_na <- data.frame(country_map = setdiff(world_map$region, df$country), mean = if (fill_na) breaks[2] else NA)
-  df <- merge(df, df_na, all = T)
-
-  df$group <- cut(df$mean, breaks = breaks, labels = labels, right = strict_ineq_lower)
-  if (is.null(colors)) colors <- color(length(breaks)-1, rev_color = rev_color)
-
-  if (!continuous) {
-    (plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = fct_rev(group)), map = world_map) + coord_proj("+proj=robin", xlim = c(-135, 178.5), ylim = c(-56, 84)) + #geom_sf() + #devtools::install_github("eliocamp/ggalt@new-coord-proj") update ggplot2 xlim = c(162, 178.5) for mercator
-       geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', size = size_border,  fill = NA) +
-       expand_limits(x = world_map$long, y = world_map$lat) + theme_void() + theme(legend.position = c(legend_x, .29)) + # coord_fixed() +
-       scale_fill_manual(name = legend, drop = FALSE, values = colors)) #, na.value = "grey50" +proj=eck4 (equal area) +proj=wintri (compromise) +proj=robin (compromise, default) Without ggalt::coord_proj(), the default use is a sort of mercator
-  } else {
-    (plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = mean), map = world_map) + coord_proj("+proj=robin") + #geom_sf() + #devtools::install_github("eliocamp/ggalt@new-coord-proj")
-       geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', fill = NA) + expand_limits(x = world_map$long, y = world_map$lat) + theme_void() + coord_fixed() +
-       scale_fill_manual(palette = "RdBu", direction = 1, limits = limits, na.value = "grey50")) #scale_fill_viridis_c(option = "plasma", trans = "sqrt"))
-  }
-
-  print(plot)
-  if (save) for (f in format) save_plot(plot, filename = ifelse(continuous, paste0(var, "_cont"), var), folder = paste0('../figures/', add_folder), width = width, height = height, format = f, trim = trim)
-  # return(plot)
-}
+# plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = FALSE, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, add_folder = '', thick_border = FALSE,
+#                            breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, sep = "% to ", end = "%", strict_ineq_lower = FALSE, colors = NULL) {
+#   if (is.null(breaks)) breaks <- c(-Inf, seq(0, 1, .2), Inf)
+#   if (is.null(labels)) labels <- sub("≤", "<", sub("≥", ">", agg_thresholds(c(0), breaks, sep = sep, end = end, strict_ineq_lower = strict_ineq_lower, return = "levels")))
+#   if (is.null(limits)) limits <- c(-.01, 100.01)
+# 
+#   df <- data.frame(country_map = df$country, mean = pmin(limits[2], pmax(limits[1], df[[var]])))
+#   if (continuous) df$mean <- pmax(pmin(df$mean, limits[2]), limits[1])
+#   size_border <- 0 + (thick_border)*0.4
+# 
+#   world_map <- map_data(map = "world")
+#   world_map <- world_map[world_map$region != "Antarctica",] #
+#   world_map <- world_map[!world_map$region %in% c("Antarctica", "American Samoa", "Micronesia", "Guam", "Niue", "Pitcairn Islands", "Cook Islands", "Tonga", "Kiribati", "Marshall Islands", "French Polynesia", "Fiji", "Samoa", "Wallis and Futuna", "Vanuatu"),]
+#   # world_map$region <- iso.alpha(world_map$region)
+#   world_map$region[world_map$region %in% c("French Guiana", "New Caledonia")] <- "France"
+# 
+#   df_na <- data.frame(country_map = setdiff(world_map$region, df$country), mean = if (fill_na) breaks[2] else NA)
+#   df <- merge(df, df_na, all = T)
+# 
+#   df$group <- cut(df$mean, breaks = breaks, labels = labels, right = strict_ineq_lower)
+#   if (is.null(colors)) colors <- color(length(breaks)-1, rev_color = rev_color)
+# 
+#   if (!continuous) {
+#     (plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = fct_rev(group)), map = world_map) + coord_proj("+proj=robin", xlim = c(-135, 178.5), ylim = c(-56, 84)) + #geom_sf() + #devtools::install_github("eliocamp/ggalt@new-coord-proj") update ggplot2 xlim = c(162, 178.5) for mercator
+#        geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', size = size_border,  fill = NA) +
+#        expand_limits(x = world_map$long, y = world_map$lat) + theme_void() + theme(legend.position = c(legend_x, .29)) + # coord_fixed() +
+#        scale_fill_manual(name = legend, drop = FALSE, values = colors)) #, na.value = "grey50" +proj=eck4 (equal area) +proj=wintri (compromise) +proj=robin (compromise, default) Without ggalt::coord_proj(), the default use is a sort of mercator
+#   } else {
+#     (plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = mean), map = world_map) + coord_proj("+proj=robin") + #geom_sf() + #devtools::install_github("eliocamp/ggalt@new-coord-proj")
+#        geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', fill = NA) + expand_limits(x = world_map$long, y = world_map$lat) + theme_void() + coord_fixed() +
+#        scale_fill_manual(palette = "RdBu", direction = 1, limits = limits, na.value = "grey50")) #scale_fill_viridis_c(option = "plasma", trans = "sqrt"))
+#   }
+# 
+#   print(plot)
+#   if (save) for (f in format) save_plot(plot, filename = ifelse(continuous, paste0(var, "_cont"), var), folder = paste0('../figures/', add_folder), width = width, height = height, format = f, trim = trim)
+#   # return(plot)
+# }
 
 # Newer, more complete:
-plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = T, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, colors = NULL, folder = '../figures/', base_family = NULL, RTL = FALSE, thick_border = FALSE,
+plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = T, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, colors = NULL, folder = '../figures/', base_family = NULL, RTL = FALSE, thick_border = FALSE, stripes_up = T,
                            breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, na_label = "NA", parties = NULL, filename = NULL, negative_stripes = FALSE, stripe_codes = NULL, strict_ineq_lower = FALSE, sep = " - ", end = "") {
   if (is.null(breaks)) breaks <- c(-Inf, seq(0, 1, .2), Inf)
   if (is.null(labels)) labels <- sub("≤", "<", sub("≥", ">", agg_thresholds(c(0), breaks, sep = sep, end = end, strict_ineq_lower = strict_ineq_lower, return = "levels")))
@@ -245,23 +245,21 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
     } else if (!is.null(stripe_codes)) { # When certain df$country_code need to be stripped (i.e. some colors can have both stripes or not)
       df$pattern <- paste0(df$group, ifelse(df$country %in% stripe_codes, "stripe", ""))
       df$pattern[is.na(df$group)] <- na_label
-      colors_pattern <- setNames(c(colors, colors, "#7F7F7F"), c(paste0(rev(labels), "stripe"), rev(labels), na_label)) # /!\ If stripes should be for lower labels instead, it should instead be rev(labels), paste0(rev(labels), "stripe")
+      if (stripes_up) colors_pattern <- setNames(c(colors, colors, "#7F7F7F"), c(paste0(rev(labels), "stripe"), rev(labels), na_label)) # If stripes should be for upper labels 
+      else colors_pattern <- setNames(c(colors, colors, "#7F7F7F"), c(labels, paste0(labels, "stripe"), na_label))
       colors_pattern <- stripe_pattern <- colors_pattern[names(colors_pattern) %in% df$pattern]
       stripe_pattern <- setNames(ifelse(grepl("stripe", names(stripe_pattern)), "stripe", "none"), names(stripe_pattern))
       levels_w_stripe_and_none <- names(colors_pattern)[(duplicated(sub("stripe", "", names(colors_pattern))) | duplicated(sub("stripe", "", names(colors_pattern)), fromLast = TRUE)) & grepl("stripe", names(colors_pattern))]
       keep_in_legend <- !names(colors_pattern) %in% levels_w_stripe_and_none
-      print(names(colors_pattern))
-      print(levels_w_stripe_and_none)
-      print(keep_in_legend)
       plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = pattern), map = world_map, show.legend=TRUE) + # coord_proj("+proj=robin", xlim = c(-135, 178.5), ylim = c(-56, 84)) +
         geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', size = size_border,  fill = NA) + 
         expand_limits(x = world_map$long, y = world_map$lat) + theme_void(base_family = base_family) + theme(legend.position = c(legend_x + .1*("RUS" %in% stripe_codes), .29 + .03*("RUS" %in% stripe_codes) + 0.42*RTL)) +
         scale_fill_manual(name = legend, drop = FALSE, values = colors_pattern, labels = function(breaks) {breaks[is.na(breaks)] <- na_label; breaks}) +
         geom_map_pattern(data = df, map = world_map, aes(map_id = country_map, pattern = pattern), # diff w negative_stripe: pattern = fct_rev(group)
-                         pattern_fill = "#7F7F7F", fill = NA, show.legend = FALSE, pattern_density = 0.25, pattern_angle = 45, pattern_spacing = 0.015, pattern_linetype = 0) +
-        scale_pattern_manual(name = legend, values = stripe_pattern, # diff w negative_stripe values = pattern
+                         pattern_fill = "#7F7F7F", fill = NA, show.legend = T, pattern_density = 0.25, pattern_angle = 45, pattern_spacing = 0.015, pattern_linetype = 0) +
+        scale_pattern_manual(name = legend, values = stripe_pattern, # diff w negative_stripe: show.legend = T, values = pattern
         drop = FALSE, labels = c(rev(labels), na_label)) + # diff w negative_stripe: no breaks argument
-        guides(fill = "none", pattern = guide_legend(label.position = if (RTL) "left", override.aes = list(fill = colors_pattern[keep_in_legend] # diff w negative_stripe: colors
+        guides(fill = "none", pattern = guide_legend(label.position = if (RTL) "left", override.aes = list(fill = colors_pattern[keep_in_legend], pattern = stripe_pattern[keep_in_legend] # diff w negative_stripe: colors
         )))
       if (RTL) plot <- plot + theme(legend.title = element_text(family = "Arial", hjust = 1), legend.text = element_text(family = "Arial", hjust = 1))
       if (!"RUS" %in% stripe_codes) plot <- plot + coord_proj("+proj=robin", xlim = c(-135, 178.5), ylim = c(-56, 84)) # /!\ Bug for Russia when proj_coord() is present ("There is a MULTIPOLYGON with length greater than 1")
@@ -279,10 +277,9 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
   if (save) for (f in format) save_plot(plot, filename = ifelse(!is.null(filename), filename, ifelse(continuous, paste0(var, "_cont"), ifelse(negative_stripes, paste0(var, "_stripes"), var))), folder = folder, width = width, height = height, format = f, trim = trim)
   # return(plot)
 }
-# with stripes:
-plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), thick_border = T, sep = "% to ", end = "%", 
-               legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T, stripe_codes = p$country[p$antipoverty_2_tax_7_average > 10]) 
+plot_world_map("floor_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ", thick_border = T, stripes_up = FALSE,
+               legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
+               save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T, stripe_codes = p$country[p$floor_7__10 < 7])  
 
 color <- function(v, grey=FALSE, grey_replaces_last = T, rev_color = FALSE, theme='RdBu') { # TODO! whitout white
   if (is.matrix(v)) n <- nrow(v)
