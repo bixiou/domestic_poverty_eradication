@@ -65,7 +65,7 @@ lines(as.vector(distr), pmax(4, distr - .01*p$antipoverty_40_tax_7_average[p$cou
 lines(as.vector(distr), pmax(4, pmin(distr, p$antipoverty_40_cap_average[p$country == country_example])), lwd = 2, lty = 6, col = 'red')
 lines(as.vector(distr), pmax(p$floor_70__10[p$country == country_example], distr - 0.1 * pmax(0, distr - 7)), lwd = 2, lty = 5, col = 'darkgreen')
 abline(h = c(0, 3, 4, 7, 10, 15, 20), lty = 9, col = 'grey') + axis(2, at = c(0, 3, 7, 10, 15, 20)) + axis(2, at = 4) + grid(ny = NA)
-legend("topleft", lwd = 2, lty = c(1, 6, 8, 5), legend = c("Antipoverty cap", "Antipoverty tax", "Income floor"), col = c("red", "blue", "darkgreen"))
+legend("topleft", lwd = 2, lty = c(6, 8, 5), legend = c("Antipoverty cap", "Antipoverty tax", "Income floor"), col = c("red", "blue", "darkgreen"))
 save_plot (filename = "Kenya_policies", folder = '../figures/', width = 400, height = 330, method='dev', trim = T, format = 'pdf')
 # legend("topleft", lwd = 2, lty = c(1, 6, 8, 5), legend = c("Anti-$4-poverty cap", "Anti-$4-poverty tax", "Income floor (tax: 10%>$7)"), col = c("red", "blue", "darkgreen"))
 # save_plot (filename = "Kenya_policies_detailed", folder = '../figures/', width = 400, height = 330, method='dev', trim = T, format = 'pdf')
