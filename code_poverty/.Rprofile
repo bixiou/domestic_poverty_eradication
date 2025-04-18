@@ -199,7 +199,7 @@ Levels <- function(variable, data = p, miss = TRUE, numbers = FALSE, values = TR
 plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = T, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, colors = NULL, folder = '../figures/', base_family = NULL, RTL = FALSE, thick_border = FALSE, stripes_up = T,
                            breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, na_label = "NA", parties = NULL, filename = NULL, negative_stripes = FALSE, stripe_codes = NULL, strict_ineq_lower = FALSE, sep = " - ", begin = "", end = "") {
   if (is.null(breaks)) breaks <- c(-Inf, seq(0, 1, .2), Inf)
-  if (is.null(limits)) limits <- c(-.01, 100.01)
+  if (is.null(limits)) limits <- c(-Inf, Inf) # old: c(-.01, 100.01)
   
   df <- data.frame(country_map = df$country, mean = pmin(limits[2], pmax(limits[1], df[[var]])))
   if (continuous) df$mean <- pmax(pmin(df$mean, limits[2]), limits[1])
@@ -231,7 +231,7 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
   if (is.null(colors)) colors <- color(length(breaks)-1, rev_color = rev_color)
   
   if (!continuous) {
-    if (is.null(colors)) colors <- setNames(c(color(length(breaks)-1, rev_color = rev_color), "#7F7F7F"), c(rev(labels), na_label))
+    # if (is.null(colors)) colors <- setNames(c(color(length(breaks)-1, rev_color = rev_color), "#7F7F7F"), c(rev(labels), na_label))
     if (negative_stripes) { # When the last colors are stripes TODO: generalize the code to define the number of stripes vs. non-stripes, and rename "negative_stripe" as the code is not related to negative values
       pattern <- setNames(c(rep("none", ceiling((length(breaks)-1)/2)), rep("stripe", floor((length(breaks)-1)/2)), "none"), c(rev(labels), na_label))
       (plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = group), map = world_map, show.legend=TRUE) + coord_proj("+proj=robin", xlim = c(-135, 178.5), ylim = c(-56, 84)) +
