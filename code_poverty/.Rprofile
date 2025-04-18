@@ -197,7 +197,7 @@ Levels <- function(variable, data = p, miss = TRUE, numbers = FALSE, values = TR
 
 # Newer, more complete:
 plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = T, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, colors = NULL, folder = '../figures/', base_family = NULL, RTL = FALSE, thick_border = FALSE, stripes_up = T,
-                           breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, na_label = "NA", parties = NULL, filename = NULL, negative_stripes = FALSE, stripe_codes = NULL, strict_ineq_lower = FALSE, sep = " - ", end = "") {
+                           breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, na_label = "NA", parties = NULL, filename = NULL, negative_stripes = FALSE, stripe_codes = NULL, strict_ineq_lower = FALSE, sep = " - ", begin = "", end = "") {
   if (is.null(breaks)) breaks <- c(-Inf, seq(0, 1, .2), Inf)
   if (is.null(labels)) labels <- sub("≤", "<", sub("≥", ">", agg_thresholds(c(0), breaks, sep = sep, end = end, strict_ineq_lower = strict_ineq_lower, return = "levels")))
   if (is.null(limits)) limits <- c(-.01, 100.01)
@@ -205,7 +205,7 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
   df <- data.frame(country_map = df$country, mean = pmin(limits[2], pmax(limits[1], df[[var]])))
   if (continuous) df$mean <- pmax(pmin(df$mean, limits[2]), limits[1])
   
-  if (is.null(labels) & !is.null(breaks)) labels <- sub("≤", "<", sub("≥", ">", agg_thresholds(c(0), breaks, sep = sep, end = end, strict_ineq_lower = strict_ineq_lower, return = "levels")))
+  if (is.null(labels) & !is.null(breaks)) labels <- sub("≤", "<", sub("≥", ">", agg_thresholds(c(0), breaks, sep = sep, begin = begin, end = end, strict_ineq_lower = strict_ineq_lower, return = "levels")))
   if (condition != "") {
     if (is.null(breaks)) breaks <- c(-Inf, .2, .35, .5, .65, .8, Inf)
     if (is.null(labels)) labels <- c("0-20%", "20-35%", "35-50%", "50-65%", "65-80%", "80-100%")
@@ -246,7 +246,7 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
       df$pattern <- paste0(df$group, ifelse(df$country %in% stripe_codes, "stripe", ""))
       df$pattern[is.na(df$group)] <- na_label
       if (stripes_up) colors_pattern <- setNames(c(colors, colors, "#7F7F7F"), c(paste0(rev(labels), "stripe"), rev(labels), na_label)) # If stripes should be for upper labels 
-      else colors_pattern <- setNames(c(colors, colors, "#7F7F7F"), c(labels, paste0(labels, "stripe"), na_label))
+      else colors_pattern <- setNames(c(colors, colors, "#7F7F7F"), c(rev(labels), paste0(rev(labels), "stripe"), na_label))
       colors_pattern <- stripe_pattern <- colors_pattern[names(colors_pattern) %in% df$pattern]
       stripe_pattern <- setNames(ifelse(grepl("stripe", names(stripe_pattern)), "stripe", "none"), names(stripe_pattern))
       levels_w_stripe_and_none <- names(colors_pattern)[(duplicated(sub("stripe", "", names(colors_pattern))) | duplicated(sub("stripe", "", names(colors_pattern)), fromLast = TRUE)) & grepl("stripe", names(colors_pattern))]
@@ -277,7 +277,7 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
   if (save) for (f in format) save_plot(plot, filename = ifelse(!is.null(filename), filename, ifelse(continuous, paste0(var, "_cont"), ifelse(negative_stripes, paste0(var, "_stripes"), var))), folder = folder, width = width, height = height, format = f, trim = trim)
   # return(plot)
 }
-plot_world_map("floor_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), end = "$", sep = "$ to ", thick_border = T, stripes_up = FALSE,
+plot_world_map("floor_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), begin = "$", sep = " to $", thick_border = T, stripes_up = FALSE,
                legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T, stripe_codes = p$country[p$floor_7__10 < 7])  
 
