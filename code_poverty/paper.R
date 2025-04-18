@@ -75,17 +75,17 @@ save_plot (filename = "Kenya_policies", folder = '../figures/', width = 400, hei
 #####  Antipoverty cap ##### 
 # Figure 2 1240x620
 p$antipoverty_2_cap_average <- compute_antipoverty_cap(df = p, threshold = 2.15, growth = "average")
-plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf),
+plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, 
                legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)])  
 # with thick borders:
-plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf), thick_border = T,
+plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, thick_border = T,
                legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
                save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)])  
 # with stripes:
-plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), sep = " to ", end = "", strict_ineq_lower = T, limits = c(0, Inf), thick_border = T,
+plot_world_map("antipoverty_2_cap_average", breaks = c(0, 2.15, 7, 13, 30, 60, 300, Inf), strict_ineq_lower = T, thick_border = T, stripes_up = FALSE, begin = "$", sep = " to $",
                legend = "Daily income\nabove which all\nshould be expropriated\nto lift everyone in the country\nabove $2.15/day\n(in $ 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11,1)], stripe_codes = p$country[p$antipoverty_2_cap_average > 25])  
+               save = T, rev_color = FALSE, format = c('png', 'pdf'), legend_x = .08, trim = T, colors = color(11, rev_color = FALSE)[c(1,3,7:11)], stripe_codes = p$country[p$antipoverty_2_cap_average < 30])  
 sort(setNames(p$antipoverty_2_cap_average, p$country), decreasing = T)
 
 p$antipoverty_2_cap_very_optimistic <- compute_antipoverty_cap(df = p, threshold = 2.15, growth = "very_optimistic")

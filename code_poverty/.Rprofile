@@ -199,7 +199,6 @@ Levels <- function(variable, data = p, miss = TRUE, numbers = FALSE, values = TR
 plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = T, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, colors = NULL, folder = '../figures/', base_family = NULL, RTL = FALSE, thick_border = FALSE, stripes_up = T,
                            breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, na_label = "NA", parties = NULL, filename = NULL, negative_stripes = FALSE, stripe_codes = NULL, strict_ineq_lower = FALSE, sep = " - ", begin = "", end = "") {
   if (is.null(breaks)) breaks <- c(-Inf, seq(0, 1, .2), Inf)
-  if (is.null(labels)) labels <- sub("≤", "<", sub("≥", ">", agg_thresholds(c(0), breaks, sep = sep, end = end, strict_ineq_lower = strict_ineq_lower, return = "levels")))
   if (is.null(limits)) limits <- c(-.01, 100.01)
   
   df <- data.frame(country_map = df$country, mean = pmin(limits[2], pmax(limits[1], df[[var]])))
@@ -254,7 +253,7 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
       plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = pattern), map = world_map, show.legend=TRUE) + # coord_proj("+proj=robin", xlim = c(-135, 178.5), ylim = c(-56, 84)) +
         geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', size = size_border,  fill = NA) + 
         expand_limits(x = world_map$long, y = world_map$lat) + theme_void(base_family = base_family) + theme(legend.position = c(legend_x + .1*("RUS" %in% stripe_codes), .29 + .03*("RUS" %in% stripe_codes) + 0.42*RTL)) +
-        scale_fill_manual(name = legend, drop = FALSE, values = colors_pattern, labels = function(breaks) {breaks[is.na(breaks)] <- na_label; breaks}) +
+        scale_fill_manual(name = legend, drop = FALSE, values = colors_pattern, labels = c(rev(labels), na_label)) +
         geom_map_pattern(data = df, map = world_map, aes(map_id = country_map, pattern = pattern), # diff w negative_stripe: pattern = fct_rev(group)
                          pattern_fill = "#7F7F7F", fill = NA, show.legend = T, pattern_density = 0.25, pattern_angle = 45, pattern_spacing = 0.015, pattern_linetype = 0) +
         scale_pattern_manual(name = legend, values = stripe_pattern, # diff w negative_stripe: show.legend = T, values = pattern
@@ -277,9 +276,6 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
   if (save) for (f in format) save_plot(plot, filename = ifelse(!is.null(filename), filename, ifelse(continuous, paste0(var, "_cont"), ifelse(negative_stripes, paste0(var, "_stripes"), var))), folder = folder, width = width, height = height, format = f, trim = trim)
   # return(plot)
 }
-plot_world_map("floor_7__10", breaks = c(0, 1.5, 2.15, 3, 4, 7, 10, 18, 30, 70, Inf), begin = "$", sep = " to $", thick_border = T, stripes_up = FALSE,
-               legend = "Income floor\nthat can be funded\nwith a 10% tax\nabove $6.85/day\n(in 2017 PPP $/day)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055,  trim = T, stripe_codes = p$country[p$floor_7__10 < 7])  
 
 color <- function(v, grey=FALSE, grey_replaces_last = T, rev_color = FALSE, theme='RdBu') { # TODO! whitout white
   if (is.matrix(v)) n <- nrow(v)
