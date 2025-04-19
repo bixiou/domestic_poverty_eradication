@@ -117,7 +117,7 @@ plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50
 # with stripes:
 plot_world_map("antipoverty_2_tax_7_average", breaks = c(0, .1, 1, 5, 10, 25, 50, 100, Inf), thick_border = T, sep = "% to ", end = "%", 
                legend = "Linear tax rate\nabove $6.85/day\nrequired to lift everyone\nabove $2.15/day\n(in 2017 PPP)\nin 2030, after 3%\ngrowth since 2022.", 
-               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T, stripe_codes = p$country[p$antipoverty_2_tax_7_average > 10]) 
+               save = T, rev_color = T, format = c('png', 'pdf'), legend_x = .07, trim = T, stripe_codes = p$country[p$antipoverty_2_tax_7_average > 10]) # nicer: level_striped = c(rep(T, 4), rep(F, 4)) 
 sort(setNames(p$antipoverty_2_tax_7_average, p$country), decreasing = T)
 wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA]) # 46% 
 wtd.mean(p$antipoverty_2_tax_7_average[p$country_code %in% LIC], p$pop_2030[p$country_code %in% LIC]) # 70%

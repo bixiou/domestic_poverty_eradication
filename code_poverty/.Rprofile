@@ -197,7 +197,7 @@ Levels <- function(variable, data = p, miss = TRUE, numbers = FALSE, values = TR
 
 # Newer, more complete:
 plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save = T, continuous = FALSE, width = dev.size('px')[1], height = dev.size('px')[2], legend_x = .05, rev_color = FALSE, colors = NULL, folder = '../figures/', base_family = NULL, RTL = FALSE, thick_border = FALSE, stripes_up = T,
-                           breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, na_label = "NA", parties = NULL, filename = NULL, negative_stripes = FALSE, stripe_codes = NULL, strict_ineq_lower = FALSE, sep = " - ", begin = "", end = "") {
+                           breaks = NULL, labels = NULL, legend = NULL, limits = NULL, fill_na = FALSE, format = "png", trim = T, na_label = "NA", parties = NULL, filename = NULL, level_striped = NULL, stripe_codes = NULL, strict_ineq_lower = FALSE, sep = " - ", begin = "", end = "") {
   if (is.null(breaks)) breaks <- c(-Inf, seq(0, 1, .2), Inf)
   if (is.null(limits)) limits <- c(-Inf, Inf) # old: c(-.01, 100.01)
   
@@ -232,8 +232,10 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
   
   if (!continuous) {
     # if (is.null(colors)) colors <- setNames(c(color(length(breaks)-1, rev_color = rev_color), "#7F7F7F"), c(rev(labels), na_label))
-    if (negative_stripes) { # When the last colors are stripes TODO: generalize the code to define the number of stripes vs. non-stripes, and rename "negative_stripe" as the code is not related to negative values
-      pattern <- setNames(c(rep("none", ceiling((length(breaks)-1)/2)), rep("stripe", floor((length(breaks)-1)/2)), "none"), c(rev(labels), na_label))
+    if (any(level_striped)) { # Thin black stripes, When the last colors are stripes. Can be either T (the bottom levels are striped) or a logical vector.
+      if (!"#7F7F7F" %in% colors & any(is.na(df$group))) colors <- setNames(c(colors, "#7F7F7F"), c(rev(labels), na_label))
+      if (identical(level_striped, T)) pattern <- setNames(c(rep("none", ceiling((length(breaks)-1)/2)), rep("stripe", floor((length(breaks)-1)/2)), "none"), c(rev(labels), na_label))
+      else pattern <- setNames(c(ifelse(level_striped, "stripe", "none"), "none"), c(rev(labels), na_label))
       (plot <- ggplot(df) + geom_map(aes(map_id = country_map, fill = group), map = world_map, show.legend=TRUE) + coord_proj("+proj=robin", xlim = c(-135, 178.5), ylim = c(-56, 84)) +
           geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', size = size_border,  fill = NA) +
           expand_limits(x = world_map$long, y = world_map$lat) + theme_void(base_family = base_family) + theme(legend.position = c(legend_x, .29)) +
@@ -241,7 +243,7 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
           geom_map_pattern(data = df, map = world_map, aes(map_id = country_map, pattern = fct_rev(group)), pattern_fill = "black", fill = NA, show.legend=TRUE,
                            pattern_size = 0.01, pattern_density = 0.05, pattern_angle = 45, pattern_spacing = 0.015) +
           scale_pattern_manual(name = legend, values = pattern, drop = FALSE, labels = c(rev(labels), na_label)) + guides(fill = "none", pattern = guide_legend(override.aes = list(fill = colors))))
-    } else if (!is.null(stripe_codes)) { # When certain df$country_code need to be stripped (i.e. some colors can have both stripes or not)
+    } else if (!is.null(stripe_codes)) { # Thick grey stripes, When certain df$country_code need to be stripped (i.e. some colors can have both stripes or not)
       df$pattern <- paste0(df$group, ifelse(df$country %in% stripe_codes, "stripe", ""))
       df$pattern[is.na(df$group)] <- na_label
       if (stripes_up) colors_pattern <- setNames(c(colors, colors, "#7F7F7F"), c(paste0(rev(labels), "stripe"), rev(labels), na_label)) # If stripes should be for upper labels 
@@ -254,11 +256,11 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
         geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'grey', size = size_border,  fill = NA) + 
         expand_limits(x = world_map$long, y = world_map$lat) + theme_void(base_family = base_family) + theme(legend.position = c(legend_x + .1*("RUS" %in% stripe_codes), .29 + .03*("RUS" %in% stripe_codes) + 0.42*RTL)) +
         scale_fill_manual(name = legend, drop = FALSE, values = colors_pattern, labels = c(rev(labels), na_label)) +
-        geom_map_pattern(data = df, map = world_map, aes(map_id = country_map, pattern = pattern), # diff w negative_stripe: pattern = fct_rev(group)
+        geom_map_pattern(data = df, map = world_map, aes(map_id = country_map, pattern = pattern), # diff w level_striped: pattern = fct_rev(group)
                          pattern_fill = "#7F7F7F", fill = NA, show.legend = T, pattern_density = 0.25, pattern_angle = 45, pattern_spacing = 0.015, pattern_linetype = 0) +
-        scale_pattern_manual(name = legend, values = stripe_pattern, # diff w negative_stripe: show.legend = T, values = pattern
-        drop = FALSE, labels = c(rev(labels), na_label)) + # diff w negative_stripe: no breaks argument
-        guides(fill = "none", pattern = guide_legend(label.position = if (RTL) "left", override.aes = list(fill = colors_pattern[keep_in_legend], pattern = stripe_pattern[keep_in_legend] # diff w negative_stripe: colors
+        scale_pattern_manual(name = legend, values = stripe_pattern, # diff w level_striped: show.legend = T, values = pattern
+        drop = FALSE, labels = c(rev(labels), na_label)) + # diff w level_striped: no breaks argument
+        guides(fill = "none", pattern = guide_legend(label.position = if (RTL) "left", override.aes = list(fill = colors_pattern[keep_in_legend], pattern = stripe_pattern[keep_in_legend] # diff w level_striped: colors
         )))
       if (RTL) plot <- plot + theme(legend.title = element_text(family = "Arial", hjust = 1), legend.text = element_text(family = "Arial", hjust = 1))
       if (!"RUS" %in% stripe_codes) plot <- plot + coord_proj("+proj=robin", xlim = c(-135, 178.5), ylim = c(-56, 84)) # /!\ Bug for Russia when proj_coord() is present ("There is a MULTIPOLYGON with length greater than 1")
@@ -273,7 +275,7 @@ plot_world_map <- function(var, condition = "", df = p, on_control = FALSE, save
     }
   
   print(plot)
-  if (save) for (f in format) save_plot(plot, filename = ifelse(!is.null(filename), filename, ifelse(continuous, paste0(var, "_cont"), ifelse(negative_stripes, paste0(var, "_stripes"), var))), folder = folder, width = width, height = height, format = f, trim = trim)
+  if (save) for (f in format) save_plot(plot, filename = ifelse(!is.null(filename), filename, ifelse(continuous, paste0(var, "_cont"), ifelse(any(level_striped) | !is.null(stripe_codes), paste0(var, "_stripes"), var))), folder = folder, width = width, height = height, format = f, trim = trim)
   # return(plot)
 }
 
