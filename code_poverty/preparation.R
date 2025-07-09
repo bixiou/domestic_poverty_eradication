@@ -263,7 +263,8 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
   df[[paste0(y, "_max_100")]][is.na(df[[paste0(y, "_max_100")]])] <- df[[paste0(y, "_avg_100")]][is.na(df[[paste0(y, "_max_100")]])]
   
   # Manage CN, IA, ID rural/urban (/!\ in ARG, SUR, there is only urban as reporting_level)
-  for (c in c("CHN", "IDN", "IND")) { 
+  rural_urban_countries <- if (ppp_year == 2021) "CHN" else c("CHN", "IDN", "IND")  
+  for (c in rural_urban_countries) { 
     u <- df$country_code == c & df$reporting_level == "urban"
     r <- df$country_code == c & df$reporting_level == "rural"
     yr <- if (growth == "now") "yr_2022" else "yr_2030"
@@ -337,6 +338,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
     temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year))
     year_max <- setNames(temp$year_max, temp$country_code)
     data$year_max <- year_max[data$country_code]
+    data$pop <- round(data$pop)
     p <- data[data$year == data$year_max,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
   } else {
     # temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_ante = min(year)) # goes back as far as 1968
@@ -355,7 +357,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   p$pop_year <- sapply(1:nrow(p), function(c) { p[[paste0("pop_", p$year[c])]][c] }) # in thousands
   
   # HFCE
-  temp <- read.xlsx("../data/HFCEpc.xlsx") # Household Final Consumption Expenditures https://data.worldbank.org/indicator/NE.CON.PRVT.PP.KD PPP 2017$ 31/01/2024
+  temp <- read.xlsx(paste0("../data/HFCEpc", if (ppp_year == 2021) 2021, ".xlsx")) # Household Final Consumption Expenditures https://data.worldbank.org/indicator/NE.CON.PRVT.PP.KD PPP 2017$ 31/01/2024 # "TWN" added as last line
   p$hfce <- sapply(p$country_code, function(c) { temp[[as.character(unique(p$year[p$country_code == c]))]][temp$country_code == c] })
   p$hfce <- (p$hfce/p$pop_year)/365
   p$scaling_factor <- pmax(1, p$hfce/p$mean_welfare) # Rescale only if survey income < HFCE, as in Lakner & Milanovic (2013)
@@ -364,7 +366,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   if (rescale) p$mean_welfare <- rowSums(p[,paste0("welfare_avg_", 1:100)] * p[,paste0("pop_share_", 1:100)])
   
   # Estimate GDP pc in 2022 assuming country growth same as 2014-19
-  gdp_pc <- read_excel("../data/gdp_pc_ppp.xls") # Fetched in 2023 NY.GDP.PCAP.PP.KD
+  gdp_pc <- read_excel("../data/gdp_pc_ppp.xls") # Fetched in 2023 NY.GDP.PCAP.PP.KD TODO: update
   colnames(gdp_pc)[-1] <- paste0("gdp_pc_", colnames(gdp_pc)[-1])
   p <- merge(p, gdp_pc)
   p$gdp_pc_2022[is.na(p$gdp_pc_2022)] <- pmax(p$gdp_pc_2021, pmax(p$gdp_pc_2020, p$gdp_pc_2019, na.rm = T), na.rm = T)[is.na(p$gdp_pc_2022)]
@@ -373,7 +375,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   p$gdp_pc_year <- sapply(1:nrow(p), function(c) { p[[paste0("gdp_pc_", min(2022, p$year[c]))]][c] }) 
   
   # Project GDP pc in 2030 using IMF forecast
-  imf <- read.xlsx("../data/IMF_WEO_2023.xlsx") # WEO (2023) https://www.imf.org/en/Publications/WEO/weo-database/2023/October NGDPRPPPPC
+  imf <- read.xlsx("../data/IMF_WEO_2023.xlsx") # WEO (2023) https://www.imf.org/en/Publications/WEO/weo-database/2023/October NGDPRPPPPC TODO: update
   imf <- imf[imf$WEO.Subject.Code == "NGDPRPPPPC",] # GDP pc PPP constant $
   imf$growth_2022_2028 <- as.numeric(imf$`2028`)/as.numeric(imf$`2022`)
   imf$growth_2026_2028 <- as.numeric(imf$`2028`)/as.numeric(imf$`2026`)
@@ -576,3 +578,9 @@ p$country_short[p$country == "Democratic Republic of the Congo"] <- "D.R. Congo"
 print(Sys.time() - start) # 35 min
 beep()
 save.image(".RData")
+
+# PPP 2021 data update (Data downloaded on 09/7/2025)
+p.bak <- p
+w.bak <- w
+p <- create_p(ppp_year = 2021)
+w <- create_world_distribution(df = p)
