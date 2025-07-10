@@ -575,7 +575,7 @@ selected_countries <- order(p$country)[order(p$country) %in% which(p$pop_2022 > 
 p$country_short <- p$country
 p$country_short[p$country == "Democratic Republic of the Congo"] <- "D.R. Congo"
 
-print(Sys.time() - start) # 35 min
+print(Sys.time() - start) # 35 min / 1h20 (depending on the machine)
 beep()
 save.image(".RData")
 
