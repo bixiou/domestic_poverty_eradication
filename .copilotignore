@@ -1,0 +1,8 @@
+*.Rproj.user
+*.Rhistory
+code/.RData
+*.RDataTmp
+*.Ruserdata
+*.Rproj
+.Rproj.user
+paper/build/*
