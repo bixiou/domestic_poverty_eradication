@@ -130,7 +130,10 @@ compute_min_funded <- function(revenues, var = name_var_growth("optimistic"), df
     else if (return == "percentile") return(cumulated_pop)
     else return(demogrant)
   } else if (nrow(df) == 1) { return(compute_min_funded(revenues = revenues, var = var, df = df, return = "min")) # Unused. Beware, revenues must be in $/person
-  } else return(sapply(1:length(revenues), function(i) compute_min_funded(revenues = revenues[i], var = var, df = df[i,], return = "min")))
+  } else {
+    d <- df[, c(paste0(var, "_avg_", 1:100), paste0(find_pop_share_var(var, df), 1:100))] # subsetting the needed columns first is much faster than extracting rows of a wide data frame
+    return(sapply(1:length(revenues), function(i) compute_min_funded(revenues = revenues[i], var = var, df = d[i,], return = "min")))
+  }
 }
 
 compute_income_floor <- function(thresholds, marginal_rates, name_tax = "custom", df = p, growth = "optimistic", scope_tax = df) {
@@ -232,6 +235,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + df$mean_growth_gdp_pc_14_19)^8 
     if (growth == "trend_pos") df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + pmax(0, df$mean_growth_gdp_pc_14_19))^8 
     df$growth_gdp_pc_year_30 <- unlist(df$gdp_pc_2030)/unlist(df$gdp_pc_year)
+    if ("growth_start" %in% names(df)) df$growth_gdp_pc_year_30 <- df$growth_to_start * (1 + if (growth == "trend_pos") pmax(0, df$mean_growth_gdp_pc_14_19) else df$mean_growth_gdp_pc_14_19)^(2030 - df$growth_start) # PPP 2021: trend growth after realized growth
     # df$country_code[is.na(df$gdp_pc_year)] # "SSD" "SYR" "VEN" "YEM"
     # df$country_code[is.na(df$growth_gdp_pc_year_30)] # "SSD" "SYR" "TKM" "VEN" "YEM". TKM has grown 7.368 times in 98-22 and .994 in 14-19 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD/TKM
     df$growth_gdp_pc_year_30[is.na(df$growth_gdp_pc_year_30)] <- 1 
@@ -246,11 +250,13 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     growths <- df$growth_gdp_pc_year_30_imf
   } else if (growth == "reg") {
     df$growth_gdp_pc_year_30_reg <- unlist(df$gdp_pc_2030_reg)/unlist(df$gdp_pc_year)
+    if ("growth_start" %in% names(df)) df$growth_gdp_pc_year_30_reg <- df$growth_to_start * (unlist(df$gdp_pc_2030_reg)/unlist(df$gdp_pc_2022))^((2030 - df$growth_start)/8) # PPP 2021: annualized projected growth after realized growth
     growths <- df$growth_gdp_pc_year_30_reg
   } else if (grepl("optimistic|strong|average", growth)) {
     df$gdp_pc_max_2030 <- df$gdp_pc_2022 * growth_rate^8 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
     df$growth_gdp_pc_max_year_30 <- unlist(df$gdp_pc_max_2030)/unlist(df$gdp_pc_year)
     df$growth_gdp_pc_max_year_30[is.na(df$growth_gdp_pc_max_year_30)] <- growth_rate^(2030 - df$year[is.na(df$growth_gdp_pc_max_year_30)])
+    if ("growth_start" %in% names(df)) df$growth_gdp_pc_max_year_30 <- df$growth_to_start * growth_rate^(2030 - df$growth_start) # PPP 2021: scenario growth after realized growth
     growths <- df$growth_gdp_pc_max_year_30
   } else if (growth == "realized") {
     df$growth_gdp_pc_year_30_realized <- unlist(df$gdp_pc_last) * growth_rate^(2030 - df$gdp_last_year_c) / unlist(df$gdp_pc_year)
@@ -313,19 +319,30 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
   wdf$pop_2022 <- sum(df$pop_2022, na.rm = T)
   wdf$pop_2030 <- sum(df$pop_2030, na.rm = T)
   pop_yr <- if (grepl("2022|now", var)) "pop_2022" else "pop_2030"
-  wquantiles <- unique(sort(unlist(sapply(1:100, function(i) {df[[paste0(var, "_max_", i)]] }))))
-  wcdf <- c() # ~ 1 min
-  for (q in wquantiles) wcdf <- c(wcdf, sum(sapply(1:100, function(j) { sum((df[[paste0(var, "_max_", j)]] <= q) * df[[paste0("pop_share_", j)]] * df[[pop_yr]], na.rm = T) })))
+  # Vectorized (was a loop over all quantiles taking ~3 min per distribution; results are identical)
+  maxs <- as.matrix(df[, paste0(var, "_max_", 1:100)])
+  avgs <- as.matrix(df[, paste0(var, "_avg_", 1:100)])
+  weights <- as.matrix(df[, paste0("pop_share_", 1:100)]) * df[[pop_yr]]
+  wquantiles <- unique(sort(as.vector(maxs)))
+  ok <- !is.na(maxs) & !is.na(weights)
+  wcdf <- cumsum(tapply(weights[ok], factor(match(maxs[ok], wquantiles), levels = seq_along(wquantiles)), sum, default = 0)) # population with max <= q, for each quantile q
   wpop <- wcdf[length(wcdf)]
   wcdf <- wcdf/wpop
   wpercentiles <- pmax(1, findInterval(seq(0, 1, .01), wcdf)[-1]) # computes the indices for which the pop_share is lesser or equal to the percentiles. pmax(1, .) handles the case where more than 1% of the population is at the lowest quantile.
   wdf[[paste0(var, "_", pop_yr)]] <- wpop
   wdf[[paste0(var, "_max_0")]] <- 0
+  bounds <- c(0, wquantiles[wpercentiles])
+  okw <- !is.na(avgs) & !is.na(weights)
+  bin <- findInterval(avgs[okw], bounds, left.open = TRUE) # bin i: max_(i-1) < avg <= max_i
+  in_range <- bin >= 1 & bin <= 100
+  pop_bin <- tapply(weights[okw][in_range], factor(bin[in_range], levels = 1:100), sum, default = 0)
+  inc_bin <- tapply((weights * avgs)[okw][in_range], factor(bin[in_range], levels = 1:100), sum, default = 0)
+  pop_tot <- sum(df[[pop_yr]])
   for (i in 1:100) {
     wdf[[paste0(var, "_max_", i)]] <- wquantiles[wpercentiles[i]]
     wdf[[paste0(var, "_min_", i)]] <- wdf[[paste0(var, "_max_", i-1)]]
-    wdf[[paste0(var, "_pop_share_", i)]] <- sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))/sum(df[[pop_yr]])
-    wdf[[paste0(var, "_avg_", i)]] <- if (wdf[[paste0(var, "_pop_share_", i)]] == 0) wdf[[paste0(var, "_avg_", i-1)]] else (sum(sapply(1:100, function(k) { sum(df[[pop_yr]] * df[[paste0("pop_share_", k)]] * df[[paste0(var, "_avg_", k)]] * (df[[paste0(var, "_avg_", k)]] <= wdf[[paste0(var, "_max_", i)]]) * (df[[paste0(var, "_avg_", k)]] > wdf[[paste0(var, "_max_", i-1)]]), na.rm = T) }))) / (wdf[[paste0(var, "_pop_share_", i)]]*sum(df[[pop_yr]]))
+    wdf[[paste0(var, "_pop_share_", i)]] <- pop_bin[[i]]/pop_tot
+    wdf[[paste0(var, "_avg_", i)]] <- if (wdf[[paste0(var, "_pop_share_", i)]] == 0) wdf[[paste0(var, "_avg_", i-1)]] else inc_bin[[i]] / (wdf[[paste0(var, "_pop_share_", i)]]*pop_tot)
   }
   wdf[[paste0("mean_", var)]] <- rowSums(wdf[,paste0(var, "_avg_", 1:100)] * wdf[,paste0(var, "_pop_share_", 1:100)])
   
@@ -382,6 +399,12 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   p$gdp_pc_year <- sapply(1:nrow(p), function(c) { p[[paste0("gdp_pc_", min(gdp_last_year, p$year[c]))]][c] }) # gdp_last_year = 2022 with PPP 2017 data
   p$gdp_last_year_c <- sapply(1:nrow(p), function(c) { yrs <- (2015:gdp_last_year)[!is.na(unlist(p[c, paste0("gdp_pc_", 2015:gdp_last_year)]))]; if (length(yrs) > 0) max(yrs) else NA }) # last year with GDP data (e.g. 2024 for LBN, 2022 for SYR)
   p$gdp_pc_last <- sapply(1:nrow(p), function(c) { if (is.na(p$gdp_last_year_c[c])) NA else p[[paste0("gdp_pc_", p$gdp_last_year_c[c])]][c] })
+  if (ppp_year == 2021) { # Growth scenarios start from max(survey year, last year with GDP data, i.e. 2025 for most countries), after realized growth
+    p$growth_to_start <- unlist(p$gdp_pc_last)/unlist(p$gdp_pc_year) # realized growth from the survey year to the last year with GDP data
+    no_gdp <- is.na(p$growth_to_start) | is.na(p$gdp_last_year_c) | p$gdp_last_year_c < p$year # no GDP data (SSD, VEN, YEM) or survey after the last GDP year
+    p$growth_to_start[no_gdp] <- 1
+    p$growth_start <- ifelse(no_gdp, p$year, p$gdp_last_year_c)
+  }
   
   # Project GDP pc in 2030 using IMF forecast
   imf <- read.xlsx("../data/IMF_WEO_2023.xlsx") # WEO (2023) https://www.imf.org/en/Publications/WEO/weo-database/2023/October NGDPRPPPPC TODO: update
@@ -466,7 +489,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   p <- compute_distribution_2030(growth = "sdg8", df = p) # The SDG 8.1: sustained 7% growth starting over 2016-30.
   p <- compute_distribution_2030(growth = "none", df = p)
   p <- compute_distribution_2030(growth = "now", df = p)
-  if (ppp_year == 2021) p <- compute_distribution_2030(growth = "realized", df = p, growth_rate = 1.03)
+  if (ppp_year == 2021) p <- compute_distribution_2030(growth = "average", df = p, growth_rate = 1, name_var = "y_2025") # realized growth only (2025, or survey year if later)
   # df <- p
   
   p <- p[(!p$country_code %in% c("CHN", "IDN", "IND")) | p$reporting_level == "national",]
@@ -565,7 +588,8 @@ nrow(pante)
 for (c in pante$country_code) p$year_ante[p$country_code == c] <- pante$year[pante$country_code == c] 
 for (i in 1:100) p[[paste0("welfare_share_", i)]] <- p[[paste0("welfare_avg_", i)]]/rowSums(p[, grepl("^welfare_avg_", names(p))])
 for (i in 1:100) pante[[paste0("welfare_share_", i)]] <- pante[[paste0("welfare_avg_", i)]]/rowSums(pante[, grepl("^welfare_avg_", names(pante))])
-for (i in 1:100) for (c in pante$country_code) p[[paste0("increase_share_", i)]][p$country_code == c] <- (p[[paste0("welfare_share_", i)]][p$country_code == c] - pante[[paste0("welfare_share_", i)]][pante$country_code == c])/(p$year - p$year_ante)[p$country_code == c]
+ante_rows <- match(p$country_code, pante$country_code) # vectorized (was a loop over countries)
+for (i in 1:100) p[[paste0("increase_share_", i)]] <- (p[[paste0("welfare_share_", i)]] - pante[[paste0("welfare_share_", i)]][ante_rows])/(p$year - p$year_ante)
 for (i in 1:100) p[[paste0("growth_share_", i)]] <- p[[paste0("increase_share_", i)]]/p[[paste0("welfare_share_", i)]]
 # max(rowSums(p[, grepl("increase_share_", names(p))]), na.rm = T) # 1e-16
 for (i in 1:100) p[[paste0("share_", i, "_2030")]] <- p[[paste0("welfare_share_", i)]] + p[[paste0("increase_share_", i)]] * (2030 - p$year)

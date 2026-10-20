@@ -23,7 +23,7 @@ g <- ggplot(long, aes(x = shown, y = country, fill = line)) +
   scale_x_continuous(limits = c(0, cap), breaks = seq(0, 250, 50), labels = function(x) paste0(x, "%"), expand = expansion(mult = c(0, 0.03))) +
   labs(x = "Tax rate on consumption above the threshold needed to close the poverty gap", y = NULL,
        title = "Domestic redistribution needed to eradicate extreme poverty in 2030",
-       subtitle = "Assuming 3% annual growth over 2022–2030. Countries with a rate of at least 40% at the new line.",
+       subtitle = "Observed growth to 2025, then 3% a year. Countries with a rate of at least 40% at the new line.",
        caption = "Source: Fabre (2025), updated with World Bank PIP data (September 2026, 2021 PPP). Bars truncated at 250%.") +
   theme_minimal(base_size = 11) +
   theme(legend.position = "top", legend.direction = "vertical", legend.justification = "left", panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
