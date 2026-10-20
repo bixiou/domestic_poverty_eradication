@@ -31,4 +31,8 @@ g <- ggplot(long, aes(x = shown, y = country, fill = line)) +
         plot.background = element_rect(fill = "#fcfcfb", colour = NA), axis.text = element_text(colour = "#52514e"), plot.caption = element_text(colour = "#52514e", hjust = 0), plot.margin = margin(8, 16, 8, 8))
 ggsave("../figures/voxdev_tax.png", g, width = 8, height = 0.32 * nrow(d) + 2.2, dpi = 200)
 ggsave("../figures/voxdev_tax.pdf", g, width = 8, height = 0.32 * nrow(d) + 2.2)
+# Variant without title, subtitle and caption, for the papers (update.tex, eb.tex)
+g_paper <- g + labs(title = NULL, subtitle = NULL, caption = NULL)
+ggsave("../figures/tax_by_country.pdf", g_paper, width = 8, height = 0.32 * nrow(d) + 1.4)
+ggsave("../figures/tax_by_country.png", g_paper, width = 8, height = 0.32 * nrow(d) + 1.4, dpi = 200)
 print(d)
