@@ -29,11 +29,16 @@ save.image(".RData_update")
 
 
 ##### Global poverty table #####
+# World poverty rates and gaps are aggregated from country estimates (population-weighted), rather than computed on the world distribution w,
+# whose 100 percentiles only allow a precision of about 1 percentage point on poverty rates.
+world_pop <- function(g, df = p) if (g == "now") df$pop_2022 else if (grepl("_35$", g)) df$pop_2035 else df$pop_2030
+world_rate <- function(L, g, df = p) { r <- compute_poverty_rate(df = df, threshold = L, growth = g); pop <- world_pop(g, df); 100 * sum(r * pop, na.rm = T) / sum(pop[!is.na(r)]) }
+world_gap <- function(L, g, df = p) { gp <- compute_poverty_gap(df = df, threshold = L, unit = "mean", growth = g); pop <- world_pop(g, df); 100 * sum(gp * pop, na.rm = T) / sum((df[[paste0("mean_", name_var_growth(g))]] * pop)[!is.na(gp)], na.rm = T) } # in % of world income
 lines_21 <- c(3, 4.2, 8.3, 18.15)
 growth_scenarios <- setNames(c("now", "trend", "trend_pos", "reg", "average", "trend_ineq", "very_optimistic", "sdg8", "realized"),
                              c("2022 Estimate", "Trend (2014--2019)", "Max(Trend, 0)", "Autoregressive projection", "3\\% growth", "3\\% unbalanced growth", "7\\% growth", "7\\% growth since 2016", "Observed to 2025, then 3\\%"))
-table_poverty_update <- cbind(sapply(lines_21, function(l) 100*sapply(growth_scenarios, function(g) compute_poverty_rate(df = w, threshold = l, growth = g, return = "rate"))),
-                              sapply(lines_21, function(l) 100*sapply(growth_scenarios, function(g) compute_poverty_gap(df = w, threshold = l, unit = '%', growth = g))))
+table_poverty_update <- cbind(sapply(lines_21, function(l) sapply(growth_scenarios, function(g) world_rate(l, g))),
+                              sapply(lines_21, function(l) sapply(growth_scenarios, function(g) world_gap(l, g))))
 cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty rate (\\%)} & \\multicolumn{4}{c}{Poverty gap (\\% of GDP)} \\\\ \n (Poverty line in \\$/day)",
         paste(kbl(table_poverty_update, "latex",
       caption = "Global poverty rates and poverty gaps in 2030 under different growth scenarios, using the September 2026 PIP data. Poverty rates are expressed in \\% of world population and poverty gaps in \\% of world GDP. Poverty lines are in 2021 PPP \\$/day.",
@@ -48,15 +53,15 @@ c_ <- function(code, var) var[p$country_code == code]
 names_list <- function(codes) { n <- sort(p$country_short[p$country_code %in% codes]); if (length(n) < 2) n else paste(paste(n[-length(n)], collapse = ", "), "and", n[length(n)]) }
 
 # Growth
-numbers$RatePovNow <- 100 * compute_poverty_rate(df = w, threshold = 3, growth = "now")
-numbers$RatePovThree <- 100 * compute_poverty_rate(df = w, threshold = 3, growth = "average")
-numbers$RatePovTrend <- 100 * compute_poverty_rate(df = w, threshold = 3, growth = "trend")
-numbers$RatePovSeven <- 100 * compute_poverty_rate(df = w, threshold = 3, growth = "very_optimistic")
-numbers$RatePovSDG <- 100 * compute_poverty_rate(df = w, threshold = 3, growth = "sdg8")
-numbers$RatePovRealized <- 100 * compute_poverty_rate(df = w, threshold = 3, growth = "realized")
-numbers$GapNow <- 100 * compute_poverty_gap(df = w, threshold = 3, unit = '%', growth = "now")
-numbers$GapThree <- 100 * compute_poverty_gap(df = w, threshold = 3, unit = '%', growth = "average")
-numbers$GapRealized <- 100 * compute_poverty_gap(df = w, threshold = 3, unit = '%', growth = "realized")
+numbers$RatePovNow <- world_rate(3, "now")
+numbers$RatePovThree <- world_rate(3, "average")
+numbers$RatePovTrend <- world_rate(3, "trend")
+numbers$RatePovSeven <- world_rate(3, "very_optimistic")
+numbers$RatePovSDG <- world_rate(3, "sdg8")
+numbers$RatePovRealized <- world_rate(3, "realized")
+numbers$GapNow <- world_gap(3, "now")
+numbers$GapThree <- world_gap(3, "average")
+numbers$GapRealized <- world_gap(3, "realized")
 numbers$ShareSurveyRecent <- 100 * mean(p$year >= 2021 & !is.na(p$welfare_avg_1)) # share of countries with a survey in 2021 or later
 numbers$NbCountries <- sum(!is.na(p$welfare_avg_1))
 
@@ -109,8 +114,8 @@ numbers$GiniThree <- compute_inequality(df = w, var = "Y3", return = 'gini')
 w <- tax_revenues(df = w, thresholds = 8.3, marginal_rates = 10, return = 'df', growth = "average", name_tax = "8__10", scope_tax = w)
 numbers$GiniThreeGlobalTax <- compute_inequality(df = w, var = "Y3_tax_8__10", return = 'gini')
 # Marginal rate above $100/day that closes the global extreme poverty gap (revenues are linear in the rate)
-numbers$RateHundred <- compute_poverty_gap(df = w, threshold = 3, unit = '%', growth = "average") / tax_revenues(df = w, thresholds = 100, marginal_rates = 1, growth = "average", return = '%', scope_tax = w)
-numbers$RateHundredHFCE <- compute_poverty_gap(df = ws, threshold = 3, unit = '%', growth = "average") / tax_revenues(df = ws, thresholds = 100, marginal_rates = 1, growth = "average", return = '%', scope_tax = ws)
+numbers$RateHundred <- world_gap(3, "average") / 100 / tax_revenues(df = w, thresholds = 100, marginal_rates = 1, growth = "average", return = '%', scope_tax = w)
+numbers$RateHundredHFCE <- world_gap(3, "average", df = s) / 100 / tax_revenues(df = ws, thresholds = 100, marginal_rates = 1, growth = "average", return = '%', scope_tax = ws)
 numbers$ShareBelowHundred <- 100 * compute_poverty_rate(df = ws, threshold = 100, growth = 'average')
 
 # Same indicators with the 2017-PPP lines converted for prices only: $2.15 becomes $2.46 in 2021 PPP (Foster et al., 2025); the threshold of $6.85 is scaled by the same factor.
@@ -119,12 +124,12 @@ eq_line <- 2.46
 eq_threshold <- 6.85 * eq_line / 2.15
 numbers$EqLine <- eq_line
 numbers$EqThreshold <- eq_threshold
-numbers$RatePovNowEq <- 100 * compute_poverty_rate(df = w, threshold = eq_line, growth = "now")
-numbers$RatePovThreeEq <- 100 * compute_poverty_rate(df = w, threshold = eq_line, growth = "average")
-numbers$RatePovSevenEq <- 100 * compute_poverty_rate(df = w, threshold = eq_line, growth = "very_optimistic")
-numbers$RatePovSDGEq <- 100 * compute_poverty_rate(df = w, threshold = eq_line, growth = "sdg8")
-numbers$RatePovRealizedEq <- 100 * compute_poverty_rate(df = w, threshold = eq_line, growth = "realized")
-numbers$GapThreeEq <- 100 * compute_poverty_gap(df = w, threshold = eq_line, unit = '%', growth = "average")
+numbers$RatePovNowEq <- world_rate(eq_line, "now")
+numbers$RatePovThreeEq <- world_rate(eq_line, "average")
+numbers$RatePovSevenEq <- world_rate(eq_line, "very_optimistic")
+numbers$RatePovSDGEq <- world_rate(eq_line, "sdg8")
+numbers$RatePovRealizedEq <- world_rate(eq_line, "realized")
+numbers$GapThreeEq <- world_gap(eq_line, "average")
 p$antipoverty_eq_tax_eq_average <- compute_antipoverty_tax(df = p, exemption_threshold = eq_threshold, poverty_threshold = eq_line, growth = "average")
 numbers$NbCapEq <- sum(p$antipoverty_eq_tax_eq_average > 100, na.rm = T)
 numbers$CountriesCapEq <- names_list(p$country_code[no.na(p$antipoverty_eq_tax_eq_average > 100, rep = F, num_as_char = F)])
@@ -135,10 +140,43 @@ numbers$TaxEighteenThreeINDEq <- c_("IND", compute_antipoverty_tax(df = p, exemp
 numbers$NbFloorEq <- sum(compute_income_floor(df = p, thresholds = eq_threshold, marginal_rates = 10, growth = "average", scope_tax = p) < eq_line, na.rm = T)
 numbers$NbFloorSevenEq <- sum(compute_income_floor(df = p, thresholds = eq_threshold, marginal_rates = 10, growth = "very_optimistic", scope_tax = p) < eq_line, na.rm = T)
 numbers$NbFloorSDGEq <- sum(compute_income_floor(df = p, thresholds = eq_threshold, marginal_rates = 10, growth = "sdg8", scope_tax = p) < eq_line, na.rm = T)
-numbers$RateHundredEq <- compute_poverty_gap(df = w, threshold = eq_line, unit = '%', growth = "average") / tax_revenues(df = w, thresholds = 100, marginal_rates = 1, growth = "average", return = '%', scope_tax = w)
+numbers$RateHundredEq <- world_gap(eq_line, "average") / 100 / tax_revenues(df = w, thresholds = 100, marginal_rates = 1, growth = "average", return = '%', scope_tax = w)
 numbers$GlobalFloorEq <- compute_income_floor(df = w, thresholds = eq_threshold, marginal_rates = 10, growth = 'average', name_tax = "eq__10", scope_tax = w)
 
-digits <- function(x) if (abs(x) >= 9.95 | x == round(x)) 0 else if (abs(x) >= 0.995) 1 else 2
+##### Alternative horizon: 2035 #####
+# With balanced growth, the 2035 distribution is the 2030 one scaled by 5 more years of growth (3% or 7%; 3% after observed growth for "realized").
+# World aggregates use 2035 population (UN WPP 2022 projections).
+extend_to_2035 <- function(df, from, to, factor) {
+  for (v in grep(paste0("^", from, "_(avg|max|min)_[0-9]+$"), names(df), value = T)) df[[sub(paste0("^", from), to, v)]] <- df[[v]] * factor
+  df[[paste0("mean_", to)]] <- rowSums(df[, paste0(to, "_avg_", 1:100)] * df[, paste0("pop_share_", 1:100)])
+  return(df)
+}
+for (d in c("p", "s")) {
+  df <- get(d)
+  df <- extend_to_2035(df, "Y3", "Y3_35", 1.03^5)
+  df <- extend_to_2035(df, "Y7", "Y7_35", 1.07^5)
+  df <- extend_to_2035(df, "Y3r", "Y3r_35", 1.03^5)
+  assign(d, df)
+}
+for (L in list(c(3, 8.3, ""), c(eq_line, eq_threshold, "Eq"))) {
+  line <- as.numeric(L[1]); thr <- as.numeric(L[2]); sfx <- L[3]
+  numbers[[paste0("RatePovThreeTF", sfx)]] <- world_rate(line, "Y3_35")
+  numbers[[paste0("RatePovSevenTF", sfx)]] <- world_rate(line, "Y7_35")
+  numbers[[paste0("RatePovRealizedTF", sfx)]] <- world_rate(line, "Y3r_35")
+  numbers[[paste0("GapThreeTF", sfx)]] <- world_gap(line, "Y3_35")
+  tax <- compute_antipoverty_tax(df = p, exemption_threshold = thr, poverty_threshold = line, growth = "Y3_35")
+  numbers[[paste0("NbCapTF", sfx)]] <- sum(tax > 100, na.rm = T)
+  numbers[[paste0("CountriesCapTF", sfx)]] <- names_list(p$country_code[no.na(tax > 100, rep = F, num_as_char = F)])
+  numbers[[paste0("TaxSSATF", sfx)]] <- wtd.mean(tax[p$country_code %in% SSA], p$pop_2035[p$country_code %in% SSA])
+  numbers[[paste0("NbFloorTF", sfx)]] <- sum(compute_income_floor(df = p, thresholds = thr, marginal_rates = 10, growth = "Y3_35", scope_tax = p) < line, na.rm = T)
+  numbers[[paste0("NbFloorSevenTF", sfx)]] <- sum(compute_income_floor(df = p, thresholds = thr, marginal_rates = 10, growth = "Y7_35", scope_tax = p) < line, na.rm = T)
+}
+p35 <- p
+p35$pop_2030 <- p35$pop_2035 # compute_world_distribution and tax_revenues weight by pop_2030
+w35 <- compute_world_distribution("Y3_35", df = p35, wdf = data.frame(country = "World", pop_2022 = sum(p35$pop_2022), pop_2030 = sum(p35$pop_2030)))
+numbers$RateHundredTF <- world_gap(3, "Y3_35") / 100 / tax_revenues(df = w35, thresholds = 100, marginal_rates = 1, growth = "Y3_35", return = '%', scope_tax = w35)
+
+digits <- function(x) if (abs(x) >= 19.95 | x == round(x)) 0 else if (abs(x) >= 0.995) 1 else 2
 cat(paste0("% Generated by code_poverty/update.R on ", Sys.Date(), "\n"),
     sapply(names(numbers), function(n) paste0("\\newcommand{\\up", n, "}{", if (is.numeric(numbers[[n]])) format(round(numbers[[n]], digits(numbers[[n]])), nsmall = digits(numbers[[n]]), big.mark = ",") else numbers[[n]], "}\n")),
     sep = "", file = "../tables/update_numbers.tex")
