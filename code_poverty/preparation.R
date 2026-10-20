@@ -253,7 +253,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     df$growth_gdp_pc_max_year_30[is.na(df$growth_gdp_pc_max_year_30)] <- growth_rate^(2030 - df$year[is.na(df$growth_gdp_pc_max_year_30)])
     growths <- df$growth_gdp_pc_max_year_30
   } else if (growth == "realized") {
-    df$growth_gdp_pc_year_30_realized <- unlist(df$gdp_pc_last) * growth_rate^(2030 - gdp_last_year) / unlist(df$gdp_pc_year)
+    df$growth_gdp_pc_year_30_realized <- unlist(df$gdp_pc_last) * growth_rate^(2030 - df$gdp_last_year_c) / unlist(df$gdp_pc_year)
     df$growth_gdp_pc_year_30_realized[is.na(df$growth_gdp_pc_year_30_realized)] <- growth_rate^(2030 - df$year[is.na(df$growth_gdp_pc_year_30_realized)])
     growths <- df$growth_gdp_pc_year_30_realized
   } else if (growth == "now") {
@@ -380,7 +380,8 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   p$mean_growth_gdp_pc_14_19 <- (p$gdp_pc_2019/p$gdp_pc_2014)^(1/5)-1 # pmax(0, )
   # sort(setNames(p$mean_growth_gdp_pc_14_19, p$country), decreasing = T) # max 14-19: CN = 6.15%, max 10-19:  CN 6.7%
   p$gdp_pc_year <- sapply(1:nrow(p), function(c) { p[[paste0("gdp_pc_", min(gdp_last_year, p$year[c]))]][c] }) # gdp_last_year = 2022 with PPP 2017 data
-  p$gdp_pc_last <- p[[paste0("gdp_pc_", gdp_last_year)]]
+  p$gdp_last_year_c <- sapply(1:nrow(p), function(c) { yrs <- (2015:gdp_last_year)[!is.na(unlist(p[c, paste0("gdp_pc_", 2015:gdp_last_year)]))]; if (length(yrs) > 0) max(yrs) else NA }) # last year with GDP data (e.g. 2024 for LBN, 2022 for SYR)
+  p$gdp_pc_last <- sapply(1:nrow(p), function(c) { if (is.na(p$gdp_last_year_c[c])) NA else p[[paste0("gdp_pc_", p$gdp_last_year_c[c])]][c] })
   
   # Project GDP pc in 2030 using IMF forecast
   imf <- read.xlsx("../data/IMF_WEO_2023.xlsx") # WEO (2023) https://www.imf.org/en/Publications/WEO/weo-database/2023/October NGDPRPPPPC TODO: update
