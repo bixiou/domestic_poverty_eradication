@@ -235,7 +235,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + df$mean_growth_gdp_pc_14_19)^8 
     if (growth == "trend_pos") df$gdp_pc_2030 <- df$gdp_pc_2022 * (1 + pmax(0, df$mean_growth_gdp_pc_14_19))^8 
     df$growth_gdp_pc_year_30 <- unlist(df$gdp_pc_2030)/unlist(df$gdp_pc_year)
-    if ("growth_start" %in% names(df)) df$growth_gdp_pc_year_30 <- df$growth_to_start * (1 + if (growth == "trend_pos") pmax(0, df$mean_growth_gdp_pc_14_19) else df$mean_growth_gdp_pc_14_19)^(2030 - df$growth_start) # PPP 2021: trend growth after realized growth
+    if ("growth_start" %in% names(df)) df$growth_gdp_pc_year_30 <- df$growth_to_start * (1 + if (growth == "trend_pos") pmax(0, df$mean_growth_gdp_pc_15_25) else df$mean_growth_gdp_pc_15_25)^(2030 - df$growth_start) # PPP 2021: 2015-25 trend growth after realized growth
     # df$country_code[is.na(df$gdp_pc_year)] # "SSD" "SYR" "VEN" "YEM"
     # df$country_code[is.na(df$growth_gdp_pc_year_30)] # "SSD" "SYR" "TKM" "VEN" "YEM". TKM has grown 7.368 times in 98-22 and .994 in 14-19 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD/TKM
     df$growth_gdp_pc_year_30[is.na(df$growth_gdp_pc_year_30)] <- 1 
@@ -250,7 +250,7 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     growths <- df$growth_gdp_pc_year_30_imf
   } else if (growth == "reg") {
     df$growth_gdp_pc_year_30_reg <- unlist(df$gdp_pc_2030_reg)/unlist(df$gdp_pc_year)
-    if ("growth_start" %in% names(df)) df$growth_gdp_pc_year_30_reg <- df$growth_to_start * (unlist(df$gdp_pc_2030_reg)/unlist(df$gdp_pc_2022))^((2030 - df$growth_start)/8) # PPP 2021: annualized projected growth after realized growth
+    if ("growth_start" %in% names(df)) df$growth_gdp_pc_year_30_reg <- df$growth_to_start * df$growth_reg_annual^(2030 - df$growth_start) # PPP 2021: annualized projected growth after realized growth
     growths <- df$growth_gdp_pc_year_30_reg
   } else if (grepl("optimistic|strong|average", growth)) {
     df$gdp_pc_max_2030 <- df$gdp_pc_2022 * growth_rate^8 # 1.08^9 = 1.999, 1.07^9 = 1.84, 1.06^9 = 1.7, CN 99-07: 1.095^9 = 2.26. Beyond 6.3%, RDC antipoverty_2_tax_7 < 100%
@@ -404,6 +404,16 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
     no_gdp <- is.na(p$growth_to_start) | is.na(p$gdp_last_year_c) | p$gdp_last_year_c < p$year # no GDP data (SSD, VEN, YEM) or survey after the last GDP year
     p$growth_to_start[no_gdp] <- 1
     p$growth_start <- ifelse(no_gdp, p$year, p$gdp_last_year_c)
+    # Trend: average annual growth over 2015-2025 (or 2015 to the last year with data)
+    p$mean_growth_gdp_pc_15_25 <- (unlist(p$gdp_pc_last)/p$gdp_pc_2015)^(1/(p$gdp_last_year_c - 2015)) - 1
+    # Autoregressive projection: quadratic model of 2015-25 growth on 1995-2015 growth, estimated on all countries (aggregates excluded),
+    # applied to 2005-25 growth (or the 20 years to the last year with data) to project growth over the next 10 years, annualized and applied from growth_start.
+    gdp_countries <- gdp_pc[gdp_pc$country_code %in% read.csv("../data/country_iso3.csv")$country_code,]
+    gdp_countries$x <- gdp_countries$gdp_pc_2015/gdp_countries$gdp_pc_1995
+    gdp_countries$g <- gdp_countries$gdp_pc_2025/gdp_countries$gdp_pc_2015
+    reg_model <<- lm(g ~ x + I(x^2), data = gdp_countries)
+    x_c <- sapply(1:nrow(p), function(c) { if (is.na(p$gdp_last_year_c[c])) NA else unlist(p$gdp_pc_last)[c]/p[[paste0("gdp_pc_", p$gdp_last_year_c[c] - 20)]][c] })
+    p$growth_reg_annual <- predict(reg_model, newdata = data.frame(x = x_c))^(1/10)
   }
   
   # Project GDP pc in 2030 using IMF forecast

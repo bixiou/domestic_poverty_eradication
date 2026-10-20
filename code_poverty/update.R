@@ -42,7 +42,7 @@ world_gap <- function(L, g, df = p) {
 lines_21 <- c(3, 4.2, 8.3, 18.15)
 # All 2030 scenarios use observed growth up to 2025 (or the survey year if later), then the scenario's growth.
 growth_scenarios <- setNames(c("now", "y_2025", "trend", "trend_pos", "reg", "average", "trend_ineq", "very_optimistic"),
-                             c("2022 estimate", "2025 estimate", "Trend (2014--2019)", "Max(Trend, 0)", "Autoregressive projection", "3\\% growth", "3\\% unbalanced growth", "7\\% growth"))
+                             c("2022 estimate", "2025 estimate", "Trend (2015--2025)", "Max(Trend, 0)", "Autoregressive projection", "3\\% growth", "3\\% unbalanced growth", "7\\% growth"))
 table_poverty_update <- cbind(sapply(lines_21, function(l) sapply(growth_scenarios, function(g) world_rate(l, g))),
                               sapply(lines_21, function(l) sapply(growth_scenarios, function(g) world_gap(l, g))))
 cat(sub("\\toprule\n", "\\toprule Growth scenario & \\multicolumn{4}{c}{Poverty rate (\\%)} & \\multicolumn{4}{c}{Poverty gap (\\% of GDP)} \\\\ \n (Poverty line in \\$/day)",
@@ -68,6 +68,11 @@ numbers$GapNow <- world_gap(3, "now")
 numbers$GapThree <- world_gap(3, "average")
 numbers$ShareSurveyRecent <- 100 * mean(p$year >= 2021 & !is.na(p$welfare_avg_1)) # share of countries with a survey in 2021 or later
 numbers$NbCountries <- sum(!is.na(p$welfare_avg_1))
+numbers$RegSlope <- format(signif(coef(reg_model)[["x"]], 3))
+numbers$RegQuad <- format(signif(coef(reg_model)[["I(x^2)"]], 3))
+numbers$RegIntercept <- format(signif(coef(reg_model)[[1]], 3))
+numbers$RegRsq <- summary(reg_model)$adj.r.squared
+numbers$RegN <- nobs(reg_model)
 
 # Antipoverty cap and tax (above $8.30/day, the 2021-PPP counterpart of $6.85/day)
 p$antipoverty_3_tax_8_average <- compute_antipoverty_tax(df = p, exemption_threshold = 8.3, poverty_threshold = 3, growth = "average")
@@ -90,7 +95,7 @@ numbers$TaxEighteenSevenIND <- c_("IND", p$antipoverty_3_tax_18_very_optimistic)
 numbers$TaxEighteenTrendIND <- c_("IND", p$antipoverty_3_tax_18_trend)
 numbers$TaxEighteenThreeIND <- c_("IND", p$antipoverty_3_tax_18_average)
 numbers$RateThreeIND <- 100 * c_("IND", compute_poverty_rate(df = p, threshold = 3, growth = "average"))
-numbers$TrendIND <- 100 * c_("IND", p$mean_growth_gdp_pc_14_19)
+numbers$TrendIND <- 100 * c_("IND", p$mean_growth_gdp_pc_15_25)
 
 # Income floor financed by a 10% tax above $8.30/day
 p$floor_8__10 <- compute_income_floor(df = p, thresholds = 8.3, marginal_rates = 10, growth = "average", scope_tax = p)
