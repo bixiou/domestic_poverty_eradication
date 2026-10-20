@@ -406,9 +406,9 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
     p$growth_start <- ifelse(no_gdp, p$year, p$gdp_last_year_c)
     # Trend: average annual growth over 2015-2025 (or 2015 to the last year with data)
     p$mean_growth_gdp_pc_15_25 <- (unlist(p$gdp_pc_last)/p$gdp_pc_2015)^(1/(p$gdp_last_year_c - 2015)) - 1
-    # Autoregressive projection: quadratic model of 2015-25 growth on 1995-2015 growth, estimated on all countries (aggregates excluded),
+    # Autoregressive projection: quadratic model of 2015-25 growth on 1995-2015 growth, estimated on all countries (aggregates and Guyana excluded),
     # applied to 2005-25 growth (or the 20 years to the last year with data) to project growth over the next 10 years, annualized and applied from growth_start.
-    gdp_countries <- gdp_pc[gdp_pc$country_code %in% read.csv("../data/country_iso3.csv")$country_code,]
+    gdp_countries <- gdp_pc[gdp_pc$country_code %in% read.csv("../data/country_iso3.csv")$country_code & gdp_pc$country_code != "GUY",] # Guyana excluded from the estimation: oil boom (GDP pc x3 over 2015-25), adj. R2 0.03 with it vs. 0.19 without
     gdp_countries$x <- gdp_countries$gdp_pc_2015/gdp_countries$gdp_pc_1995
     gdp_countries$g <- gdp_countries$gdp_pc_2025/gdp_countries$gdp_pc_2015
     reg_model <<- lm(g ~ x + I(x^2), data = gdp_countries)
