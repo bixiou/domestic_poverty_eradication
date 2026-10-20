@@ -12,10 +12,11 @@ I would like to submit for your consideration my research on the domestic capaci
 **The question.** With four years left before the 2030 deadline of SDG 1, can countries end extreme poverty with their own resources, through growth and domestic redistribution?
 
 **Main findings (updated data).**
-- Growth alone will not suffice: with 3% annual growth over 2022–2030, NUM_RATE_3 of the world population would remain below $3.00 a day in 2030, and NUM_RATE_7 even with 7% growth.
-- Even radical redistribution falls short in the poorest countries: in NUM_CAP low-income countries, mostly in Sub-Saharan Africa, taxing all consumption above $8.30 a day at 100% would not raise enough to lift everyone above $3.00 a day. A more realistic 10% tax would fall short in NUM_FLOOR countries.
+- Growth alone will not suffice: with 3% annual growth over 2022–2030, 7.1% of the world population would remain below $3.00 a day in 2030, and 3.8% even with 7% growth.
+- Even radical redistribution falls short in the poorest countries: in eight low-income countries, mostly in Sub-Saharan Africa, taxing all consumption above $8.30 a day at 100% would not raise enough to lift everyone above $3.00 a day. A more realistic 10% tax would fall short in 31 countries.
 - The findings are robust to the data revision: at the price-equivalent of the former $2.15 line, results are very close to the original ones. India stands out, as its new surveys show it can end extreme poverty with modest redistribution.
-- Globally, the cost is small: closing the extreme poverty gap would take NUM_GAP of world income, e.g. a NUM_RATE100 tax on consumption above $100 a day.
+- Even by 2035, seven low-income countries would still lack the resources to end extreme poverty at $3.00 a day.
+- Globally, the cost is small: closing the extreme poverty gap would take 0.28% of world income, e.g. a 2.2% tax on consumption above $100 a day.
 
 **Policy relevance.** The results distinguish countries where domestic resource mobilization can end extreme poverty from those where international transfers are indispensable, at a time when aid budgets are being cut and global taxation of top wealth is discussed at the G20. They are timely given the release of the World Bank's *Poverty, Prosperity, and Planet Report 2026*.
 

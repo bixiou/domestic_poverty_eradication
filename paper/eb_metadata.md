@@ -7,7 +7,7 @@ Optional uploads: ZIP of code and data (`code_poverty/`, `data/`, `tables/`), de
 
 **Author:** Adrien Fabre, CNRS, CIRED (adrien.fabre@cnrs.fr)
 
-**Abstract:** ABSTRACT_PLACEHOLDER
+**Abstract:** I update Fabre (2025) with the World Bank's September 2026 poverty data (2021 PPPs). At the price equivalent of the former $2.15 line ($2.46), results are close to the original: with 3% annual growth, 4.8% of humans would remain extremely poor in 2030 (vs. 5.2%), and even capping incomes cannot eradicate extreme poverty in 7 low-income countries (vs. 5). At the new $3.00 line, 7.1% would remain poor, and capping incomes at $8.30 a day falls short in 8 countries; 7 even by 2035. Yet 0.28% of global income would suffice to close the global poverty gap.
 
 **JEL codes:** D63, I32, O15
 
