@@ -6,3 +6,9 @@ code/.RData
 *.Rproj
 .Rproj.user
 paper/build/*
+.RData_update
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out

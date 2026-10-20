@@ -13,6 +13,7 @@ name_var_growth <- function(growth = "optimistic") {
                    growth == "reg" ~ "y_reg", # Forecasts future growth using a quadratic model of past growth (middle ground between our average (world growth) and (country) trend)
                    growth == "imf" ~ "y_imf", # Uses IMF forecasts (in the envelope of none - very_optimistic)
                    growth == "trend_ineq" ~ "Y3_ineq", # 3% growth over 2023-30 and year_ante-year inequality trend extend up to 2030
+                   growth == "realized" ~ "Y3r", # observed growth up to the last year with GDP data (2025 in PPP 2021 data), then 3% growth up to 2030
                    TRUE ~ growth))
 } 
 
@@ -222,7 +223,7 @@ compute_inequality <- function(var = name_var_growth("optimistic"), df = p, retu
 
 compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL, name_var = NULL, df = p, pop_rurb = pop_rural_urban) {
   # if (is.null(growth_rate)) growth_rate <- if (growth == "very_optimistic") 1.07 else { if (growth == "strong") 1.04 else 1.06 }
-  if (is.null(growth_rate)) growth_rate <- case_when(growth == "average" ~ 1.03,
+  if (is.null(growth_rate)) growth_rate <- case_when(growth %in% c("average", "realized") ~ 1.03,
                                                      growth == "very_optimistic" ~ 1.07,
                                                      growth == "strong" ~ 1.045,
                                                      TRUE ~ 1.06)
@@ -251,6 +252,10 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
     df$growth_gdp_pc_max_year_30 <- unlist(df$gdp_pc_max_2030)/unlist(df$gdp_pc_year)
     df$growth_gdp_pc_max_year_30[is.na(df$growth_gdp_pc_max_year_30)] <- growth_rate^(2030 - df$year[is.na(df$growth_gdp_pc_max_year_30)])
     growths <- df$growth_gdp_pc_max_year_30
+  } else if (growth == "realized") {
+    df$growth_gdp_pc_year_30_realized <- unlist(df$gdp_pc_last) * growth_rate^(2030 - gdp_last_year) / unlist(df$gdp_pc_year)
+    df$growth_gdp_pc_year_30_realized[is.na(df$growth_gdp_pc_year_30_realized)] <- growth_rate^(2030 - df$year[is.na(df$growth_gdp_pc_year_30_realized)])
+    growths <- df$growth_gdp_pc_year_30_realized
   } else if (growth == "now") {
     df$growth_gdp_pc_2022 <- unlist(df$gdp_pc_2022)/unlist(df$gdp_pc_year)
     df$growth_gdp_pc_2022[is.na(df$growth_gdp_pc_2022)] <- 1 # Optimistic (in practice it's more .48-.58*), before: growth_rate^(2022 - df$year[is.na(df$growth_gdp_pc_2022)]) was even more optimistic. *Growth 2022/p$year according to IMF "South Sudan"-2016-0.568 "Syria"-2003-? "Venezuela"-2006-0.477 "Yemen"-2014-0.585 https://www.imf.org/external/datamapper/PPPPC@WEO/SYR/VEN/YEM/SSD
@@ -263,7 +268,8 @@ compute_distribution_2030 <- function(growth = "optimistic", growth_rate = NULL,
   df[[paste0(y, "_max_100")]][is.na(df[[paste0(y, "_max_100")]])] <- df[[paste0(y, "_avg_100")]][is.na(df[[paste0(y, "_max_100")]])]
   
   # Manage CN, IA, ID rural/urban (/!\ in ARG, SUR, there is only urban as reporting_level)
-  rural_urban_countries <- if (ppp_year == 2021) "CHN" else c("CHN", "IDN", "IND")  
+  # Merge urban and rural distributions only when PIP lacks a national one (in PPP 2021 data, PIP provides it for CHN, so no merge is needed)
+  rural_urban_countries <- setdiff(intersect(c("CHN", "IDN", "IND"), df$country_code[df$reporting_level %in% c("urban", "rural")]), df$country_code[df$reporting_level == "national"])
   for (c in rural_urban_countries) { 
     u <- df$country_code == c & df$reporting_level == "urban"
     r <- df$country_code == c & df$reporting_level == "rural"
@@ -312,7 +318,7 @@ compute_world_distribution <- function(var = name_var_growth("optimistic"), df =
   for (q in wquantiles) wcdf <- c(wcdf, sum(sapply(1:100, function(j) { sum((df[[paste0(var, "_max_", j)]] <= q) * df[[paste0("pop_share_", j)]] * df[[pop_yr]], na.rm = T) })))
   wpop <- wcdf[length(wcdf)]
   wcdf <- wcdf/wpop
-  wpercentiles <- findInterval(seq(0, 1, .01), wcdf)[-1] # computes the indices for which the pop_share is lesser or equal to the percentiles.
+  wpercentiles <- pmax(1, findInterval(seq(0, 1, .01), wcdf)[-1]) # computes the indices for which the pop_share is lesser or equal to the percentiles. pmax(1, .) handles the case where more than 1% of the population is at the lowest quantile.
   wdf[[paste0(var, "_", pop_yr)]] <- wpop
   wdf[[paste0(var, "_max_0")]] <- 0
   for (i in 1:100) {
@@ -334,11 +340,11 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   data <- read.csv(paste0("../data/Povcalnet ", ppp_year, ".csv")) # https://datacatalogfiles.worldbank.org/ddh-published/0063646/DR0090251/world_100bin.csv?versionId=2023-05-31T15:19:01.1473846Z on https://datacatalog.worldbank.org/search/dataset/0063646
   
   # Data cleaning
+  data$pop <- round(data$pop) # otherwise, floating-point noise in pop (e.g. CHN national in PPP 2021 data) splits distributions into several rows in pivot_wider
   if (year_max) {
     temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_max = max(year))
     year_max <- setNames(temp$year_max, temp$country_code)
     data$year_max <- year_max[data$country_code]
-    data$pop <- round(data$pop)
     p <- data[data$year == data$year_max,] %>% pivot_wider(names_from = percentile, values_from = c(avg_welfare, pop_share, welfare_share, quantile))
   } else {
     # temp <- data %>% group_by(country_code) %>% dplyr::summarize(year_ante = min(year)) # goes back as far as 1968
@@ -357,8 +363,8 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   p$pop_year <- sapply(1:nrow(p), function(c) { p[[paste0("pop_", p$year[c])]][c] }) # in thousands
   
   # HFCE
-  temp <- read.xlsx(paste0("../data/HFCEpc", if (ppp_year == 2021) 2021, ".xlsx")) # Household Final Consumption Expenditures https://data.worldbank.org/indicator/NE.CON.PRVT.PP.KD PPP 2017$ 31/01/2024 # "TWN" added as last line
-  p$hfce <- sapply(p$country_code, function(c) { temp[[as.character(unique(p$year[p$country_code == c]))]][temp$country_code == c] })
+  temp <- if (ppp_year == 2021) read.csv("../data/HFCE2021.csv", check.names = FALSE) else read.xlsx("../data/HFCEpc.xlsx") # Household Final Consumption Expenditures https://data.worldbank.org/indicator/NE.CON.PRVT.PP.KD PPP 2017$ 31/01/2024 # "TWN" added as last line. 2021: PPP 2021$, fetched 20/10/2026 from WDI API
+  p$hfce <- sapply(p$country_code, function(c) { h <- temp[[as.character(unique(p$year[p$country_code == c]))]][temp$country_code == c]; if (length(h) == 1) h else NA })
   p$hfce <- (p$hfce/p$pop_year)/365
   p$scaling_factor <- pmax(1, p$hfce/p$mean_welfare) # Rescale only if survey income < HFCE, as in Lakner & Milanovic (2013)
   p$scaling_factor[is.na(p$scaling_factor)] <- 1.108805 # impute mean((p$hfce/p$mean_welfare)[p$country_code %in% LIC], na.rm = T)
@@ -366,13 +372,15 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   if (rescale) p$mean_welfare <- rowSums(p[,paste0("welfare_avg_", 1:100)] * p[,paste0("pop_share_", 1:100)])
   
   # Estimate GDP pc in 2022 assuming country growth same as 2014-19
-  gdp_pc <- read_excel("../data/gdp_pc_ppp.xls") # Fetched in 2023 NY.GDP.PCAP.PP.KD TODO: update
+  gdp_pc <- if (ppp_year == 2021) read.csv("../data/gdp_pc_ppp2021.csv", check.names = FALSE) else read_excel("../data/gdp_pc_ppp.xls") # Fetched in 2023 NY.GDP.PCAP.PP.KD; 2021: fetched 20/10/2026 from WDI API (last updated 08/10/2026), constant 2021 PPP $
+  gdp_last_year <<- max(as.numeric(colnames(gdp_pc)[-1]))
   colnames(gdp_pc)[-1] <- paste0("gdp_pc_", colnames(gdp_pc)[-1])
   p <- merge(p, gdp_pc)
   p$gdp_pc_2022[is.na(p$gdp_pc_2022)] <- pmax(p$gdp_pc_2021, pmax(p$gdp_pc_2020, p$gdp_pc_2019, na.rm = T), na.rm = T)[is.na(p$gdp_pc_2022)]
   p$mean_growth_gdp_pc_14_19 <- (p$gdp_pc_2019/p$gdp_pc_2014)^(1/5)-1 # pmax(0, )
   # sort(setNames(p$mean_growth_gdp_pc_14_19, p$country), decreasing = T) # max 14-19: CN = 6.15%, max 10-19:  CN 6.7%
-  p$gdp_pc_year <- sapply(1:nrow(p), function(c) { p[[paste0("gdp_pc_", min(2022, p$year[c]))]][c] }) 
+  p$gdp_pc_year <- sapply(1:nrow(p), function(c) { p[[paste0("gdp_pc_", min(gdp_last_year, p$year[c]))]][c] }) # gdp_last_year = 2022 with PPP 2017 data
+  p$gdp_pc_last <- p[[paste0("gdp_pc_", gdp_last_year)]]
   
   # Project GDP pc in 2030 using IMF forecast
   imf <- read.xlsx("../data/IMF_WEO_2023.xlsx") # WEO (2023) https://www.imf.org/en/Publications/WEO/weo-database/2023/October NGDPRPPPPC TODO: update
@@ -429,7 +437,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   p <- merge(p, temp, all.x = T, by = c("country_code", "reporting_level")) #, by = c("country_code", "reporting_level"))
   
   # Add Moatsos' basic need poverty lines (Moatsos, 2021) and Bare bones basket with Consumption Shares (Moatsos, 2016)
-  conversion_17_11 <- if (ppp_year == 2017) 2.15/1.9 else 1
+  conversion_17_11 <- case_when(ppp_year == 2017 ~ 2.15/1.9, ppp_year == 2021 ~ 3/1.9, TRUE ~ 1)
   bnpl <- read.xlsx("../data/Moatsos2021_BNPL.xlsx", rowNames = T) # /!\ This is in 2011$ and cannot be converted to 2017$ simply by applying a conversion factor (as we do below with 2.15/1.9)
   for (c in p$country_code) if (c %in% colnames(bnpl)) p$bnpl[p$country_code == c] <- conversion_17_11 * bnpl[as.character(unique(p$year[p$country_code == c])), c] 
   
@@ -457,6 +465,7 @@ create_p <- function(ppp_year = 2017, pop_iso = pop_iso3, rescale = FALSE, year_
   p <- compute_distribution_2030(growth = "sdg8", df = p) # The SDG 8.1: sustained 7% growth starting over 2016-30.
   p <- compute_distribution_2030(growth = "none", df = p)
   p <- compute_distribution_2030(growth = "now", df = p)
+  if (ppp_year == 2021) p <- compute_distribution_2030(growth = "realized", df = p, growth_rate = 1.03)
   # df <- p
   
   p <- p[(!p$country_code %in% c("CHN", "IDN", "IND")) | p$reporting_level == "national",]
@@ -479,6 +488,7 @@ create_world_distribution <- function(df = p, region = df$country_code) {
   w <- compute_world_distribution(name_var_growth("now"), df = df, wdf = w, region = region)
   w <- compute_world_distribution(name_var_growth("BCL"), df = df, wdf = w, region = region)
   if ("Y3_ineq_avg_2" %in% names(df)) w <- compute_world_distribution(name_var_growth("trend_ineq"), df = df, wdf = w, region = region)
+  if ("Y3r_avg_2" %in% names(df)) w <- compute_world_distribution(name_var_growth("realized"), df = df, wdf = w, region = region)
   return(w)
 }
 
