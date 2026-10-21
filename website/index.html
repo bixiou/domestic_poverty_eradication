@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Domestic resources to eradicate extreme poverty — interactive results</title>
+  <meta name="description" content="Interactive results of Fabre (2025), 'Shortfall of Domestic Resources to Eradicate Extreme Poverty by 2030' (Journal of Development Studies), updated with the September 2026 World Bank PIP data (2021 PPP).">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%232a78d6%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <script defer src="https://cdn.plot.ly/plotly-geo-2.35.2.min.js" charset="utf-8"></script>
+  <script defer src="js/model.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <h1>Can countries eradicate extreme poverty with their own resources?</h1>
+    <p class="lede">Interactive results of <a href="https://doi.org/10.1080/00220388.2025.2493807">Fabre (2025), <cite>Shortfall of Domestic Resources to Eradicate Extreme Poverty by 2030</cite></a>, Journal of Development Studies — updated with the September 2026 World Bank PIP data (2021 PPP). All figures are computed in your browser from percentile distributions of 171 countries.</p>
+  </div>
+</header>
+
+<form id="params" class="params" aria-label="Parameters" onsubmit="return false">
+  <div class="wrap params-grid">
+    <div class="field">
+      <label for="line-preset">Poverty line <span class="unit">($/day)</span></label>
+      <div class="combo">
+        <select id="line-preset">
+          <option value="2.46">2.46 (≈ old $2.15)</option>
+          <option value="3" selected>3.00 (extreme)</option>
+          <option value="4.2">4.20</option>
+          <option value="8.3">8.30</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input id="line" type="number" min="0.1" max="200" step="0.01" value="3" aria-label="Poverty line value ($/day)">
+      </div>
+    </div>
+    <div class="field">
+      <label for="thr-preset">Taxation threshold <span class="unit">($/day)</span></label>
+      <div class="combo">
+        <select id="thr-preset">
+          <option value="7.8377">7.84 (≈ old $6.85)</option>
+          <option value="8.3" selected>8.30</option>
+          <option value="18.15">18.15 (U.S. line)</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input id="thr" type="number" min="0" max="500" step="0.01" value="8.3" aria-label="Taxation threshold value ($/day)">
+      </div>
+    </div>
+    <div class="field">
+      <label for="rate">Income-floor tax rate <span class="unit">(%)</span></label>
+      <input id="rate" type="number" min="0" max="100" step="1" value="10">
+    </div>
+    <div class="field">
+      <label for="growth-preset">Growth <span class="unit">(GDP p.c., from 2025)</span></label>
+      <div class="combo">
+        <select id="growth-preset">
+          <option value="0.03" selected>3% / year</option>
+          <option value="0.07">7% / year</option>
+          <option value="trend">Trend 2015–2025</option>
+          <option value="reg">Autoregressive</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input id="growth" type="number" min="-10" max="20" step="0.1" value="3" aria-label="Custom annual growth rate (%)">
+      </div>
+    </div>
+    <div class="field">
+      <label for="year">Horizon year</label>
+      <select id="year"></select>
+    </div>
+    <div class="field">
+      <label for="source">Data</label>
+      <select id="source">
+        <option value="survey" selected>Household surveys</option>
+        <option value="hfce">Surveys rescaled to national accounts (HFCE)</option>
+      </select>
+    </div>
+  </div>
+</form>
+
+<main id="main" class="wrap">
+  <section class="headline" aria-label="World summary" aria-live="polite">
+    <div class="tile"><div class="tile-value" id="h-rate">–</div><div class="tile-label">world poverty rate</div></div>
+    <div class="tile"><div class="tile-value" id="h-poor">–</div><div class="tile-label">people in poverty</div></div>
+    <div class="tile"><div class="tile-value" id="h-gap">–</div><div class="tile-label">poverty gap, in % of world consumption</div></div>
+    <div class="tile"><div class="tile-value" id="h-tax">–</div><div class="tile-label">countries where a 100% tax above the threshold cannot close the gap</div></div>
+  </section>
+  <p class="params-summary" id="params-summary"></p>
+
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" id="tab-map" aria-controls="panel-map" aria-selected="true">Map</button>
+    <button role="tab" id="tab-table" aria-controls="panel-table" aria-selected="false" tabindex="-1">Table</button>
+    <button role="tab" id="tab-country" aria-controls="panel-country" aria-selected="false" tabindex="-1">Country</button>
+    <button role="tab" id="tab-about" aria-controls="panel-about" aria-selected="false" tabindex="-1">About &amp; method</button>
+  </nav>
+
+  <section id="panel-map" role="tabpanel" aria-labelledby="tab-map">
+    <div class="toolbar">
+      <label for="map-ind">Indicator</label>
+      <select id="map-ind">
+        <option value="rate">Poverty rate</option>
+        <option value="gap">Poverty gap (% of mean consumption)</option>
+        <option value="tax" selected>Antipoverty tax</option>
+        <option value="cap">Antipoverty cap</option>
+        <option value="floor">Income floor</option>
+        <option value="mean">Mean consumption</option>
+      </select>
+      <span class="hint">Click on a country to see its details.</span>
+    </div>
+    <h2 class="chart-title" id="map-title"></h2>
+    <p class="chart-sub" id="map-sub"></p>
+    <div id="map" class="map" role="img" aria-label="World map of the selected indicator"></div>
+    <div id="map-legend" class="cat-legend"></div>
+  </section>
+
+  <section id="panel-table" role="tabpanel" aria-labelledby="tab-table" hidden>
+    <div class="toolbar">
+      <label for="tbl-filter">Search</label>
+      <input id="tbl-filter" type="search" placeholder="Country name or code">
+      <label for="tbl-group">Group</label>
+      <select id="tbl-group">
+        <option value="all">All countries</option>
+        <option value="ssa">Sub-Saharan Africa</option>
+        <option value="lic">Low-income countries</option>
+      </select>
+      <button type="button" id="dl-table" class="btn">Download table (CSV)</button>
+    </div>
+    <div class="table-wrap">
+      <table id="tbl" class="data">
+        <caption id="tbl-caption"></caption>
+        <thead></thead>
+        <tbody class="agg"></tbody>
+        <tbody class="rows"></tbody>
+      </table>
+    </div>
+    <p class="note">Aggregates are population-weighted (population of the horizon year). The poverty gap of aggregates is expressed in % of their total consumption. Antipoverty caps are not aggregated. Click a column header to sort, a country to see its details.</p>
+  </section>
+
+  <section id="panel-country" role="tabpanel" aria-labelledby="tab-country" hidden>
+    <div class="toolbar">
+      <label for="country">Country</label>
+      <select id="country"></select>
+      <span class="seg" role="group" aria-label="Vertical axis">
+        <button type="button" id="axis-log" aria-pressed="true">Log scale</button>
+        <button type="button" id="axis-lin" aria-pressed="false">Linear scale</button>
+      </span>
+      <button type="button" id="dl-country" class="btn">Download distribution (CSV)</button>
+    </div>
+    <div class="country-grid">
+      <div>
+        <h2 class="chart-title" id="dist-title"></h2>
+        <p class="chart-sub" id="dist-sub"></p>
+        <div id="dist" class="chart" role="img" aria-label="Consumption by percentile"></div>
+      </div>
+      <aside class="country-info" aria-label="Country indicators">
+        <dl id="country-ind" class="kv"></dl>
+        <h3>Poverty rates by line</h3>
+        <table class="data compact" id="country-lines"></table>
+        <h3>Data</h3>
+        <dl id="country-meta" class="kv small"></dl>
+      </aside>
+    </div>
+  </section>
+
+  <section id="panel-about" role="tabpanel" aria-labelledby="tab-about" hidden class="prose">
+    <h2>About</h2>
+    <p>This website presents the results of <strong>Fabre, A. (2025), “Shortfall of Domestic Resources to Eradicate Extreme Poverty by 2030”, <em>Journal of Development Studies</em></strong>, <a href="https://doi.org/10.1080/00220388.2025.2493807">https://doi.org/10.1080/00220388.2025.2493807</a>, updated with the September 2026 vintage of the World Bank data (2021 PPP). The paper asks whether each low- and middle-income country has enough domestic resources to lift its population above the extreme poverty line, assuming idealized redistribution within the country.</p>
+    <h3>Indicators</h3>
+    <dl class="defs">
+      <dt>Poverty rate</dt><dd>Share of the population living below the poverty line (computed on 100 percentiles: a percentile is poor if its average consumption is below the line).</dd>
+      <dt>Poverty gap</dt><dd>Amount needed to lift everyone to the poverty line, i.e. the sum over the poor of the difference between the line and their consumption, expressed in % of the country’s mean consumption (or income).</dd>
+      <dt>Antipoverty cap</dt><dd>Income cap such that confiscating all income above it would close the poverty gap. When even confiscating everything above the poverty line is insufficient, the cap is “insufficient” (by convention, it is then set at the mean consumption).</dd>
+      <dt>Antipoverty tax</dt><dd>Linear marginal tax rate on income above the taxation threshold needed to close the poverty gap: poverty gap divided by the taxable base. A rate above 100% means that even confiscating all income above the threshold cannot eradicate poverty.</dd>
+      <dt>Income floor</dt><dd>Minimum income that could be guaranteed to everyone (by topping up the lowest incomes) with the revenues of a tax at the chosen rate on income above the taxation threshold, recycled within the country.</dd>
+    </dl>
+    <h3>Method</h3>
+    <p>Each country’s distribution comes from its latest household survey (consumption or income per capita, 100 percentiles). It is projected with <em>balanced growth</em> (all percentiles grow at the same rate as GDP per capita): first with observed GDP per capita growth from the survey year up to 2025 (the last year with GDP data, or the survey year if later), then with the chosen scenario: a uniform rate (3%, 7% or custom), the country’s average growth over 2015–2025, or an autoregressive projection (quadratic model of 2015–25 growth on 1995–2015 growth, applied to 2005–25 growth). The horizon 2022 uses observed growth only. Countries without GDP data (South Sudan, Venezuela, Yemen) are not grown. The “national accounts” variant scales up survey means to household final consumption expenditure (HFCE) when the latter is higher, attributing the whole gap to the top percentile. World and group aggregates are population-weighted averages of country estimates.</p>
+    <h3>Caveats</h3>
+    <ul>
+      <li>The policies considered are idealized: perfect targeting, no behavioral responses (e.g. on labor supply or tax evasion), no administrative costs, and no general equilibrium effects. The antipoverty cap and tax are therefore lower bounds on the actual effort, and the income floor an upper bound on what is feasible.</li>
+      <li>Household surveys underestimate top incomes; the HFCE variant gives an upper bound on domestic resources.</li>
+      <li>Projections assume distributionally neutral growth; actual distributions may evolve differently. Surveys are sometimes old (the survey year is shown for each country).</li>
+      <li>With 100 percentiles, poverty rates are precise to about 1 percentage point at country level.</li>
+    </ul>
+    <h3>Data sources</h3>
+    <ul>
+      <li>World Bank, <a href="https://pip.worldbank.org">Poverty and Inequality Platform</a> (PIP), 100-bin distributions, September 2026 vintage, 2021 PPP.</li>
+      <li>World Bank, World Development Indicators: GDP per capita, PPP (constant 2021 international $), NY.GDP.PCAP.PP.KD; household final consumption expenditure (PPP 2021).</li>
+      <li>United Nations, World Population Prospects (population).</li>
+    </ul>
+    <h3>Downloads and code</h3>
+    <ul>
+      <li><a href="data/percentiles.csv" download>Full dataset: percentile distributions at survey year (CSV, 1.5 MB)</a></li>
+      <li><a href="data/countries.csv" download>Country metadata: survey year, growth parameters, population (CSV)</a></li>
+      <li><a href="data/countries.json" download>Compact data used by this website (JSON)</a></li>
+      <li>Code (R, and this website): <a href="https://github.com/bixiou/domestic_poverty_eradication">github.com/bixiou/domestic_poverty_eradication</a></li>
+    </ul>
+    <h3>Citation</h3>
+    <p class="cite">Fabre, A. (2025). Shortfall of Domestic Resources to Eradicate Extreme Poverty by 2030. <em>Journal of Development Studies</em>. <a href="https://doi.org/10.1080/00220388.2025.2493807">https://doi.org/10.1080/00220388.2025.2493807</a></p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Adrien Fabre · Data: World Bank PIP (Sept. 2026, 2021 PPP), WDI, UN WPP · <a href="https://github.com/bixiou/domestic_poverty_eradication">Source code</a> · <span id="data-date"></span></p>
+  </div>
+</footer>
+<noscript><p class="wrap">This website needs JavaScript to compute the indicators.</p></noscript>
+</body>
+</html>

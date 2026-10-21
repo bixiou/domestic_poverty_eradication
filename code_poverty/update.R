@@ -82,6 +82,10 @@ numbers$NbCapEightLIC <- sum(p$antipoverty_3_tax_8_average > 100 & p$country_cod
 numbers$TaxEightSSA <- wtd.mean(p$antipoverty_3_tax_8_average[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA])
 numbers$TaxEightLIC <- wtd.mean(p$antipoverty_3_tax_8_average[p$country_code %in% LIC], p$pop_2030[p$country_code %in% LIC])
 numbers$TaxEightNGA <- c_("NGA", p$antipoverty_3_tax_8_average)
+p$antipoverty_3_tax_8_very_optimistic <- compute_antipoverty_tax(df = p, exemption_threshold = 8.3, poverty_threshold = 3, growth = "very_optimistic")
+numbers$NbCapSeven <- sum(p$antipoverty_3_tax_8_very_optimistic > 100, na.rm = T)
+numbers$CountriesCapSeven <- names_list(p$country_code[no.na(p$antipoverty_3_tax_8_very_optimistic > 100, rep = F, num_as_char = F)])
+numbers$TaxSSASeven <- wtd.mean(p$antipoverty_3_tax_8_very_optimistic[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA])
 p$antipoverty_3_cap_very_optimistic <- compute_antipoverty_cap(df = p, threshold = 3, growth = "very_optimistic")
 numbers$CapSevenCOD <- c_("COD", p$antipoverty_3_cap_very_optimistic)
 numbers$CapSevenBDI <- c_("BDI", p$antipoverty_3_cap_very_optimistic)
@@ -135,6 +139,9 @@ numbers$CountriesCapEq <- names_list(p$country_code[no.na(p$antipoverty_eq_tax_e
 numbers$TaxEqSSA <- wtd.mean(p$antipoverty_eq_tax_eq_average[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA])
 numbers$TaxEqLIC <- wtd.mean(p$antipoverty_eq_tax_eq_average[p$country_code %in% LIC], p$pop_2030[p$country_code %in% LIC])
 numbers$TaxEqNGA <- c_("NGA", p$antipoverty_eq_tax_eq_average)
+tax_eq_7 <- compute_antipoverty_tax(df = p, exemption_threshold = eq_threshold, poverty_threshold = eq_line, growth = "very_optimistic")
+numbers$NbCapSevenEq <- sum(tax_eq_7 > 100, na.rm = T)
+numbers$TaxSSASevenEq <- wtd.mean(tax_eq_7[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA])
 numbers$TaxEighteenThreeINDEq <- c_("IND", compute_antipoverty_tax(df = p, exemption_threshold = 18.15, poverty_threshold = eq_line, growth = "average"))
 numbers$NbFloorEq <- sum(compute_income_floor(df = p, thresholds = eq_threshold, marginal_rates = 10, growth = "average", scope_tax = p) < eq_line, na.rm = T)
 numbers$NbFloorSevenEq <- sum(compute_income_floor(df = p, thresholds = eq_threshold, marginal_rates = 10, growth = "very_optimistic", scope_tax = p) < eq_line, na.rm = T)
@@ -166,11 +173,44 @@ for (L in list(c(3, 8.3, ""), c(eq_line, eq_threshold, "Eq"))) {
   numbers[[paste0("TaxSSATF", sfx)]] <- wtd.mean(tax[p$country_code %in% SSA], p$pop_2035[p$country_code %in% SSA])
   numbers[[paste0("NbFloorTF", sfx)]] <- sum(compute_income_floor(df = p, thresholds = thr, marginal_rates = 10, growth = "Y3_35", scope_tax = p) < line, na.rm = T)
   numbers[[paste0("NbFloorSevenTF", sfx)]] <- sum(compute_income_floor(df = p, thresholds = thr, marginal_rates = 10, growth = "Y7_35", scope_tax = p) < line, na.rm = T)
+  tax7 <- compute_antipoverty_tax(df = p, exemption_threshold = thr, poverty_threshold = line, growth = "Y7_35")
+  numbers[[paste0("NbCapSevenTF", sfx)]] <- sum(tax7 > 100, na.rm = T)
+  numbers[[paste0("CountriesCapSevenTF", sfx)]] <- names_list(p$country_code[no.na(tax7 > 100, rep = F, num_as_char = F)])
+  numbers[[paste0("TaxSSASevenTF", sfx)]] <- wtd.mean(tax7[p$country_code %in% SSA], p$pop_2035[p$country_code %in% SSA])
 }
 p35 <- p
 p35$pop_2030 <- p35$pop_2035 # compute_world_distribution and tax_revenues weight by pop_2030
 w35 <- compute_world_distribution("Y3_35", df = p35, wdf = data.frame(country = "World", pop_2022 = sum(p35$pop_2022), pop_2030 = sum(p35$pop_2030)))
 numbers$RateHundredTF <- world_gap(3, "Y3_35") / 100 / tax_revenues(df = w35, thresholds = 100, marginal_rates = 1, growth = "Y3_35", return = '%', scope_tax = w35)
+
+##### Poverty gap in market dollars, compared to foreign aid #####
+# PPP $ are converted to market (2021) US$ with each country's price level of private consumption in 2021 (WDI PA.NUS.PRVT.PP / PA.NUS.FCRF),
+# then to 2025 US$ with the US CPI-U (321.943/270.970, BLS). Countries without price data are imputed the median price level of countries with an extreme poverty gap.
+# ODA 2025 (OECD preliminary data, April 2026): USD 174.3bn in total (DAC members), of which USD 29.2bn of bilateral ODA to Sub-Saharan Africa.
+price <- read.csv("../data/price_level_2021.csv")
+p$price_level_2021 <- (price$ppp_private_consumption_2021 / price$exchange_rate_2021)[match(p$country_code, price$country_code)]
+cpi_2021_2025 <- 321.943 / 270.970
+oda_2025 <- 174.3
+oda_ssa_2025 <- 29.2
+gap_usd <- function(line, growth = "average", df = p, year = 2030) {
+  gap <- compute_poverty_gap(df = df, threshold = line, unit = "mean", growth = growth) * df[[paste0("pop_", year)]] * 365
+  price_level <- df$price_level_2021
+  price_level[is.na(price_level)] <- median(price_level[no.na(gap > 0, rep = F, num_as_char = F)], na.rm = T)
+  return(gap * price_level * cpi_2021_2025 / 1e9) # in bn 2025 US$
+}
+for (L in list(c(3, ""), c(eq_line, "Eq"))) {
+  g <- gap_usd(as.numeric(L[1]))
+  numbers[[paste0("GapBnPPP", L[2])]] <- sum(compute_poverty_gap(df = p, threshold = as.numeric(L[1]), unit = "mean", growth = "average") * p$pop_2030 * 365, na.rm = T) / 1e9 * cpi_2021_2025
+  numbers[[paste0("GapBnUSD", L[2])]] <- sum(g, na.rm = T)
+  numbers[[paste0("GapBnUSDSSA", L[2])]] <- sum(g[p$country_code %in% SSA], na.rm = T)
+  numbers[[paste0("GapShareODA", L[2])]] <- 100 * sum(g, na.rm = T) / oda_2025
+  numbers[[paste0("GapSSAShareODASSA", L[2])]] <- 100 * sum(g[p$country_code %in% SSA], na.rm = T) / oda_ssa_2025
+}
+numbers$GapBnUSDTF <- sum(gap_usd(3, "Y3_35", year = 2035), na.rm = T)
+numbers$GapBnUSDSevenTF <- sum(gap_usd(3, "Y7_35", year = 2035), na.rm = T)
+numbers$GapBnUSDSeven <- sum(gap_usd(3, "very_optimistic"), na.rm = T)
+numbers$ODA <- oda_2025
+numbers$ODASSA <- oda_ssa_2025
 
 digits <- function(x) if (abs(x) >= 19.95 | x == round(x)) 0 else if (abs(x) >= 0.995) 1 else 2
 cat(paste0("% Generated by code_poverty/update.R on ", Sys.Date(), "\n"),
