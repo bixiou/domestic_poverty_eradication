@@ -4,18 +4,25 @@
   const M = window.PovertyModel;
   const $ = (id) => document.getElementById(id);
   let DATA = null, BY_CODE = {}, ROWS = [], PARAMS = null;
-  const UI = { tab: "map", ind: "tax", country: "COD", log: true, sort: { key: "rate", dir: -1 }, filter: "", group: "all" };
+  const UI = { continuous: false, tab: "map", ind: "tax", country: "COD", log: true, sort: { key: "rate", dir: -1 }, filter: "", group: "all" };
   const STD_LINES = [2.46, 3, 4.2, 8.3, 18.15];
-  const YEARS = [2022].concat(Array.from({ length: 11 }, (_, i) => 2025 + i));
+  const YEARS = [2026, 2030, 2035, 2040, 2050, 2100];
 
   /* ---------- formatting ---------- */
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const isNum = (x) => typeof x === "number" && Number.isFinite(x);
-  function fmtNum(x, d) { return isNum(x) ? x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "–"; }
+  // Always "." as decimal separator (independent of the user's locale); thin space as thousands separator from 10 000
+  function fmtNum(x, d) {
+    if (!isNum(x)) return "–";
+    const s = Math.abs(x).toFixed(d), [i, f] = s.split(".");
+    const ii = i.length > 4 ? i.replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f") : i;
+    return (x < 0 && +s !== 0 ? "-" : "") + ii + (f ? "." + f : "");
+  }
+  const fmtBreak = (v) => String(+v.toFixed(2)); // e.g. 0.1, 8.3, 18.15
   function fmtPct(x) { if (!isNum(x)) return "–"; if (x === 0) return "0%"; if (x < 0.1) return "<0.1%"; return fmtNum(x, x < 10 ? 1 : 0) + "%"; }
   function fmtGap(x) { if (!isNum(x)) return "–"; if (x === 0) return "0%"; if (x < 0.01) return "<0.01%"; return fmtNum(x, x < 1 ? 2 : x < 10 ? 1 : 0) + "%"; }
   function fmtUsd(x) { if (!isNum(x)) return "–"; return "$" + fmtNum(x, x < 10 ? 2 : x < 100 ? 1 : 0); }
-  function fmtPop(x) { if (!isNum(x)) return "–"; if (x >= 1e9) return fmtNum(x / 1e9, 2) + " billion"; if (x >= 1e6) return fmtNum(x / 1e6, x >= 1e7 ? 0 : 1) + " million"; return fmtNum(x / 1e3, 0) + " thousand"; }
+  function fmtPop(x) { if (!isNum(x)) return "–"; if (x === 0) return "0"; if (x >= 1e9) return fmtNum(x / 1e9, 2) + " billion"; if (x >= 1e6) return fmtNum(x / 1e6, x >= 1e7 ? 0 : 1) + " million"; return fmtNum(x / 1e3, 0) + " thousand"; }
   function fmtCap(r) { return r.cap_status === "none" ? "no poverty" : r.cap_status === "insufficient" ? "insufficient" : fmtUsd(r.cap); }
   function fmtTax(r) { return isNum(r.tax) ? (r.tax > 1e4 ? ">10,000%" : fmtPct(r.tax)) : "–"; }
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -37,19 +44,18 @@
     };
   }
   function scenarioLabel(p) {
-    if (p.year === 2022) return "observed growth to 2022";
     return projLabel(p);
   }
   function projLabel(p) { // growth scenario used for projections (whatever the horizon year)
     if (p.scenario.type === "trend") return "trend growth (2015–2025)";
     if (p.scenario.type === "reg") return "autoregressive growth";
-    return fmtNum(p.scenario.rate * 100, p.scenario.rate * 100 % 1 ? 1 : 0) + "% growth";
+    return fmtBreak(p.scenario.rate * 100) + "% growth";
   }
   function paramsText(p) {
     return `Poverty line $${fmtNum(p.line, 2)}/day · taxation threshold $${fmtNum(p.threshold, 2)}/day · income-floor tax ${fmtNum(p.rate, p.rate % 1 ? 1 : 0)}% · ${p.year}, ${scenarioLabel(p)} · ${p.hfce ? "surveys rescaled to HFCE" : "survey data"}`;
   }
   function paramsSlug(p) {
-    const g = p.year === 2022 ? "observed" : p.scenario.type === "rate" ? `growth${+(p.scenario.rate * 100).toFixed(2)}pct` : p.scenario.type;
+    const g = p.scenario.type === "rate" ? `growth${+(p.scenario.rate * 100).toFixed(2)}pct` : p.scenario.type;
     return `line${p.line}_thr${+p.threshold.toFixed(2)}_rate${p.rate}_${g}_${p.year}_${p.hfce ? "hfce" : "survey"}`;
   }
 
@@ -129,15 +135,78 @@
     return cand.filter((v) => v >= min * 0.999 && v <= max * 1.001);
   }
 
+  /* Discrete colour scales of the paper (plot_world_map in code_poverty, RColorBrewer RdBu); colours from lowest to highest bin. */
+  const RDBU8 = ["#053061", "#2166AC", "#4393C3", "#92C5DE", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B"];
+  function mapBins(ind, p) {
+    if (ind === "tax" || ind === "gap") return { breaks: [0, 0.1, 1, 5, 10, 25, 50, 100, Infinity], left: true, colors: RDBU8, pre: "", suf: "%" };
+    if (ind === "rate") return { breaks: [0, 1, 5, 10, 20, 40, 60, 80, 100], left: true, colors: RDBU8, pre: "", suf: "%" };
+    if (ind === "cap") {
+      let breaks = [0, p.line, p.threshold, 18.15, 40, 80, 400, Infinity]; // paper: 0, 3, 8.3, 18.15, ...; 3 and 8.3 follow the selected line and threshold
+      if (!breaks.every((b, i) => i === 0 || b > breaks[i - 1])) breaks = [0, 3, 8.3, 18.15, 40, 80, 400, Infinity];
+      return { breaks, left: false, colors: ["#67001F", "#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#4393C3", "#053061"], pre: "$", suf: "" };
+    }
+    if (ind === "floor") return { breaks: [0, 2, 3, 4.2, 5.5, 8.3, 14, 25, 40, 100, Infinity], left: false, colors: ["#67001F", "#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC", "#053061"], pre: "$", suf: "" };
+    return { breaks: [0, 3, 4.2, 8.3, 18.15, 40, 80, Infinity], left: false, colors: ["#B2182B", "#EF8A62", "#FDDBC7", "#F7F7F7", "#D1E5F0", "#67A9CF", "#2166AC"], pre: "$", suf: "" };
+  }
+  function binOf(v, B) {
+    const b = B.breaks, n = b.length - 1;
+    for (let i = 0; i < n; i++) if (B.left ? v < b[i + 1] : v <= b[i + 1]) return i;
+    return n - 1; // e.g. a poverty rate of exactly 100%
+  }
+  function binLabel(i, B) {
+    const b = B.breaks, f = (v) => B.pre + fmtBreak(v) + B.suf;
+    if (b[i + 1] === Infinity) return "> " + f(b[i]);
+    if (i === 0 && !B.left) return "≤ " + f(b[1]);
+    return `${f(b[i])} to ${f(b[i + 1])}`;
+  }
+  const mapValue = (ind, r) => ind === "cap" ? (r.cap_status === "insufficient" ? 0 : r.cap_status === "none" ? Infinity : r.cap) : r[ind];
+
   function renderMap() {
     const ind = UI.ind, p = PARAMS, info = IND[ind];
     $("map-title").textContent = `${info.title}, ${p.year}`;
     $("map-sub").textContent = `${info.unit}. ${paramsText(p)}.`;
+    if (UI.continuous) renderMapContinuous(); else renderMapDiscrete();
+    const el = $("map");
+    if (!el._clickBound) {
+      el.on("plotly_click", (ev) => { const code = ev.points && ev.points[0] && ev.points[0].location; if (BY_CODE[code]) { UI.country = code; $("country").value = code; selectTab("country"); } });
+      el._clickBound = true;
+    }
+  }
+  function mapLayout() {
+    const surface = css("--surface-1"), nodata = css("--nodata");
+    return {
+      margin: { l: 0, r: 0, t: 0, b: 0 }, paper_bgcolor: surface, plot_bgcolor: surface, separators: ".\u202f",
+      geo: { projection: { type: "natural earth" }, showframe: false, showcoastlines: false, showland: true, landcolor: nodata, showcountries: true, countrycolor: css("--map-border"), bgcolor: surface, lataxis: { range: [-58, 85] } },
+      font: { family: getComputedStyle(document.body).fontFamily, color: css("--text-secondary") },
+      hoverlabel: { bgcolor: surface, bordercolor: css("--border"), font: { color: css("--text-primary") } },
+    };
+  }
+  const MAP_CONFIG = { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["select2d", "lasso2d"] };
+  function renderMapDiscrete() {
+    const ind = UI.ind, p = PARAMS, info = IND[ind], B = mapBins(ind, p);
+    const valid = ROWS.filter((r) => isNum(r.mean) && (isNum(mapValue(ind, r)) || mapValue(ind, r) === Infinity));
+    const groups = B.colors.map(() => []);
+    valid.forEach((r) => groups[binOf(mapValue(ind, r), B)].push(r));
+    const labels = B.colors.map((_, i) => binLabel(i, B) + (ind === "cap" && i === 0 ? " or insufficient" : ind === "cap" && i === B.colors.length - 1 ? " (incl. no poverty)" : ""));
+    const hover = (r, i) => `<b>${esc(r.name)}</b><br>${info.title}: ${info.fmt(r)}${ind === "cap" && r.cap_status === "insufficient" ? " (even confiscating all income above the poverty line cannot close the gap)" : ""}<br>Bin: ${esc(labels[i])}<br>Survey: ${r.c.year}, ${r.c.welfare}`;
+    const traces = groups.map((g, i) => ({ type: "choropleth", locationmode: "ISO-3", locations: g.map((r) => r.code), z: g.map(() => 1), text: g.map((r) => hover(r, i)), hoverinfo: "text",
+      colorscale: solid(B.colors[i]), showscale: false, marker: { line: { color: css("--map-border"), width: 0.4 } } })).filter((t) => t.locations.length);
+    Plotly.react("map", traces, mapLayout(), MAP_CONFIG);
+    const items = B.colors.map((c, i) => [c, `${labels[i]} (${groups[i].length})`]).reverse();
+    items.push([css("--nodata"), "No data"]);
+    const note = ind === "tax" ? `<p class="legend-note">Above 100%: even confiscating all income above $${fmtNum(p.threshold, 2)}/day cannot close the poverty gap.</p>`
+      : ind === "cap" ? `<p class="legend-note">Insufficient: even confiscating all income above the poverty line cannot close the gap (shown in the lowest bin).</p>` : "";
+    $("map-legend").className = "cat-legend vertical";
+    $("map-legend").innerHTML = `<div class="legend-title">${esc(info.title)}${B.suf ? " (%)" : " ($/day)"}</div>` + items.map(([c, t]) => `<div><span class="sw" style="background:${c}"></span>${esc(t)}</div>`).join("") + note;
+  }
+
+  function renderMapContinuous() {
+    const ind = UI.ind, p = PARAMS, info = IND[ind];
     const textColor = css("--text-secondary"), surface = css("--surface-1");
     const traces = [], legend = [];
     const valid = ROWS.filter((r) => isNum(r.mean));
     const hover = (r) => `<b>${esc(r.name)}</b><br>${info.title}: ${info.fmt(r)}<br>Survey: ${r.c.year}, ${r.c.welfare}`;
-    const base = { type: "choropleth", locationmode: "ISO-3", marker: { line: { color: surface, width: 0.5 } }, hoverinfo: "text", colorbar: { thickness: 12, len: 0.75, outlinewidth: 0, tickfont: { color: textColor, size: 11 }, title: { text: "", font: { color: textColor } } } };
+    const base = { type: "choropleth", locationmode: "ISO-3", marker: { line: { color: css("--map-border"), width: 0.4 } }, hoverinfo: "text", colorbar: { thickness: 12, len: 0.75, outlinewidth: 0, tickfont: { color: textColor, size: 11 }, title: { text: "", font: { color: textColor } } } };
     let main = [], z = [], cb = {};
     if (ind === "rate") {
       main = valid; z = main.map((r) => r.rate);
@@ -171,20 +240,9 @@
       cb = { zmin: Math.log10(mn), zmax: Math.log10(mx), colorbar: { ...base.colorbar, tickvals: ticks.map(Math.log10), ticktext: ticks.map((t) => pre + t + suf), title: { text: "log scale", side: "right", font: { color: textColor, size: 11 } } } };
     }
     traces.unshift({ ...base, ...cb, locations: main.map((r) => r.code), z, text: main.map(hover), colorscale: seqScale(), showscale: true });
-    const nodata = css("--nodata");
-    legend.push([nodata, "No data"]);
-    const layout = {
-      margin: { l: 0, r: 0, t: 0, b: 0 }, paper_bgcolor: surface, plot_bgcolor: surface,
-      geo: { projection: { type: "natural earth" }, showframe: false, showcoastlines: false, showland: true, landcolor: nodata, showcountries: true, countrycolor: surface, bgcolor: surface, lataxis: { range: [-58, 85] } },
-      font: { family: getComputedStyle(document.body).fontFamily, color: textColor },
-      hoverlabel: { bgcolor: surface, bordercolor: css("--border"), font: { color: css("--text-primary") } },
-    };
-    Plotly.react("map", traces, layout, { responsive: true, displaylogo: false, modeBarButtonsToRemove: ["select2d", "lasso2d"] });
-    const el = $("map");
-    if (!el._clickBound) {
-      el.on("plotly_click", (ev) => { const code = ev.points && ev.points[0] && ev.points[0].location; if (BY_CODE[code]) { UI.country = code; $("country").value = code; selectTab("country"); } });
-      el._clickBound = true;
-    }
+    legend.push([css("--nodata"), "No data"]);
+    Plotly.react("map", traces, mapLayout(), MAP_CONFIG);
+    $("map-legend").className = "cat-legend";
     $("map-legend").innerHTML = legend.map(([c, t]) => `<span><span class="sw" style="background:${c}"></span>${esc(t)}</span>`).join("");
   }
 
@@ -254,7 +312,7 @@
 
   /* ---------- country ---------- */
   function distYears(c) {
-    const ys = new Set([2022, 2025, 2030, 2035, PARAMS.year]);
+    const ys = new Set([2025, 2030, 2035, PARAMS.year]);
     return Array.from(ys).filter((y) => y > c.year).sort((a, b) => a - b);
   }
   function renderCountry() {
@@ -273,29 +331,42 @@
       const d = M.distribution(c, p.scenario, y, p.hfce);
       dists[y] = d;
       const col = seq[Math.min(seq.length - 1, Math.round(i * (seq.length - 1) / Math.max(1, years.length - 1)))];
-      const label = y === 2022 ? "2022 (observed growth)" : `${y}`;
+      const label = y === 2025 ? "2025 (observed growth)" : `${y}`;
       traces.push({ x, y: Array.from(d.avg), name: label + (y === p.year ? " — horizon" : ""), mode: "lines", line: { color: col, width: y === p.year ? 2.5 : 1.5 }, hovertemplate: `${y}: $%{y:.2f}<extra></extra>` });
     });
-    const shapes = [], ann = [];
-    const hline = (v, color, dash, width, text, right) => {
-      shapes.push({ type: "line", xref: "paper", x0: 0, x1: 1, y0: v, y1: v, line: { color, width, dash } });
-      if (text) ann.push({ xref: "paper", x: right ? 0.995 : 0.005, y: UI.log ? Math.log10(v) : v, yref: "y", text, showarrow: false, xanchor: right ? "right" : "left", yanchor: "bottom", font: { size: 11, color: textColor } });
-    };
-    // other standard poverty lines: faint, labelled on the right (unless they coincide with the selected line or threshold)
-    STD_LINES.forEach((v) => { if (Math.abs(v - p.line) > 1e-6 && Math.abs(v - p.threshold) > 0.01) hline(v, css("--border"), "dot", 1, `$${fmtNum(v, 2)}`, true); });
-    hline(p.threshold, textColor, "dash", 1, `taxation threshold $${fmtNum(p.threshold, 2)}`);
-    hline(p.line, css("--highlight"), "dash", 1.5, `poverty line $${fmtNum(p.line, 2)}`);
-    if (r.cap_status === "ok" && isNum(r.cap)) hline(r.cap, css("--series-1"), "dashdot", 1, `antipoverty cap in ${p.year}: ${fmtUsd(r.cap)}`);
     const hd = dists[p.year] || surveyD;
-    let yaxis = { title: { text: "$/day per person (2021 PPP)", font: { size: 12 } }, gridcolor: grid, zeroline: false, tickfont: { size: 11 }, color: textColor };
+    // Horizontal lines: selected poverty line, taxation threshold, antipoverty cap, other standard lines (merged when equal)
+    const hl = [{ v: p.line, color: css("--highlight"), dash: "dash", width: 1.5, text: `poverty line $${fmtNum(p.line, 2)}` },
+      { v: p.threshold, color: textColor, dash: "dash", width: 1, text: `taxation threshold $${fmtNum(p.threshold, 2)}` }];
+    if (r.cap_status === "ok" && isNum(r.cap)) hl.push({ v: r.cap, color: css("--series-1"), dash: "dashdot", width: 1, text: `antipoverty cap ${fmtUsd(r.cap)}` });
+    STD_LINES.forEach((v) => { if (hl.every((h) => Math.abs(h.v - v) > 0.005)) hl.push({ v, color: css("--border"), dash: "dot", width: 1, text: `$${fmtNum(v, 2)}` }); });
+    const all = [surveyD].concat(Object.values(dists));
+    let yaxis = { title: { text: "$/day per person (2021 PPP)", font: { size: 12 } }, gridcolor: grid, zeroline: false, tickfont: { size: 11 }, color: textColor, autorange: false };
+    let pos, minGap;
     if (UI.log) {
-      const all = [surveyD].concat(Object.values(dists)), lo = Math.min(...all.map((d) => d.avg[0])), hi = Math.max(...all.map((d) => d.avg[99]));
-      const ticks = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].filter((t) => t >= lo * 0.8 && t <= hi * 1.25);
-      Object.assign(yaxis, { type: "log", tickvals: ticks, ticktext: ticks.map((t) => "$" + t) });
+      const vals = all.map((d) => d.avg[0]).concat(all.map((d) => d.avg[99]), hl.map((h) => h.v));
+      const lo = Math.min(...vals) * 0.85, hi = Math.max(...vals) * 1.15;
+      const ticks = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 1e4, 2e4, 5e4, 1e5, 2e5, 5e5, 1e6].filter((t) => t >= lo && t <= hi);
+      const step = ticks.length > 12 ? 3 : 1; // fewer ticks for very long horizons
+      const tk = ticks.filter((t, i) => i % step === 0);
+      Object.assign(yaxis, { type: "log", range: [Math.log10(lo), Math.log10(hi)], tickvals: tk, ticktext: tk.map((t) => "$" + fmtNum(t, t < 1 ? 1 : 0)) });
+      pos = (v) => Math.log10(v); minGap = 0.045 * (Math.log10(hi) - Math.log10(lo));
+    } else {
+      const top = Math.max(hd.avg[98], p.threshold, p.line) * 1.15;
+      Object.assign(yaxis, { type: "linear", tickprefix: "$", range: [0, top] });
+      pos = (v) => v; minGap = 0.045 * top;
     }
-    else { yaxis.type = "linear"; yaxis.tickprefix = "$"; yaxis.range = [0, Math.max(hd.avg[98], p.threshold, p.line) * 1.15]; }
+    // one label per line, at the right end; skip a label too close to an already placed one (lines listed by priority)
+    const shapes = [], ann = [], placed = [];
+    hl.forEach((h) => {
+      shapes.push({ type: "line", xref: "paper", x0: 0, x1: 1, y0: h.v, y1: h.v, line: { color: h.color, width: h.width, dash: h.dash } });
+      const y = pos(h.v);
+      if (y < yaxis.range[0] || y > yaxis.range[1] || placed.some((q) => Math.abs(q - y) < minGap)) return;
+      placed.push(y);
+      ann.push({ xref: "paper", x: 0.86, y, yref: "y", text: h.text, showarrow: false, xanchor: "right", yanchor: "bottom", font: { size: 11, color: textColor }, bgcolor: surface, opacity: 0.9 });
+    });
     const layout = {
-      margin: { l: 64, r: 16, t: 10, b: 46 }, paper_bgcolor: surface, plot_bgcolor: surface,
+      margin: { l: 64, r: 16, t: 10, b: 46 }, paper_bgcolor: surface, plot_bgcolor: surface, separators: ".\u202f",
       xaxis: { title: { text: "Percentile of the distribution", font: { size: 12 } }, range: [0.5, 100.5], gridcolor: grid, zeroline: false, tickfont: { size: 11 }, color: textColor, dtick: 10 },
       yaxis, shapes, annotations: ann, hovermode: "x unified",
       legend: { orientation: "h", y: -0.18, font: { size: 12, color: css("--text-primary") } },
@@ -337,7 +408,7 @@
     const s = M.distribution(c, p.scenario, "survey", p.hfce);
     const ds = years.map((y) => M.distribution(c, p.scenario, y, p.hfce));
     const lines = [`# ${c.name} (${c.code}), ${c.welfare} per capita in $/day (2021 PPP), survey year ${c.year}`,
-      `# Projection: observed growth from the survey year to ${c.growth_start} (and to 2022 for the 2022 column), then ${projLabel(p)}${p.hfce ? "; survey rescaled to HFCE" : ""}. Parameters: ${paramsText(p)}`, citation,
+      `# Projection: observed growth from the survey year to ${c.growth_start} then ${projLabel(p)}${p.hfce ? "; survey rescaled to HFCE" : ""}. Parameters: ${paramsText(p)}`, citation,
       ["percentile", "pop_share", `upper_bound_${c.year}`, `avg_${c.year}`].concat(years.map((y) => `avg_${y}`)).join(",")];
     for (let i = 0; i < 100; i++) lines.push([i + 1, s.ps[i], i < 99 ? c.q[i] : "", s.avg[i]].concat(ds.map((d) => d.avg[i])).map(csvCell).join(","));
     download(`distribution_${c.code}_${paramsSlug(p)}.csv`, lines.join("\n") + "\n");
@@ -401,17 +472,16 @@
     $("axis-log").addEventListener("click", () => setAxis(true));
     $("axis-lin").addEventListener("click", () => setAxis(false));
     window.addEventListener("hashchange", () => { readHash(); $("country").value = UI.country; syncGrowth(); compute(); selectTab(UI.tab); });
-    if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+    $("map-continuous").addEventListener("change", () => { UI.continuous = $("map-continuous").checked; render(); });
   }
   function syncGrowth() {
     const gp = $("growth-preset").value, inp = $("growth");
-    inp.disabled = gp !== "custom" || $("year").value === "2022";
-    $("growth-preset").disabled = $("year").value === "2022";
+    inp.disabled = gp !== "custom";
     if (gp !== "custom" && gp !== "trend" && gp !== "reg") inp.value = +(parseFloat(gp) * 100).toFixed(2);
   }
 
   async function start() {
-    $("year").innerHTML = YEARS.map((y) => `<option value="${y}"${y === 2030 ? " selected" : ""}>${y === 2022 ? "2022 (observed growth only)" : y}</option>`).join("");
+    $("year").innerHTML = YEARS.map((y) => `<option value="${y}"${y === 2030 ? " selected" : ""}>${y}</option>`).join("");
     try {
       const res = await fetch("data/countries.json");
       if (!res.ok) throw new Error(res.status + " " + res.statusText);

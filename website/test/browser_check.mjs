@@ -29,16 +29,21 @@ console.log("map rendered after", Date.now() - t0, "ms; headline:", await ev("do
 await shot("map");
 for (const ind of ["rate", "gap", "cap", "floor", "mean"]) { await ev(`(()=>{const s=document.getElementById('map-ind'); s.value='${ind}'; s.dispatchEvent(new Event('change'));})()`); await sleep(400); }
 await shot("map_mean");
+await ev(`(()=>{const c=document.getElementById('map-continuous'); c.checked=true; c.dispatchEvent(new Event('change'));})()`); await sleep(300);
+for (const ind of ["rate", "gap", "tax", "cap", "floor", "mean"]) { await ev(`(()=>{const s=document.getElementById('map-ind'); s.value='${ind}'; s.dispatchEvent(new Event('change'));})()`); await sleep(300); }
+await shot("map_continuous_mean");
+await ev(`(()=>{const c=document.getElementById('map-continuous'); c.checked=false; c.dispatchEvent(new Event('change'));})()`); await sleep(300);
+for (const ind of ["tax", "floor", "rate", "gap"]) { await ev(`(()=>{const s=document.getElementById('map-ind'); s.value='${ind}'; s.dispatchEvent(new Event('change'));})()`); await sleep(400); await shot("map_" + ind); }
 await ev(`(()=>{const s=document.getElementById('map-ind'); s.value='cap'; s.dispatchEvent(new Event('change'));})()`); await sleep(500); await shot("map_cap");
 // change parameters
 await ev(`(()=>{const s=document.getElementById('growth-preset'); s.value='custom'; s.dispatchEvent(new Event('change')); const g=document.getElementById('growth'); g.value='5'; g.dispatchEvent(new Event('input'));})()`); await sleep(300);
 await ev(`(()=>{const s=document.getElementById('line-preset'); s.value='4.2'; s.dispatchEvent(new Event('change'));})()`); await sleep(300);
-await ev(`(()=>{const s=document.getElementById('year'); s.value='2035'; s.dispatchEvent(new Event('change'));})()`); await sleep(300);
+await ev(`(()=>{const s=document.getElementById('year'); s.value='2050'; s.dispatchEvent(new Event('change'));})()`); await sleep(300);
 await ev(`(()=>{const s=document.getElementById('source'); s.value='hfce'; s.dispatchEvent(new Event('change'));})()`); await sleep(300);
 console.log("after params:", await ev("document.getElementById('params-summary').textContent + ' | ' + document.getElementById('h-rate').textContent + ' | hash ' + location.hash"));
 for (const g of ["trend", "reg", "0.07"]) { await ev(`(()=>{const s=document.getElementById('growth-preset'); s.value='${g}'; s.dispatchEvent(new Event('change'));})()`); await sleep(300); }
-await ev(`(()=>{const s=document.getElementById('year'); s.value='2022'; s.dispatchEvent(new Event('change'));})()`); await sleep(300);
-console.log("2022:", await ev("document.getElementById('h-rate').textContent"));
+await ev(`(()=>{const s=document.getElementById('year'); s.value='2100'; s.dispatchEvent(new Event('change'));})()`); await sleep(300);
+console.log("2100:", await ev("document.getElementById('h-rate').textContent"));
 await ev("document.getElementById('tab-table').click()"); await sleep(500);
 await ev("document.querySelector('#tbl thead button[data-key=tax]').click()"); await sleep(200);
 await ev("document.querySelector('#tbl thead button[data-key=cap]').click()"); await sleep(200);

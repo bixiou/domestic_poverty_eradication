@@ -32,7 +32,7 @@
           <option value="8.3">8.30</option>
           <option value="custom">Custom…</option>
         </select>
-        <input id="line" type="number" min="0.1" max="200" step="0.01" value="3" aria-label="Poverty line value ($/day)">
+        <input id="line" type="number" min="0.1" max="200" step="0.1" value="3" aria-label="Poverty line value ($/day)">
       </div>
     </div>
     <div class="field">
@@ -44,7 +44,7 @@
           <option value="18.15">18.15 (U.S. line)</option>
           <option value="custom">Custom…</option>
         </select>
-        <input id="thr" type="number" min="0" max="500" step="0.01" value="8.3" aria-label="Taxation threshold value ($/day)">
+        <input id="thr" type="number" min="0" max="500" step="0.1" value="8.3" aria-label="Taxation threshold value ($/day)">
       </div>
     </div>
     <div class="field">
@@ -61,7 +61,7 @@
           <option value="reg">Autoregressive</option>
           <option value="custom">Custom…</option>
         </select>
-        <input id="growth" type="number" min="-10" max="20" step="0.1" value="3" aria-label="Custom annual growth rate (%)">
+        <input id="growth" type="number" min="-10" max="20" step="0.5" value="3" aria-label="Custom annual growth rate (%)">
       </div>
     </div>
     <div class="field">
@@ -72,7 +72,7 @@
       <label for="source">Data</label>
       <select id="source">
         <option value="survey" selected>Household surveys</option>
-        <option value="hfce">Surveys rescaled to national accounts (HFCE)</option>
+        <option value="hfce">Rescaled to national accounts (HFCE)</option>
       </select>
     </div>
   </div>
@@ -105,12 +105,15 @@
         <option value="floor">Income floor</option>
         <option value="mean">Mean consumption</option>
       </select>
+      <label class="check"><input type="checkbox" id="map-continuous"> Continuous scale</label>
       <span class="hint">Click on a country to see its details.</span>
     </div>
     <h2 class="chart-title" id="map-title"></h2>
     <p class="chart-sub" id="map-sub"></p>
-    <div id="map" class="map" role="img" aria-label="World map of the selected indicator"></div>
-    <div id="map-legend" class="cat-legend"></div>
+    <div class="map-row">
+      <div id="map" class="map" role="img" aria-label="World map of the selected indicator"></div>
+      <div id="map-legend" class="cat-legend vertical" aria-label="Legend"></div>
+    </div>
   </section>
 
   <section id="panel-table" role="tabpanel" aria-labelledby="tab-table" hidden>
@@ -174,7 +177,7 @@
       <dt>Income floor</dt><dd>Minimum income that could be guaranteed to everyone (by topping up the lowest incomes) with the revenues of a tax at the chosen rate on income above the taxation threshold, recycled within the country.</dd>
     </dl>
     <h3>Method</h3>
-    <p>Each country’s distribution comes from its latest household survey (consumption or income per capita, 100 percentiles). It is projected with <em>balanced growth</em> (all percentiles grow at the same rate as GDP per capita): first with observed GDP per capita growth from the survey year up to 2025 (the last year with GDP data, or the survey year if later), then with the chosen scenario: a uniform rate (3%, 7% or custom), the country’s average growth over 2015–2025, or an autoregressive projection (quadratic model of 2015–25 growth on 1995–2015 growth, applied to 2005–25 growth). The horizon 2022 uses observed growth only. Countries without GDP data (South Sudan, Venezuela, Yemen) are not grown. The “national accounts” variant scales up survey means to household final consumption expenditure (HFCE) when the latter is higher, attributing the whole gap to the top percentile. World and group aggregates are population-weighted averages of country estimates.</p>
+    <p>Each country’s distribution comes from its latest household survey (consumption or income per capita, 100 percentiles). It is projected with <em>balanced growth</em> (all percentiles grow at the same rate as GDP per capita): first with observed GDP per capita growth from the survey year up to 2025 (the last year with GDP data, or the survey year if later), then with the chosen scenario: a uniform rate (3%, 7% or custom), the country’s average growth over 2015–2025, or an autoregressive projection (quadratic model of 2015–25 growth on 1995–2015 growth, applied to 2005–25 growth). Horizons from 2026 to 2100 can be chosen; the growth scenario applies from 2025 to the horizon year (projections to 2050 or 2100 are of course purely illustrative), and world aggregates use the population of the horizon year from the UN World Population Prospects 2022 projections (available for all countries and all horizon years). Countries without GDP data (South Sudan, Venezuela, Yemen) are not grown. The “national accounts” variant scales up survey means to household final consumption expenditure (HFCE) when the latter is higher, attributing the whole gap to the top percentile. World and group aggregates are population-weighted averages of country estimates.</p>
     <h3>Caveats</h3>
     <ul>
       <li>The policies considered are idealized: perfect targeting, no behavioral responses (e.g. on labor supply or tax evasion), no administrative costs, and no general equilibrium effects. The antipoverty cap and tax are therefore lower bounds on the actual effort, and the income floor an upper bound on what is feasible.</li>

@@ -10,7 +10,7 @@ const byCode = Object.fromEntries(data.countries.map(c => [c.code, c]));
 const scen = {
   average: [{ type: "rate", rate: 0.03 }, 2030], very_optimistic: [{ type: "rate", rate: 0.07 }, 2030],
   trend: [{ type: "trend" }, 2030], reg: [{ type: "reg" }, 2030], now: [{ type: "rate", rate: 0.03 }, 2022],
-  y_2025: [{ type: "rate", rate: 0 }, 2025], Y3_35: [{ type: "rate", rate: 0.03 }, 2035], Y7_35: [{ type: "rate", rate: 0.07 }, 2035],
+  y_2025: [{ type: "rate", rate: 0 }, 2025], Y3_35: [{ type: "rate", rate: 0.03 }, 2035], Y7_35: [{ type: "rate", rate: 0.07 }, 2035], Y3_50: [{ type: "rate", rate: 0.03 }, 2050], Y7_2100: [{ type: "rate", rate: 0.07 }, 2100],
 };
 const EQ_LINE = 2.46, EQ_THR = 6.85 * 2.46 / 2.15;
 let failures = 0;
@@ -59,6 +59,9 @@ const checks = {
   RatePovThreeEq: M.aggregate(rows("average", 0, { line: EQ_LINE })).rate,
   RatePovThreeTF: M.aggregate(rows("Y3_35", 0, { line: 3 })).rate,
   GapThreeTF: M.aggregate(rows("Y3_35", 0, { line: 3 })).gap,
+  RatePovThreeFifty: M.aggregate(rows("Y3_50", 0, { line: 3 })).rate,
+  GapThreeFifty: M.aggregate(rows("Y3_50", 0, { line: 3 })).gap,
+  RatePovSevenHundred: M.aggregate(rows("Y7_2100", 0, { line: 8.3 })).rate,
   NbCapEight: M.aggregate(rows("average", 0, { line: 3, thr: 8.3 })).nTax100,
   TaxEightSSA: M.aggregate(rows("average", 0, { line: 3, thr: 8.3 }).filter(r => ssa.includes(r.code))).tax,
   TaxEightLIC: M.aggregate(rows("average", 0, { line: 3, thr: 8.3 }).filter(r => lic.includes(r.code))).tax,

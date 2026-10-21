@@ -14,7 +14,7 @@ p <- p[!is.na(p$welfare_avg_1),]
 s <- s[match(p$country_code, s$country_code),]
 p$country_short <- p$country
 p$country_short[p$country == "Democratic Republic of the Congo"] <- "D.R. Congo"
-years <- 2022:2035
+years <- c(2022:2035, 2040, 2050, 2100) # population years exported (UN WPP 2022 projections); horizons offered: 2026, 2030, 2035, 2040, 2050, 2100
 sig <- 7 # significant digits kept for incomes (validated by website/test/validate.js)
 sig_g <- 10 # significant digits kept for growth factors (raised to powers)
 
@@ -67,9 +67,11 @@ for (d in c("p", "s")) {
   df <- get(d)
   df <- add_dist(df, "Y3_35", df$growth_to_start * 1.03^(2035 - df$growth_start))
   df <- add_dist(df, "Y7_35", df$growth_to_start * 1.07^(2035 - df$growth_start))
+  df <- add_dist(df, "Y3_50", df$growth_to_start * 1.03^(2050 - df$growth_start))
+  df <- add_dist(df, "Y7_2100", df$growth_to_start * 1.07^(2100 - df$growth_start))
   assign(d, df)
 }
-world_pop <- function(g, df = p) if (g == "now") df$pop_2022 else if (g == "y_2025") df$pop_2025 else if (grepl("_35$", g)) df$pop_2035 else df$pop_2030
+world_pop <- function(g, df = p) if (g == "now") df$pop_2022 else if (g == "y_2025") df$pop_2025 else if (grepl("_35$", g)) df$pop_2035 else if (grepl("_50$", g)) df$pop_2050 else if (grepl("_2100$", g)) df$pop_2100 else df$pop_2030
 world_rate <- function(L, g, df = p) { r <- compute_poverty_rate(df = df, threshold = L, growth = g); pop <- world_pop(g, df); 100 * sum(r * pop, na.rm = T) / sum(pop[!is.na(r)]) }
 world_gap <- function(L, g, df = p) {
   y <- name_var_growth(g)
@@ -90,6 +92,7 @@ tests <- list(
   list(src = "p", g = "very_optimistic", ind = "cap", line = 3), list(src = "p", g = "average", ind = "cap", line = 3), list(src = "p", g = "Y3_35", ind = "cap", line = 4.2),
   list(src = "p", g = "average", ind = "floor", thr = 8.3, rate = 10), list(src = "p", g = "very_optimistic", ind = "floor", thr = 8.3, rate = 10),
   list(src = "p", g = "Y3_35", ind = "floor", thr = 18.15, rate = 20),
+  list(src = "p", g = "Y3_50", ind = "tax", line = 3, thr = 8.3), list(src = "p", g = "Y7_2100", ind = "cap", line = 8.3), list(src = "p", g = "Y3_50", ind = "floor", thr = 8.3, rate = 10),
   list(src = "s", g = "average", ind = "rate", line = 3), list(src = "s", g = "average", ind = "tax", line = 3, thr = 8.3),
   list(src = "s", g = "very_optimistic", ind = "cap", line = 3), list(src = "s", g = "very_optimistic", ind = "floor", thr = 8.3, rate = 10))
 for (k in seq_along(tests)) {
@@ -108,7 +111,7 @@ tax_avg <- compute_antipoverty_tax(df = p, exemption_threshold = 8.3, poverty_th
 world <- list(RatePovNow = world_rate(3, "now"), RatePovTwentyFive = world_rate(3, "y_2025"), RatePovThree = world_rate(3, "average"),
               RatePovTrend = world_rate(3, "trend"), RatePovSeven = world_rate(3, "very_optimistic"), RatePovReg = world_rate(3, "reg"),
               GapNow = world_gap(3, "now"), GapThree = world_gap(3, "average"), RatePovThreeEq = world_rate(eq_line, "average"),
-              RatePovThreeTF = world_rate(3, "Y3_35"), GapThreeTF = world_gap(3, "Y3_35"),
+              RatePovThreeTF = world_rate(3, "Y3_35"), RatePovThreeFifty = world_rate(3, "Y3_50"), GapThreeFifty = world_gap(3, "Y3_50"), RatePovSevenHundred = world_rate(8.3, "Y7_2100"), GapThreeTF = world_gap(3, "Y3_35"),
               NbCapEight = sum(tax_avg > 100, na.rm = T),
               TaxEightSSA = wtd.mean(tax_avg[p$country_code %in% SSA], p$pop_2030[p$country_code %in% SSA]),
               TaxEightLIC = wtd.mean(tax_avg[p$country_code %in% LIC], p$pop_2030[p$country_code %in% LIC]),

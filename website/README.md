@@ -34,7 +34,8 @@ After running `code_poverty/update.R` (which saves `code_poverty/.RData_update`)
 
 ## Conventions
 
-- Distribution in year T = survey distribution x observed GDP per capita growth from the survey year to `growth_start` (2025 for most countries, or the survey year if later / no GDP data) x g^(T - growth_start), with g = 1.03, 1.07, custom, the country's 2015-2025 trend, or the autoregressive projection. Horizon 2022 uses observed growth to 2022 (the `now` scenario of the paper's code).
+- Distribution in year T = survey distribution x observed GDP per capita growth from the survey year to `growth_start` (2025 for most countries, or the survey year if later / no GDP data) x g^(T - growth_start), with g = 1.03, 1.07, custom, the country's 2015-2025 trend, or the autoregressive projection. Horizons: 2026, 2030, 2035, 2040, 2050, 2100 (population from UN WPP 2022 projections, exported for 2022-2035, 2040, 2050, 2100). The model also supports 2022 (observed growth only, the `now` scenario) and any year with exported population; these are used by the validation.
+- Map colours: discrete bins and RdBu colours of the paper's `plot_world_map` (a continuous scale is available as an option). Numbers always use "." as decimal separator.
 - As in the R code: with the trend scenario, countries without GDP data (SSD, VEN, YEM) keep their survey distribution; with the autoregressive scenario, countries without projection (DJI, SSD, VEN, XKX, YEM) are missing.
 - HFCE variant: the gap between household final consumption per capita and the survey mean (when positive) is added to the top percentile.
 - Aggregates (world, Sub-Saharan Africa, low-income countries) are population-weighted with the population of the horizon year; aggregate poverty gaps are in % of the group's total consumption.

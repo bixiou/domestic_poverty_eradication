@@ -1,7 +1,7 @@
 :root {
   color-scheme: light;
-  --surface-0: #f4f4f2;
-  --surface-1: #fcfcfb;
+  --surface-0: #f7f7f6;
+  --surface-1: #ffffff;
   --border: #dddcd7;
   --grid: #e8e7e3;
   --text-primary: #0b0b0b;
@@ -12,34 +12,14 @@
   --series-2: #eb6834;
   --highlight: #eb6834;
   --none: #b9b8b0;
-  --nodata: #f0efec;
+  --nodata: #b3b3b3;
+  --map-border: #9e9e9e;
   --seq-100: #cde2fb; --seq-200: #9ec5f4; --seq-300: #6da7ec; --seq-400: #3987e5;
   --seq-500: #256abf; --seq-600: #184f95; --seq-700: #0d366b;
   --radius: 6px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 16px;
   line-height: 1.5;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --surface-0: #121211;
-    --surface-1: #1a1a19;
-    --border: #3a3936;
-    --grid: #2c2b29;
-    --text-primary: #f0efec;
-    --text-secondary: #c3c2b7;
-    --text-muted: #9a998f;
-    --accent: #6da7ec;
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --highlight: #d95926;
-    --none: #6b6a64;
-    --nodata: #262624;
-    /* sequential ramp, dark end toward the surface reversed: light = high values */
-    --seq-100: #184f95; --seq-200: #1c5cab; --seq-300: #256abf; --seq-400: #2a78d6;
-    --seq-500: #5598e7; --seq-600: #86b6ef; --seq-700: #cde2fb;
-  }
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--surface-0); color: var(--text-primary); }
@@ -94,6 +74,12 @@ input:disabled { color: var(--text-muted); background: var(--surface-0); }
 .map { width: 100%; height: 520px; }
 .chart { width: 100%; height: 460px; }
 .cat-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .85rem; color: var(--text-secondary); margin-top: 4px; }
+.map-row { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 12px; align-items: center; }
+.cat-legend.vertical { flex-direction: column; flex-wrap: nowrap; gap: 3px; font-size: .85rem; }
+.legend-title { font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.legend-note { margin: 8px 0 0; color: var(--text-muted); font-size: .8rem; }
+.check { display: inline-flex; align-items: center; gap: 5px; font-weight: 500 !important; }
+.check input { width: auto; }
 .cat-legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--border); }
 
 .table-wrap { overflow: auto; max-height: 70vh; border: 1px solid var(--border); border-radius: var(--radius); }
@@ -134,6 +120,7 @@ table.compact th, table.compact td { padding: 3px 8px; }
 
 @media (max-width: 860px) {
   .country-grid { grid-template-columns: 1fr; }
+  .map-row { grid-template-columns: 1fr; }
   .map { height: 360px; }
   .chart { height: 380px; }
   .params { position: static; }
