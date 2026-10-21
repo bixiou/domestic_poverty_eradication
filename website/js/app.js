@@ -4,7 +4,7 @@
   const M = window.PovertyModel;
   const $ = (id) => document.getElementById(id);
   let DATA = null, BY_CODE = {}, ROWS = [], PARAMS = null;
-  const UI = { continuous: false, tab: "map", ind: "tax", country: "COD", log: true, sort: { key: "rate", dir: -1 }, filter: "", group: "all" };
+  const UI = { continuous: false, tab: "map", ind: "floor", country: "COD", log: true, sort: { key: "rate", dir: -1 }, filter: "", group: "all" };
   const STD_LINES = [2.46, 3, 4.2, 8.3, 18.15];
   const YEARS = [2026, 2030, 2035, 2040, 2050, 2100];
 
@@ -192,9 +192,10 @@
     const traces = groups.map((g, i) => ({ type: "choropleth", locationmode: "ISO-3", locations: g.map((r) => r.code), z: g.map(() => 1), text: g.map((r) => hover(r, i)), hoverinfo: "text",
       colorscale: solid(B.colors[i]), showscale: false, marker: { line: { color: css("--map-border"), width: 0.4 } } })).filter((t) => t.locations.length);
     Plotly.react("map", traces, mapLayout(), MAP_CONFIG);
-    const items = B.colors.map((c, i) => [c, `${labels[i]} (${groups[i].length})`]).reverse();
+    const items = B.colors.map((c, i) => [c, labels[i]]).reverse();
     items.push([css("--nodata"), "No data"]);
     const note = ind === "tax" ? `<p class="legend-note">Above 100%: even confiscating all income above $${fmtNum(p.threshold, 2)}/day cannot close the poverty gap.</p>`
+      : ind === "floor" ? `<p class="legend-note">Below $${fmtNum(p.line, 2)}/day: a ${+p.rate.toFixed(2)}% tax above $${fmtNum(p.threshold, 2)}/day cannot eradicate poverty at the selected line.</p>`
       : ind === "cap" ? `<p class="legend-note">Insufficient: even confiscating all income above the poverty line cannot close the gap (shown in the lowest bin).</p>` : "";
     $("map-legend").className = "cat-legend vertical";
     $("map-legend").innerHTML = `<div class="legend-title">${esc(info.title)}${B.suf ? " (%)" : " ($/day)"}</div>` + items.map(([c, t]) => `<div><span class="sw" style="background:${c}"></span>${esc(t)}</div>`).join("") + note;
@@ -444,7 +445,7 @@
     presetPair("line-preset", "line");
     presetPair("thr-preset", "thr");
     $("growth-preset").addEventListener("change", () => { syncGrowth(); if ($("growth-preset").value === "custom") $("growth").focus(); update(); });
-    $("growth").addEventListener("input", update);
+    $("growth").addEventListener("input", () => { const v = parseFloat($("growth").value), pre = { 3: "0.03", 7: "0.07" }[v]; $("growth-preset").value = pre || "custom"; update(); });
     ["rate", "year", "source"].forEach((id) => $(id).addEventListener(id === "rate" ? "input" : "change", () => { syncGrowth(); update(); }));
     $("map-ind").addEventListener("change", () => { UI.ind = $("map-ind").value; render(); });
     TABS.forEach((k, i) => {
@@ -476,7 +477,7 @@
   }
   function syncGrowth() {
     const gp = $("growth-preset").value, inp = $("growth");
-    inp.disabled = gp !== "custom";
+    inp.disabled = gp === "trend" || gp === "reg"; // the rate stays editable with 3% / 7% (typing switches the preset accordingly)
     if (gp !== "custom" && gp !== "trend" && gp !== "reg") inp.value = +(parseFloat(gp) * 100).toFixed(2);
   }
 
