@@ -12,3 +12,4 @@ paper/*.bbl
 paper/*.blg
 paper/*.log
 paper/*.out
+code_poverty/.RData_paper_update
