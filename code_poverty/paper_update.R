@@ -22,7 +22,8 @@ save_map <- function(name, ..., save = T, format = NULL, trim = T) { # Maps are 
   pdf(NULL, width = 13, height = 6.3)
   plot_world_map(name, ..., save = FALSE)
   dev.off()
-  for (f in c("pdf", "png")) ggsave(paste0(fig, name, ".", f), last_plot(), width = 13, height = 6.3, dpi = 100, bg = "white")
+  plot <- last_plot() + theme(legend.position = "left", legend.justification = c(0, 0.5), legend.margin = margin(0, 0, 0, 10), legend.title = element_text(size = 12), legend.text = element_text(size = 11)) # legend outside the map, so that it is never clipped
+  for (f in c("pdf", "png")) ggsave(paste0(fig, name, ".", f), plot, width = 13, height = 6.3, dpi = 100, bg = "white")
   magick::image_write(magick::image_trim(magick::image_read(paste0(fig, name, ".png"))), paste0(fig, name, ".png"))
 }
 growth_legend <- "in 2030, after observed\ngrowth to 2025, then 3%."
@@ -118,7 +119,7 @@ tax_map("antipoverty_3_tax_8_very_optimistic_2035", p, 3, 8.3, "Y7_35", "in 2035
 floor_breaks <- c(0, 2, 3, 4.2, 5.5, 8.3, 14, 25, 40, 100, Inf)
 floor_map <- function(name, df, growth, legend_growth, hfce = FALSE) {
   p[[name]] <<- compute_income_floor(df = df, thresholds = 8.3, marginal_rates = 10, growth = growth, scope_tax = p)
-  save_map(name, df = p, breaks = floor_breaks, end = "$", sep = "$ to ",
+  save_map(name, df = p, breaks = floor_breaks, begin = "$", sep = " to $", strict_ineq_lower = T,
            legend = paste0("Income floor\nthat can be funded\nwith a 10% tax\nabove $8.30/day\n(in 2021 PPP $/day)\n", legend_growth, if (hfce) "\nHFCE-rescaled data." else ""),
            save = T, rev_color = F, format = c('png', 'pdf'), legend_x = .055, trim = T)
 }

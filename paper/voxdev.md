@@ -16,15 +16,21 @@ I project each country's consumption distribution using the growth actually obse
 
 ## Even radical redistribution falls short in the poorest countries
 
-To gauge the domestic capacity to end poverty, I run idealized thought experiments. Suppose a government taxes consumption above a threshold and transfers all the revenue to the extreme poor, abstracting from any administrative cost, targeting error, or behavioral response. What tax rate would be needed to lift everyone above the poverty line? Taking the threshold at $8.30 a day, the World Bank's poverty line for upper-middle-income countries, the required tax rate averages 101% in Sub-Saharan Africa. In eleven countries, mostly in Sub-Saharan Africa, it would exceed 100% (Figure 1): even confiscating every dollar consumed above $8.30 a day would not suffice to lift the poor above $3.00 a day. In the D.R. Congo, Malawi, and Mozambique, average consumption would remain below $3.00 a day in 2030, so that not even a perfectly equal distribution of resources could end extreme poverty.
+To gauge the domestic capacity to end poverty, I run idealized thought experiments. Suppose a government taxes consumption above a threshold and transfers all the revenue to the poorest, abstracting from any administrative cost, targeting error, or behavioral response. Take the threshold at $8.30 a day, the World Bank's poverty line for upper-middle-income countries. A 10% tax on consumption above this threshold would fail to finance an income floor at $3.00 a day in 30 countries, including 18 of the 28 low-income countries (Figure 1). Even with 7% annual growth from 2025, this tax would fall short in 20 countries.
 
-A more realistic tax, at a 10% rate above $8.30 a day, would fail to finance an income floor at $3.00 a day in 30 countries, including 18 of the 28 low-income countries. Even with 7% annual growth from 2025, this tax would fall short in 20 countries.
+What tax rate would then be needed to lift everyone above the poverty line? The required rate averages 101% in Sub-Saharan Africa. In eleven countries, mostly in Sub-Saharan Africa, it would exceed 100% (Figure 2): even confiscating every dollar consumed above $8.30 a day would not suffice to lift the poor above $3.00 a day. In the D.R. Congo, Malawi, and Mozambique, average consumption would remain below $3.00 a day in 2030, so that not even a perfectly equal distribution of resources could end extreme poverty.
 
-**Figure 1.** Linear tax rate on consumption above $8.30 a day needed to lift everyone above $3.00 a day in 2030, assuming observed growth to 2025 and 3% annual growth thereafter
+**Figure 1.** Income floor that a 10% tax on consumption above $8.30 a day could finance in 2030 (in 2021 PPP $ a day), assuming observed growth to 2025 and 3% annual growth thereafter
 
-![Figure 1](../figures/update/antipoverty_3_tax_8_average.png)
+![Figure 1](../figures/update/floor_8__10.png)
 
-*Note: A rate above 100% means that even capping consumption at $8.30 a day would not raise enough revenue. Grey: no data. Source: Fabre (2025), updated with World Bank PIP data (September 2026, 2021 PPP). Interactive maps and country data: [website link].*
+*Note: Where the floor is below $3.00 a day (two darkest shades), the tax cannot eradicate extreme poverty. Grey: no data. Source: Fabre (2025), updated with World Bank PIP data (September 2026, 2021 PPP). Interactive maps and country data: [website link].*
+
+**Figure 2.** Linear tax rate on consumption above $8.30 a day needed to lift everyone above $3.00 a day in 2030, assuming observed growth to 2025 and 3% annual growth thereafter
+
+![Figure 2](../figures/update/antipoverty_3_tax_8_average.png)
+
+*Note: A rate above 100% means that even capping consumption at $8.30 a day would not raise enough revenue. Grey: no data. Source: Fabre (2025), updated with World Bank PIP data (September 2026, 2021 PPP).*
 
 ## What the new data change, and what they don't
 
