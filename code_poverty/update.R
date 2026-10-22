@@ -185,6 +185,7 @@ numbers$RateHundredTF <- world_gap(3, "Y3_35") / 100 / tax_revenues(df = w35, th
 
 ##### Poverty gap in market dollars, compared to foreign aid #####
 # PPP $ are converted to market (2021) US$ with each country's price level of private consumption in 2021 (WDI PA.NUS.PRVT.PP / PA.NUS.FCRF),
+# (WDI series in mismatched units are made consistent in the csv: exchange rates of BGR and HRV converted to euros, of ZWE to ZiG at 2498.7242 ZWL/ZiG; LBR's PPP factor is in US$, so its exchange rate is set to 1),
 # then to 2025 US$ with the US CPI-U (321.943/270.970, BLS). Countries without price data are imputed the median price level of countries with an extreme poverty gap.
 # ODA 2025 (OECD preliminary data, April 2026): USD 174.3bn in total (DAC members), of which USD 29.2bn of bilateral ODA to Sub-Saharan Africa.
 price <- read.csv("../data/price_level_2021.csv")

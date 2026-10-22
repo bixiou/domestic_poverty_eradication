@@ -323,15 +323,15 @@
     return Array.from(ys).filter((y) => y > c.year).sort((a, b) => a - b);
   }
   /* Display units of the country view (conversion at display time only; all computations are in PPP $/day).
-   * LCU = PPP $ x ppp_lcu (WDI PA.NUS.PRVT.PP, 2021); market US$ = PPP $ x ppp_lcu / exchange_rate (WDI PA.NUS.FCRF, 2021). */
+   * LCU at 2026 prices = PPP $ x ppp_lcu (WDI PA.NUS.PRVT.PP, 2021) x cpi (local CPI 2026/2021, WDI + IMF WEO); market US$ = PPP $ x ppp_lcu / exchange_rate (WDI PA.NUS.FCRF, 2021). */
   const PER = { day: 1, month: 365 / 12, year: 365 };
   function displayUnit(c) {
     let cur = UI.currency, note = "";
-    if (cur === "lcu" && c.ppp_lcu == null) { cur = "ppp"; note = `Local currency not available for ${c.name} (no 2021 PPP conversion factor in WDI): values shown in PPP $.`; }
+    if (cur === "lcu" && (c.ppp_lcu == null || c.cpi == null)) { cur = "ppp"; note = `Local currency not available for ${c.name} (${c.ppp_lcu == null ? "no 2021 PPP conversion factor in WDI" : "no consistent inflation series since 2021"}): values shown in PPP $.`; }
     if (cur === "usd" && (c.ppp_lcu == null || c.exchange_rate == null)) { cur = "ppp"; note = `Market exchange rate conversion not available for ${c.name} (missing ${c.ppp_lcu == null ? "PPP conversion factor" : "2021 exchange rate"} in WDI): values shown in PPP $.`; }
-    const f = PER[UI.unit] * (cur === "lcu" ? c.ppp_lcu : cur === "usd" ? c.ppp_lcu / c.exchange_rate : 1);
+    const f = PER[UI.unit] * (cur === "lcu" ? c.ppp_lcu * c.cpi : cur === "usd" ? c.ppp_lcu / c.exchange_rate : 1);
     const pre = cur === "ppp" ? "$" : cur === "usd" ? "US$" : "", suf = cur === "lcu" ? " LCU" : "";
-    const curName = cur === "ppp" ? "PPP $ (2021)" : cur === "usd" ? "US$ at 2021 market exchange rate" : `${c.currency || "local currency"} (LCU, 2021 prices)`;
+    const curName = cur === "ppp" ? "PPP $ (2021)" : cur === "usd" ? "US$ at 2021 market exchange rate" : `${c.currency || "local currency"} (LCU, 2026 prices)`;
     const num = (x) => { const v = x * f; return fmtNum(v, Math.abs(v) < 100 ? 2 : Math.abs(v) < 1000 ? 1 : 0); };
     return {
       f, cur, note, pre, suf, per: UI.unit, curName,
@@ -342,9 +342,10 @@
   }
   function syncCurrencyOptions(c) {
     const sel = $("currency");
-    sel.querySelector('option[value="lcu"]').disabled = c.ppp_lcu == null;
+    const noLcu = c.ppp_lcu == null || c.cpi == null;
+    sel.querySelector('option[value="lcu"]').disabled = noLcu;
     sel.querySelector('option[value="usd"]').disabled = c.ppp_lcu == null || c.exchange_rate == null;
-    sel.querySelector('option[value="lcu"]').textContent = "Local currency" + (c.currency ? ` (${c.currency})` : "") + ", 2021 prices" + (c.ppp_lcu == null ? " — not available" : "");
+    sel.querySelector('option[value="lcu"]').textContent = "Local currency" + (c.currency ? ` (${c.currency})` : "") + ", 2026 prices" + (noLcu ? " — not available" : "");
     sel.querySelector('option[value="usd"]').textContent = "US$ at market exchange rates (2021)" + (c.ppp_lcu == null || c.exchange_rate == null ? " — not available" : "");
   }
   function niceTicks(lo, hi) { // 1-2-5 ticks in [lo, hi]
@@ -416,7 +417,7 @@
       font: { family: getComputedStyle(document.body).fontFamily, color: textColor },
       hoverlabel: { bgcolor: surface, bordercolor: css("--border"), font: { color: css("--text-primary") } },
     };
-    $("dist-sub").textContent = (U.note ? U.note + " " : "") + `Observed growth to ${c.growth_start}, then ${projLabel(p)}${p.hfce ? ", survey rescaled to HFCE" : ""}.` + (U.cur !== "ppp" ? " 2021 price levels (no inflation after 2021)." : "") + (UI.log ? "" : " Linear scale: the top percentile may be off the chart (zoom out to see it).");
+    $("dist-sub").textContent = (U.note ? U.note + " " : "") + `Observed growth to ${c.growth_start}, then ${projLabel(p)}${p.hfce ? ", survey rescaled to HFCE" : ""}.` + (U.cur === "lcu" ? ` Local prices of 2026 (inflation since 2021: ×${fmtNum(c.cpi, 2)}).` : U.cur === "usd" ? " 2021 price levels (no inflation after 2021)." : "") + (UI.log ? "" : " Linear scale: the top percentile may be off the chart (zoom out to see it).");
     Plotly.react("dist", traces, layout, { responsive: true, displaylogo: false });
 
     const ind = [
@@ -442,6 +443,7 @@
       ["HFCE / survey mean", fmtNum(c.scaling_factor, 2)],
       ["Currency", c.currency || "n/a"],
       ["LCU per PPP $ (2021)", c.ppp_lcu == null ? "n/a" : fmtNum(c.ppp_lcu, c.ppp_lcu < 10 ? 3 : 1)],
+      ["Inflation 2021–2026 (local CPI)", c.cpi == null ? "n/a" : "×" + fmtNum(c.cpi, c.cpi < 10 ? 3 : 1)],
       ["LCU per US$ (2021)", c.exchange_rate == null ? "n/a" : fmtNum(c.exchange_rate, c.exchange_rate < 10 ? 3 : 1)],
       ["Groups", [c.ssa ? "Sub-Saharan Africa" : "", c.lic ? "Low-income" : ""].filter(Boolean).join(", ") || "–"],
     ];
@@ -454,7 +456,7 @@
     const s = M.distribution(c, p.scenario, "survey", p.hfce);
     const ds = years.map((y) => M.distribution(c, p.scenario, y, p.hfce));
     const U = displayUnit(c), f = U.f;
-    const lines = [`# ${c.name} (${c.code}), ${c.welfare} per capita in ${U.curName} per ${U.per}, survey year ${c.year}` + (U.cur !== "ppp" ? `; conversion from PPP $/day: x ${+f.toPrecision(8)} (2021 price levels, no inflation after 2021)` : "") + (U.note ? `. ${U.note}` : ""),
+    const lines = [`# ${c.name} (${c.code}), ${c.welfare} per capita in ${U.curName} per ${U.per}, survey year ${c.year}` + (U.cur !== "ppp" ? `; conversion from PPP $/day: x ${+f.toPrecision(8)} (${U.cur === "lcu" ? "local prices of 2026, i.e. 2021 PPP factor x local CPI 2026/2021" : "2021 price levels, no inflation after 2021"})` : "") + (U.note ? `. ${U.note}` : ""),
       `# Projection: observed growth from the survey year to ${c.growth_start} then ${projLabel(p)}${p.hfce ? "; survey rescaled to HFCE" : ""}. Parameters: ${paramsText(p)}`, citation,
       ["percentile", "pop_share", `upper_bound_${c.year}`, `avg_${c.year}`].concat(years.map((y) => `avg_${y}`)).join(",")];
     for (let i = 0; i < 100; i++) lines.push([i + 1, s.ps[i], i < 99 ? c.q[i] * f : "", s.avg[i] * f].concat(ds.map((d) => d.avg[i] * f)).map(csvCell).join(","));
