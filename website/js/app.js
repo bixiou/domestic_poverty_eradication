@@ -4,7 +4,7 @@
   const M = window.PovertyModel;
   const $ = (id) => document.getElementById(id);
   let DATA = null, BY_CODE = {}, ROWS = [], PARAMS = null;
-  const UI = { continuous: false, tab: "map", ind: "floor", country: "COD", log: true, sort: { key: "rate", dir: -1 }, filter: "", group: "all" };
+  const UI = { unit: "day", currency: "ppp", continuous: false, tab: "map", ind: "floor", country: "COD", log: false, sort: { key: "rate", dir: -1 }, filter: "", group: "all" };
   const STD_LINES = [2.46, 3, 4.2, 8.3, 18.15];
   const YEARS = [2026, 2030, 2035, 2040, 2050, 2100];
 
@@ -68,7 +68,7 @@
   /* ---------- URL state ---------- */
   function writeHash() {
     const p = PARAMS;
-    const h = new URLSearchParams({ line: p.line, thr: $("thr").value, rate: p.rate, g: p.growthPreset === "custom" ? $("growth").value : p.growthPreset, gc: p.growthPreset === "custom" ? 1 : 0, year: p.year, src: p.hfce ? "hfce" : "survey", tab: UI.tab, ind: UI.ind, c: UI.country });
+    const h = new URLSearchParams({ line: p.line, thr: $("thr").value, rate: p.rate, g: p.growthPreset === "custom" ? $("growth").value : p.growthPreset, gc: p.growthPreset === "custom" ? 1 : 0, year: p.year, src: p.hfce ? "hfce" : "survey", tab: UI.tab, ind: UI.ind, c: UI.country, unit: UI.unit, cur: UI.currency, log: UI.log ? 1 : 0, cont: UI.continuous ? 1 : 0 });
     history.replaceState(null, "", "#" + h.toString());
   }
   function readHash() {
@@ -86,6 +86,12 @@
     if (["map", "table", "country", "about"].includes(h.get("tab"))) UI.tab = h.get("tab");
     if (h.has("ind") && Array.from($("map-ind").options).some((o) => o.value === h.get("ind"))) { UI.ind = h.get("ind"); $("map-ind").value = UI.ind; }
     if (h.has("c") && BY_CODE[h.get("c")]) UI.country = h.get("c");
+    if (PER[h.get("unit")]) UI.unit = h.get("unit");
+    if (["ppp", "lcu", "usd"].includes(h.get("cur"))) UI.currency = h.get("cur");
+    if (h.has("log")) UI.log = h.get("log") === "1";
+    if (h.has("cont")) UI.continuous = h.get("cont") === "1";
+    $("unit").value = UI.unit; $("currency").value = UI.currency; $("map-continuous").checked = UI.continuous;
+    $("axis-log").setAttribute("aria-pressed", UI.log); $("axis-lin").setAttribute("aria-pressed", !UI.log);
   }
 
   /* ---------- computation ---------- */
@@ -316,45 +322,81 @@
     const ys = new Set([2025, 2030, 2035, PARAMS.year]);
     return Array.from(ys).filter((y) => y > c.year).sort((a, b) => a - b);
   }
+  /* Display units of the country view (conversion at display time only; all computations are in PPP $/day).
+   * LCU = PPP $ x ppp_lcu (WDI PA.NUS.PRVT.PP, 2021); market US$ = PPP $ x ppp_lcu / exchange_rate (WDI PA.NUS.FCRF, 2021). */
+  const PER = { day: 1, month: 365 / 12, year: 365 };
+  function displayUnit(c) {
+    let cur = UI.currency, note = "";
+    if (cur === "lcu" && c.ppp_lcu == null) { cur = "ppp"; note = `Local currency not available for ${c.name} (no 2021 PPP conversion factor in WDI): values shown in PPP $.`; }
+    if (cur === "usd" && (c.ppp_lcu == null || c.exchange_rate == null)) { cur = "ppp"; note = `Market exchange rate conversion not available for ${c.name} (missing ${c.ppp_lcu == null ? "PPP conversion factor" : "2021 exchange rate"} in WDI): values shown in PPP $.`; }
+    const f = PER[UI.unit] * (cur === "lcu" ? c.ppp_lcu : cur === "usd" ? c.ppp_lcu / c.exchange_rate : 1);
+    const pre = cur === "ppp" ? "$" : cur === "usd" ? "US$" : "", suf = cur === "lcu" ? " LCU" : "";
+    const curName = cur === "ppp" ? "PPP $ (2021)" : cur === "usd" ? "US$ at 2021 market exchange rate" : `${c.currency || "local currency"} (LCU, 2021 prices)`;
+    const num = (x) => { const v = x * f; return fmtNum(v, Math.abs(v) < 100 ? 2 : Math.abs(v) < 1000 ? 1 : 0); };
+    return {
+      f, cur, note, pre, suf, per: UI.unit, curName,
+      bare: (x) => isNum(x) ? pre + num(x) + suf : "–", // without the time unit
+      fmt: (x) => isNum(x) ? pre + num(x) + suf + "/" + UI.unit : "–",
+      axisTitle: `${curName} per person per ${UI.unit}`,
+    };
+  }
+  function syncCurrencyOptions(c) {
+    const sel = $("currency");
+    sel.querySelector('option[value="lcu"]').disabled = c.ppp_lcu == null;
+    sel.querySelector('option[value="usd"]').disabled = c.ppp_lcu == null || c.exchange_rate == null;
+    sel.querySelector('option[value="lcu"]').textContent = "Local currency" + (c.currency ? ` (${c.currency})` : "") + ", 2021 prices" + (c.ppp_lcu == null ? " — not available" : "");
+    sel.querySelector('option[value="usd"]').textContent = "US$ at market exchange rates (2021)" + (c.ppp_lcu == null || c.exchange_rate == null ? " — not available" : "");
+  }
+  function niceTicks(lo, hi) { // 1-2-5 ticks in [lo, hi]
+    const t = [];
+    for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++) [1, 2, 5].forEach((m) => { const v = m * Math.pow(10, e); if (v >= lo && v <= hi) t.push(v); });
+    return t;
+  }
+
   function renderCountry() {
     const c = BY_CODE[UI.country], p = PARAMS;
+    syncCurrencyOptions(c);
+    const U = displayUnit(c), f = U.f;
     const r = ROWS.find((x) => x.code === c.code);
-    $("dist-title").textContent = `${c.name}: daily ${c.welfare} per person by percentile`;
+    $("dist-title").textContent = `${c.name}: ${c.welfare} per person by percentile`;
     const years = distYears(c);
     const seq = ["--seq-300", "--seq-400", "--seq-500", "--seq-600", "--seq-700"].map(css);
     const textColor = css("--text-secondary"), grid = css("--grid"), surface = css("--surface-1");
     const x = Array.from({ length: 100 }, (_, i) => i + 1);
     const traces = [];
     const surveyD = M.distribution(c, p.scenario, "survey", p.hfce);
-    traces.push({ x, y: Array.from(surveyD.avg), name: `${c.year} (survey)`, mode: "lines", line: { color: css("--text-muted"), width: 1.5, dash: "dot" }, hovertemplate: `${c.year} survey: $%{y:.2f}<extra></extra>` });
+    const ht = (lab) => `${lab}: ${U.pre}%{y:,.2f}${U.suf}/${U.per}<extra></extra>`;
+    traces.push({ x, y: Array.from(surveyD.avg, (v) => v * f), name: `${c.year} (survey)`, mode: "lines", line: { color: css("--text-muted"), width: 1.5, dash: "dot" }, hovertemplate: ht(`${c.year} survey`) });
     const dists = {};
     years.forEach((y, i) => {
       const d = M.distribution(c, p.scenario, y, p.hfce);
       dists[y] = d;
       const col = seq[Math.min(seq.length - 1, Math.round(i * (seq.length - 1) / Math.max(1, years.length - 1)))];
       const label = y === 2025 ? "2025 (observed growth)" : `${y}`;
-      traces.push({ x, y: Array.from(d.avg), name: label + (y === p.year ? " — horizon" : ""), mode: "lines", line: { color: col, width: y === p.year ? 2.5 : 1.5 }, hovertemplate: `${y}: $%{y:.2f}<extra></extra>` });
+      traces.push({ x, y: Array.from(d.avg, (v) => v * f), name: label + (y === p.year ? " — horizon" : ""), mode: "lines", line: { color: col, width: y === p.year ? 2.5 : 1.5 }, hovertemplate: ht(String(y)) });
     });
     const hd = dists[p.year] || surveyD;
     // Horizontal lines: selected poverty line, taxation threshold, antipoverty cap, other standard lines (merged when equal)
-    const hl = [{ v: p.line, color: css("--highlight"), dash: "dash", width: 1.5, text: `poverty line $${fmtNum(p.line, 2)}` },
-      { v: p.threshold, color: textColor, dash: "dash", width: 1, text: `taxation threshold $${fmtNum(p.threshold, 2)}` }];
-    if (r.cap_status === "ok" && isNum(r.cap)) hl.push({ v: r.cap, color: css("--series-1"), dash: "dashdot", width: 1, text: `antipoverty cap ${fmtUsd(r.cap)}` });
-    STD_LINES.forEach((v) => { if (hl.every((h) => Math.abs(h.v - v) > 0.005)) hl.push({ v, color: css("--border"), dash: "dot", width: 1, text: `$${fmtNum(v, 2)}` }); });
+    // (values h.v in PPP $/day, converted below)
+    const hl = [{ v: p.line, color: css("--highlight"), dash: "dash", width: 1.5, text: `poverty line ${U.fmt(p.line)}` },
+      { v: p.threshold, color: textColor, dash: "dash", width: 1, text: `taxation threshold ${U.fmt(p.threshold)}` }];
+    if (r.cap_status === "ok" && isNum(r.cap)) hl.push({ v: r.cap, color: css("--series-1"), dash: "dashdot", width: 1, text: `antipoverty cap ${U.fmt(r.cap)}` });
+    STD_LINES.forEach((v) => { if (hl.every((h) => Math.abs(h.v - v) > 0.005)) hl.push({ v, color: css("--border"), dash: "dot", width: 1, text: U.fmt(v) }); });
+    hl.forEach((h) => { h.v *= f; });
     const all = [surveyD].concat(Object.values(dists));
-    let yaxis = { title: { text: "$/day per person (2021 PPP)", font: { size: 12 } }, gridcolor: grid, zeroline: false, tickfont: { size: 11 }, color: textColor, autorange: false };
+    let yaxis = { automargin: true, title: { text: U.axisTitle, font: { size: 12 }, standoff: 8 }, gridcolor: grid, zeroline: false, tickfont: { size: 11 }, color: textColor, autorange: false };
     let pos, minGap;
     if (UI.log) {
-      const vals = all.map((d) => d.avg[0]).concat(all.map((d) => d.avg[99]), hl.map((h) => h.v));
+      const vals = all.map((d) => d.avg[0] * f).concat(all.map((d) => d.avg[99] * f), hl.map((h) => h.v));
       const lo = Math.min(...vals) * 0.85, hi = Math.max(...vals) * 1.15;
-      const ticks = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 1e4, 2e4, 5e4, 1e5, 2e5, 5e5, 1e6].filter((t) => t >= lo && t <= hi);
+      const ticks = niceTicks(lo, hi);
       const step = ticks.length > 12 ? 3 : 1; // fewer ticks for very long horizons
       const tk = ticks.filter((t, i) => i % step === 0);
-      Object.assign(yaxis, { type: "log", range: [Math.log10(lo), Math.log10(hi)], tickvals: tk, ticktext: tk.map((t) => "$" + fmtNum(t, t < 1 ? 1 : 0)) });
+      Object.assign(yaxis, { type: "log", range: [Math.log10(lo), Math.log10(hi)], tickvals: tk, ticktext: tk.map((t) => U.pre + fmtNum(t, t < 1 ? (t < 0.1 ? 2 : 1) : 0)) }); // currency named in the axis title
       pos = (v) => Math.log10(v); minGap = 0.045 * (Math.log10(hi) - Math.log10(lo));
     } else {
-      const top = Math.max(hd.avg[98], p.threshold, p.line) * 1.15;
-      Object.assign(yaxis, { type: "linear", tickprefix: "$", range: [0, top] });
+      const top = Math.max(hd.avg[98], p.threshold, p.line) * f * 1.15;
+      Object.assign(yaxis, { type: "linear", tickprefix: U.pre, tickformat: ",~r", range: [0, top] });
       pos = (v) => v; minGap = 0.045 * top;
     }
     // one label per line, at the right end; skip a label too close to an already placed one (lines listed by priority)
@@ -362,35 +404,35 @@
     hl.forEach((h) => {
       shapes.push({ type: "line", xref: "paper", x0: 0, x1: 1, y0: h.v, y1: h.v, line: { color: h.color, width: h.width, dash: h.dash } });
       const y = pos(h.v);
-      if (y < yaxis.range[0] || y > yaxis.range[1] || placed.some((q) => Math.abs(q - y) < minGap)) return;
+      if (y < yaxis.range[0] || y > yaxis.range[1] - 1.5 * minGap || placed.some((q) => Math.abs(q - y) < minGap)) return;
       placed.push(y);
       ann.push({ xref: "paper", x: 0.86, y, yref: "y", text: h.text, showarrow: false, xanchor: "right", yanchor: "bottom", font: { size: 11, color: textColor }, bgcolor: surface, opacity: 0.9 });
     });
     const layout = {
-      margin: { l: 64, r: 16, t: 10, b: 46 }, paper_bgcolor: surface, plot_bgcolor: surface, separators: ".\u202f",
+      margin: { l: 60, r: 16, t: 10, b: 46 }, paper_bgcolor: surface, plot_bgcolor: surface, separators: ".\u202f",
       xaxis: { title: { text: "Percentile of the distribution", font: { size: 12 } }, range: [0.5, 100.5], gridcolor: grid, zeroline: false, tickfont: { size: 11 }, color: textColor, dtick: 10 },
       yaxis, shapes, annotations: ann, hovermode: "x unified",
       legend: { orientation: "h", y: -0.18, font: { size: 12, color: css("--text-primary") } },
       font: { family: getComputedStyle(document.body).fontFamily, color: textColor },
       hoverlabel: { bgcolor: surface, bordercolor: css("--border"), font: { color: css("--text-primary") } },
     };
-    $("dist-sub").textContent = `Observed growth to ${c.growth_start}, then ${projLabel(p)}${p.hfce ? ", survey rescaled to HFCE" : ""}.` + (UI.log ? "" : " Linear scale: the top percentile may be off the chart (zoom out to see it).");
+    $("dist-sub").textContent = (U.note ? U.note + " " : "") + `Observed growth to ${c.growth_start}, then ${projLabel(p)}${p.hfce ? ", survey rescaled to HFCE" : ""}.` + (U.cur !== "ppp" ? " 2021 price levels (no inflation after 2021)." : "") + (UI.log ? "" : " Linear scale: the top percentile may be off the chart (zoom out to see it).");
     Plotly.react("dist", traces, layout, { responsive: true, displaylogo: false });
 
     const ind = [
-      [`Poverty rate ($${fmtNum(p.line, 2)})`, fmtPct(r.rate)],
+      [`Poverty rate (line ${U.fmt(p.line)})`, fmtPct(r.rate)],
       ["People in poverty", fmtPop(r.poor)],
       ["Poverty gap", fmtGap(r.gap) + " of mean"],
-      ["Antipoverty cap", fmtCap(r)],
-      [`Antipoverty tax above $${fmtNum(p.threshold, 2)}`, fmtTax(r) + (r.tax > 100 ? ' <span class="flag">insufficient</span>' : "")],
-      [`Income floor (${fmtNum(p.rate, p.rate % 1 ? 1 : 0)}% tax)`, fmtUsd(r.floor) + (r.floor < p.line ? ' <span class="flag">below line</span>' : "")],
-      [`Mean ${c.welfare}`, fmtUsd(r.mean)],
+      ["Antipoverty cap", r.cap_status === "ok" ? U.fmt(r.cap) : fmtCap(r)],
+      [`Antipoverty tax above ${U.fmt(p.threshold)}`, fmtTax(r) + (r.tax > 100 ? ' <span class="flag">insufficient</span>' : "")],
+      [`Income floor (${fmtNum(p.rate, p.rate % 1 ? 1 : 0)}% tax)`, U.fmt(r.floor) + (r.floor < p.line ? ' <span class="flag">below line</span>' : "")],
+      [`Mean ${c.welfare}`, U.fmt(r.mean)],
       [`Population ${p.year}`, fmtPop(r.pop)],
     ];
     $("country-ind").innerHTML = ind.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("");
     const d = M.distribution(c, p.scenario, p.year, p.hfce);
-    $("country-lines").innerHTML = "<thead><tr><th scope='col'>Line ($/day)</th><th scope='col'>Rate</th><th scope='col'>Gap (% mean)</th></tr></thead><tbody>" +
-      Array.from(new Set(STD_LINES.concat([p.line]))).sort((a, b) => a - b).map((l) => `<tr><td>${fmtNum(l, 2)}</td><td>${fmtPct(100 * M.povertyRate(d, l))}</td><td>${fmtGap(100 * M.povertyGap(d, l) / d.mean)}</td></tr>`).join("") + "</tbody>";
+    $("country-lines").innerHTML = `<thead><tr><th scope='col'>Line (${esc(U.pre ? U.pre.trim() : "LCU")}/${U.per})</th>`+"<th scope='col'>Rate</th><th scope='col'>Gap (% mean)</th></tr></thead><tbody>" +
+      Array.from(new Set(STD_LINES.concat([p.line]))).sort((a, b) => a - b).map((l) => `<tr><td>${U.bare(l)}</td><td>${fmtPct(100 * M.povertyRate(d, l))}</td><td>${fmtGap(100 * M.povertyGap(d, l) / d.mean)}</td></tr>`).join("") + "</tbody>";
     const meta = [
       ["Survey year", c.year], ["Welfare measure", c.welfare], ["Coverage", c.level],
       ["Population at survey", fmtPop(c.pop_year)],
@@ -398,6 +440,9 @@
       ["Trend growth 2015–2025", c.trend == null ? "n/a" : fmtPct2(c.trend * 100) + "/yr"],
       ["Autoregressive growth", c.reg == null ? "n/a" : fmtPct2((c.reg - 1) * 100) + "/yr"],
       ["HFCE / survey mean", fmtNum(c.scaling_factor, 2)],
+      ["Currency", c.currency || "n/a"],
+      ["LCU per PPP $ (2021)", c.ppp_lcu == null ? "n/a" : fmtNum(c.ppp_lcu, c.ppp_lcu < 10 ? 3 : 1)],
+      ["LCU per US$ (2021)", c.exchange_rate == null ? "n/a" : fmtNum(c.exchange_rate, c.exchange_rate < 10 ? 3 : 1)],
       ["Groups", [c.ssa ? "Sub-Saharan Africa" : "", c.lic ? "Low-income" : ""].filter(Boolean).join(", ") || "–"],
     ];
     $("country-meta").innerHTML = meta.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
@@ -408,11 +453,12 @@
     const years = distYears(c);
     const s = M.distribution(c, p.scenario, "survey", p.hfce);
     const ds = years.map((y) => M.distribution(c, p.scenario, y, p.hfce));
-    const lines = [`# ${c.name} (${c.code}), ${c.welfare} per capita in $/day (2021 PPP), survey year ${c.year}`,
+    const U = displayUnit(c), f = U.f;
+    const lines = [`# ${c.name} (${c.code}), ${c.welfare} per capita in ${U.curName} per ${U.per}, survey year ${c.year}` + (U.cur !== "ppp" ? `; conversion from PPP $/day: x ${+f.toPrecision(8)} (2021 price levels, no inflation after 2021)` : "") + (U.note ? `. ${U.note}` : ""),
       `# Projection: observed growth from the survey year to ${c.growth_start} then ${projLabel(p)}${p.hfce ? "; survey rescaled to HFCE" : ""}. Parameters: ${paramsText(p)}`, citation,
       ["percentile", "pop_share", `upper_bound_${c.year}`, `avg_${c.year}`].concat(years.map((y) => `avg_${y}`)).join(",")];
-    for (let i = 0; i < 100; i++) lines.push([i + 1, s.ps[i], i < 99 ? c.q[i] : "", s.avg[i]].concat(ds.map((d) => d.avg[i])).map(csvCell).join(","));
-    download(`distribution_${c.code}_${paramsSlug(p)}.csv`, lines.join("\n") + "\n");
+    for (let i = 0; i < 100; i++) lines.push([i + 1, s.ps[i], i < 99 ? c.q[i] * f : "", s.avg[i] * f].concat(ds.map((d) => d.avg[i] * f)).map(csvCell).join(","));
+    download(`distribution_${c.code}_${paramsSlug(p)}_${U.cur}_per_${U.per}.csv`, lines.join("\n") + "\n");
   }
 
   /* ---------- tabs & events ---------- */
@@ -469,9 +515,11 @@
     $("dl-table").addEventListener("click", downloadTable);
     $("dl-country").addEventListener("click", downloadCountry);
     $("country").addEventListener("change", () => { UI.country = $("country").value; render(); });
-    const setAxis = (log) => { UI.log = log; $("axis-log").setAttribute("aria-pressed", log); $("axis-lin").setAttribute("aria-pressed", !log); renderCountry(); };
+    const setAxis = (log) => { UI.log = log; $("axis-log").setAttribute("aria-pressed", log); $("axis-lin").setAttribute("aria-pressed", !log); render(); };
     $("axis-log").addEventListener("click", () => setAxis(true));
     $("axis-lin").addEventListener("click", () => setAxis(false));
+    $("unit").addEventListener("change", () => { UI.unit = $("unit").value; render(); });
+    $("currency").addEventListener("change", () => { UI.currency = $("currency").value; render(); });
     window.addEventListener("hashchange", () => { readHash(); $("country").value = UI.country; syncGrowth(); compute(); selectTab(UI.tab); });
     $("map-continuous").addEventListener("change", () => { UI.continuous = $("map-continuous").checked; render(); });
   }

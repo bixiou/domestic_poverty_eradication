@@ -101,7 +101,7 @@ table.data tbody.rows tr:hover td { background: var(--surface-0); }
 table.compact th, table.compact td { padding: 3px 8px; }
 .note { color: var(--text-muted); font-size: .82rem; margin: 8px 0 0; }
 
-.country-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; }
+.country-grid { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 20px; }
 .country-info h3 { font-size: .9rem; margin: 16px 0 4px; color: var(--text-secondary); }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: .9rem; }
 .kv dt { color: var(--text-secondary); }

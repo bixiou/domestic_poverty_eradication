@@ -19,6 +19,21 @@ sig <- 7 # significant digits kept for incomes (validated by website/test/valida
 sig_g <- 10 # significant digits kept for growth factors (raised to powers)
 
 ##### Compact JSON for the website #####
+# Price levels for the display in local currency or market US$ (country view only; computations stay in PPP $):
+# ../data/price_level_2021.csv: WDI PA.NUS.PRVT.PP (LCU per international $, private consumption) and PA.NUS.FCRF (official exchange rate, LCU per US$), 2021
+price <- read.csv("../data/price_level_2021.csv")
+p$ppp_lcu_2021 <- price$ppp_private_consumption_2021[match(p$country_code, price$country_code)]
+p$exchange_rate_2021 <- price$exchange_rate_2021[match(p$country_code, price$country_code)]
+# Currency names (WDI country metadata "CurrencyUnit"), cached in ../website/data/currency_units.csv (fetched from the World Bank API if absent)
+currency_file <- paste0(out, "currency_units.csv")
+if (!file.exists(currency_file)) try({
+  cu <- fromJSON(paste0("https://api.worldbank.org/v2/sources/2/country/", paste(p$country_code, collapse = ";"), "/metatypes/CurrencyUnit?format=json&per_page=1000"), simplifyVector = FALSE)
+  vars <- cu$source[[1]]$concept[[1]]$variable
+  write.csv(data.frame(country_code = sapply(vars, function(v) v$id), currency = sapply(vars, function(v) v$metatype[[1]]$value)), currency_file, row.names = FALSE)
+})
+currency <- if (file.exists(currency_file)) read.csv(currency_file) else data.frame(country_code = character(), currency = character())
+p$currency <- currency$currency[match(p$country_code, currency$country_code)]
+
 uniform_ps <- all(abs(as.matrix(p[, paste0("pop_share_", 1:100)]) - 0.01) < 1e-12)
 countries <- lapply(1:nrow(p), function(c) {
   r <- p[c,]
@@ -29,6 +44,9 @@ countries <- lapply(1:nrow(p), function(c) {
        trend = if (is.na(r$mean_growth_gdp_pc_15_25)) NULL else signif(r$mean_growth_gdp_pc_15_25, sig_g),
        reg = if (is.na(r$growth_reg_annual)) NULL else signif(r$growth_reg_annual, sig_g),
        scaling_factor = signif(r$scaling_factor, sig_g),
+       ppp_lcu = if (is.na(r$ppp_lcu_2021)) NULL else signif(r$ppp_lcu_2021, sig_g), # LCU per PPP $ (private consumption, 2021)
+       exchange_rate = if (is.na(r$exchange_rate_2021)) NULL else signif(r$exchange_rate_2021, sig_g), # LCU per US$ (2021)
+       currency = if (is.na(r$currency) || r$currency == "") NULL else r$currency,
        pop_year = round(r$pop_year), pop = sapply(years, function(y) round(r[[paste0("pop_", y)]])),
        avg = signif(unlist(r[paste0("welfare_avg_", 1:100)]), sig),
        q = signif(unlist(r[paste0("quantile_", 1:99)]), sig)) # quantile_100 is missing in PIP: the max of the top percentile is its average (cf. compute_distribution_2030)
@@ -44,7 +62,8 @@ write(toJSON(list(meta = meta, countries = countries), auto_unbox = TRUE, digits
 meta_df <- data.frame(country_code = p$country_code, country = p$country_short, ssa = p$country_code %in% SSA, lic = p$country_code %in% LIC,
                       survey_year = p$year, reporting_level = p$reporting_level, welfare_type = p$welfare_type, growth_start = p$growth_start,
                       growth_to_start = p$growth_to_start, growth_survey_to_2022 = p$mean_y_2022 / p$mean_welfare, trend_growth_2015_2025 = p$mean_growth_gdp_pc_15_25,
-                      autoregressive_annual_factor = p$growth_reg_annual, hfce_scaling_factor = p$scaling_factor, mean_welfare_survey = p$mean_welfare,
+                      autoregressive_annual_factor = p$growth_reg_annual, hfce_scaling_factor = p$scaling_factor,
+                      lcu_per_ppp_dollar_2021 = p$ppp_lcu_2021, lcu_per_usd_2021 = p$exchange_rate_2021, currency = p$currency, mean_welfare_survey = p$mean_welfare,
                       pop_survey_year = p$pop_year, setNames(p[, paste0("pop_", years)], paste0("pop_", years)))
 write.csv(meta_df, paste0(out, "countries.csv"), row.names = FALSE)
 long <- do.call(rbind, lapply(1:nrow(p), function(c) data.frame(country_code = p$country_code[c], survey_year = p$year[c], welfare_type = p$welfare_type[c], percentile = 1:100,
