@@ -20,7 +20,7 @@ To gauge the domestic capacity to end poverty, I run idealized thought experimen
 
 What tax rate would then be needed to lift everyone above the poverty line? The required rate averages 101% in Sub-Saharan Africa. In eleven countries, mostly in Sub-Saharan Africa, it would exceed 100% (Figure 2): even confiscating every dollar consumed above $8.30 a day would not suffice to lift the poor above $3.00 a day. In the D.R. Congo, Malawi, and Mozambique, average consumption would remain below $3.00 a day in 2030, so that not even a perfectly equal distribution of resources could end extreme poverty.
 
-**Figure 1.** Income floor that a 10% tax on consumption above $8.30 a day could finance in 2030 (in 2021 PPP $ a day), assuming observed growth to 2025 and 3% annual growth thereafter
+**Figure 1.** Income floor that a 10% tax on consumption above $8.30 a day could finance in 2030 (in 2021 PPP$ a day), assuming observed growth to 2025 and 3% annual growth thereafter
 
 ![Figure 1](../figures/update/floor_8__10.png)
 
